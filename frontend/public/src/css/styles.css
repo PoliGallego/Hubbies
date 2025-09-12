@@ -35,31 +35,31 @@ body {
   padding: 20px 0;
 }
 
-.Header-logo {
+.HeaderLogo {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.Logo-circle {
+.LogoCircle {
   width: 25px;
   height: 25px;
   background-color: var(--ColorDustyRose);
   border-radius: 50%;
 }
 
-.Header-nav {
+.HeaderNav {
   display: flex;
   gap: 10px;
 }
 
-.Header-title {
+.HeaderTitle {
   font-size: 1.5em;
   font-weight: 700;
   margin-right: 20px;
 }
 
-.Header-button-1 {
+.HeaderButton1 {
   background-color: #ffffff;
   color: #8b5a3c;
   border: 1px solid #e2d1d1;
@@ -72,13 +72,13 @@ body {
   transition: all 0.3s ease;
 }
 
-.Header-button-1:hover {
+.HeaderButton1:hover {
   background-color: #f9f6f6;
   border-color: #8b5a3c;
   transform: translateY(-1px);
 }
 
-.Header-button-2 {
+.HeaderButton2 {
   background-color: #8b5a3c;
   color: #ffffff;
   border: none;
@@ -91,12 +91,12 @@ body {
   transition: all 0.3s ease;
 }
 
-.Header-button-2:hover {
+.HeaderButton2:hover {
   background-color: #754832;
   transform: translateY(-1px);
 }
 
-.Main-content {
+.MainContent {
   width: 90%;
   max-width: 1200px;
   display: flex;
@@ -106,7 +106,7 @@ body {
   padding-bottom: 50px;
 }
 
-.Hero-section {
+.HeroSection {
   background-color: var(--ColorLightCoral);
   border-radius: 20px;
   padding: 50px;
@@ -116,22 +116,22 @@ body {
   overflow: hidden;
 }
 
-.Hero-container {
+.HeroContainer {
   padding-bottom: 20px;
 }
 
-.Hero-title {
+.HeroTitle {
   font-size: 3em;
 }
 
-.Hero-subtitle {
+.HeroSubtitle {
   font-size: 1.2em;
   color: #555;
   max-width: 600px;
   margin: 0 auto;
 }
 
-.Features-box-container {
+.FeaturesBoxContainer {
   display: flex;
   gap: 20px;
   justify-content: center;
@@ -143,7 +143,7 @@ body {
   padding: 0 20px;
 }
 
-.Feature-box {
+.FeatureBox {
   background-color: var(--ColorWhite);
   border: 1px solid #ddd;
   border-radius: 15px;
@@ -156,12 +156,12 @@ body {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.Feature-box:hover {
+.FeatureBox:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
 }
 
-.Feature-icon {
+.FeatureIcon {
   width: 64px;
   height: 64px;
   border-radius: 16px;
@@ -172,12 +172,12 @@ body {
   transition: transform 0.3s ease;
 }
 
-.Feature-icon img {
+.FeatureIcon img {
   width: 70%;
   height: auto;
 }
 
-.Feature-text {
+.FeatureText {
   font-size: 14px;
   font-weight: 500;
   color: #333;
@@ -185,7 +185,7 @@ body {
   line-height: 1.4;
 }
 
-.Sections-highlight-container {
+.SectionsHighlightContainer {
   margin-top: 40px;
   display: flex;
   justify-content: center;
@@ -193,7 +193,7 @@ body {
   flex-wrap: wrap;
 }
 
-.Highlight-card {
+.HighlightCard {
   background-color: var(--ColorLightCoral);
   border-radius: 20px;
   padding: 30px;
@@ -206,17 +206,17 @@ body {
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-.Highlight-card:hover {
+.HighlightCard:hover {
   transform: translateY(-8px);
   box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
 }
 
-.Highlight-card p {
+.HighlightCard p {
   font-size: 1.1em;
   margin-bottom: 20px;
 }
 
-.Highlight-image-container {
+.HighlightImageContainer {
   width: 100%;
   height: 150px;
   background-color: var(--ColorDustyRose);
@@ -226,19 +226,19 @@ body {
   align-items: center;
 }
 
-.Highlight-image {
+.HighlightImage {
   width: 100px;
   height: auto;
 }
 
-.Cards-container {
+.CardsContainer {
   display: flex;
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
 }
 
-.Hobby-card {
+.HobbyCard {
   background-color: var(--ColorWhite);
   border: 1px solid #ddd;
   border-radius: 15px;
@@ -253,23 +253,23 @@ body {
   transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
-.Hobby-card:hover {
+.HobbyCard:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
 }
 
-.Hobby-icon {
+.HobbyIcon {
   font-size: 2em;
   background-color: var(--ColorLightCoral);
   border-radius: 50%;
   padding: 15px;
 }
 
-.Hobby-card p {
+.HobbyCard p {
   font-weight: 500;
 }
 
-.CTA-section {
+.CTASection {
   background: linear-gradient(
     135deg,
     var(--ColorBrown) 0%,
@@ -285,7 +285,7 @@ body {
   overflow: hidden;
 }
 
-.CTA-section::before {
+.CTASection::before {
   content: "";
   position: absolute;
   top: -50%;
@@ -310,19 +310,19 @@ body {
   }
 }
 
-.CTA-content {
+.CTAContent {
   position: relative;
   z-index: 2;
 }
 
-.CTA-title {
+.CTATitle {
   font-size: 2.5em;
   font-weight: 700;
   margin-bottom: 15px;
   line-height: 1.2;
 }
 
-.CTA-subtitle {
+.CTASubtitle {
   font-size: 1.2em;
   margin-bottom: 30px;
   opacity: 0.9;
@@ -331,7 +331,7 @@ body {
   margin-right: auto;
 }
 
-.CTA-button {
+.CTAButton {
   background-color: white;
   color: var(--ColorBrown);
   border: none;
@@ -347,25 +347,27 @@ body {
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-.CTA-button:hover {
+.CTAButton:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.3);
   background-color: var(--ColorSoftPink);
 }
 
-.Social-section {
+
+
+.SocialSection {
   width: 100%;
   text-align: center;
 }
 
-.Social-title {
+.SocialTitle {
   font-size: 2.2em;
   font-weight: 700;
   margin-bottom: 15px;
   color: var(--ColorBrown);
 }
 
-.Social-subtitle {
+.SocialSubtitle {
   font-size: 1.1em;
   color: #666;
   margin-bottom: 40px;
@@ -374,14 +376,14 @@ body {
   margin-right: auto;
 }
 
-.Social-benefits {
+.SocialBenefits {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
   margin-top: 40px;
 }
 
-.Social-benefit {
+.SocialBenefit {
   background-color: white;
   border-radius: 20px;
   padding: 35px 25px;
@@ -391,7 +393,7 @@ body {
   overflow: hidden;
 }
 
-.Social-benefit::before {
+.SocialBenefit::before {
   content: "";
   position: absolute;
   top: 0;
@@ -401,12 +403,12 @@ body {
   background: linear-gradient(90deg, var(--ColorBrown), var(--ColorDustyRose));
 }
 
-.Social-benefit:hover {
+.SocialBenefit:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 }
 
-.Social-icon {
+.SocialIcon {
   width: 80px;
   height: 80px;
   background: linear-gradient(
@@ -422,20 +424,20 @@ body {
   font-size: 2em;
 }
 
-.Social-benefit h3 {
+.SocialBenefit h3 {
   font-size: 1.3em;
   font-weight: 600;
   margin-bottom: 15px;
   color: var(--ColorBrown);
 }
 
-.Social-benefit p {
+.SocialBenefit p {
   font-size: 1em;
   line-height: 1.6;
   color: #555;
 }
 
-.Contact-section {
+.ContactSection {
   background-color: white;
   border-radius: 25px;
   padding: 50px 40px;
@@ -443,7 +445,7 @@ body {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
-.Contact-title {
+.ContactTitle {
   font-size: 2.2em;
   font-weight: 700;
   text-align: center;
@@ -451,25 +453,25 @@ body {
   color: var(--ColorBrown);
 }
 
-.Contact-subtitle {
+.ContactSubtitle {
   font-size: 1.1em;
   text-align: center;
   color: #666;
   margin-bottom: 40px;
 }
 
-.Contact-content {
+.ContactContent {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 40px;
   align-items: start;
 }
 
-.Contact-info {
+.ContactInfo {
   text-align: center;
 }
 
-.Contact-item {
+.ContactItem {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -479,7 +481,7 @@ body {
   color: #555;
 }
 
-.Contact-icon {
+.ContactIcon {
   width: 45px;
   height: 45px;
   background-color: var(--ColorLightCoral);
@@ -491,25 +493,25 @@ body {
   color: var(--ColorBrown);
 }
 
-.Social-links {
+.SocialLinks {
   text-align: center;
 }
 
-.Social-links h3 {
+.SocialLinks h3 {
   font-size: 1.3em;
   font-weight: 600;
   margin-bottom: 20px;
   color: var(--ColorBrown);
 }
 
-.Social-icons {
+.SocialIcons {
   display: flex;
   justify-content: center;
   gap: 20px;
   flex-wrap: wrap;
 }
 
-.Social-link {
+.SocialLink {
   width: 50px;
   height: 50px;
   background: linear-gradient(135deg, var(--ColorBrown), var(--ColorDarkBrown));
@@ -523,17 +525,17 @@ body {
   transition: all 0.3s ease;
 }
 
-.Social-link:hover {
+.SocialLink:hover {
   transform: translateY(-3px) scale(1.1);
   box-shadow: 0 8px 20px rgba(139, 90, 60, 0.4);
 }
 
-.hidden {
+.Hidden {
   opacity: 0;
   transform: translateY(20px);
 }
 
-.show {
+.Show {
   opacity: 1;
   transform: translateY(0);
   transition: opacity 0.6s ease-out, transform 0.6s ease-out;
@@ -548,6 +550,161 @@ body {
   margin-top: 40px;
 }
 
+.ModalOverlay {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.ModalContent {
+  background-color: var(--ColorSoftPink);
+  padding: 30px;
+  border-radius: 15px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  text-align: center;
+}
+
+.CloseButton {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 28px;
+  font-weight: bold;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.ModalHeader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.LogoCircleModal {
+  width: 25px;
+  height: 25px;
+  background-color: var(--ColorDustyRose);
+  border-radius: 50%;
+}
+
+.ModalTitle {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: #333;
+}
+
+.FormGroup {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.FormGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.FormGroup input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.FormRow {
+  display: flex;
+  gap: 15px;
+}
+
+.FormRow .FormGroup {
+  flex: 1; 
+}
+
+.SubmitButton {
+  background-color: #8b5a3c;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.SubmitButton:hover {
+  background-color: #754832;
+}
+
+.AvatarUpload {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.AvatarLabel {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+}
+
+.AvatarLabel img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ddd;
+  background-color: #f9f9f9;
+  transition: opacity 0.3s ease;
+}
+
+.AvatarLabel::after {
+  content: "+";
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--ColorDustyRose);
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 2px solid #fff;
+}
+
+.ForgotPassword {
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.ForgotPassword a {
+  color: #333;
+  text-decoration: none;
+}
+
+.ForgotPassword a:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .Header {
     flex-direction: column;
@@ -555,50 +712,50 @@ body {
     text-align: center;
   }
 
-  .Header-nav {
+  .HeaderNav {
     width: 100%;
     justify-content: center;
   }
 
-  .Features-box-container {
+  .FeaturesBoxContainer {
     flex-direction: column;
     align-items: center;
   }
 
-  .Feature-box {
+  .FeatureBox {
     max-width: 300px;
     width: 100%;
   }
 
-  .CTA-title {
+  .CTATitle {
     font-size: 2em;
   }
 
-  .Social-title,
-  .Contact-title {
+  .SocialTitle,
+  .ContactTitle {
     font-size: 1.8em;
   }
 
-  .CTA-section,
-  .Contact-section {
+  .CTASection,
+  .ContactSection {
     padding: 40px 20px;
   }
 }
 
 @media (max-width: 480px) {
-  .Main-content {
+  .MainContent {
     gap: 40px;
   }
 
-  .Hero-title {
+  .HeroTitle {
     font-size: 2.2em;
   }
 
-  .CTA-title {
+  .CTATitle {
     font-size: 1.8em;
   }
 
-  .CTA-button {
+  .CTAButton {
     padding: 15px 30px;
     font-size: 16px;
   }
