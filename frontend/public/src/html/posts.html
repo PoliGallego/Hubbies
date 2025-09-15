@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hubbies</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="../css/posts.css">
+    <link rel="stylesheet" href="../css/modals.css">
+    <script src="../js/modals.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="../js/posts.js"></script>
+</head>
+
+<body>
+
+    <header class="TopHeader">
+        <div class="HeaderLeft">
+            <div class="HeaderLogo">
+                <div class="Logo">
+                    <img src="../../assets/hubbies_logo_removebg_noname.png" alt="Hubbies Logo" class="HighlightImage">
+                </div>
+            </div>
+            <button class="IconButton"><span class="material-icons">home</span></button>
+        </div>
+        <div class="HeaderRight">
+            <button class="IconButton" id="NotifBtn" onclick="OpenModal('Notif')"><span
+                    class="material-icons">notifications</span></button>
+            <button class="IconButton" id="OptionsBtn" onclick="OpenModal('Options')"><img
+                    src="https://i.pravatar.cc/40?u=user1" alt="Avatar de usuario" class="UserAvatar"></button>
+        </div>
+    </header>
+
+    <div class="AppContainer">
+        <aside class="LeftSidebar">
+            <nav class="Navigation">
+                <h3>Navigation</h3>
+                <ul>
+                    <li><a href="#">+ Title</a></li>
+                    <li><a href="#">+ Title</a></li>
+                    <li><a href="#">+ Title</a></li>
+                    <li><a href="#">+ Title</a></li>
+                    <li><a href="#">+ Title</a></li>
+                    <li><a href="#">+ Title</a></li>
+                    <li><a href="#">+ Title</a></li>
+                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
+                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
+                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
+                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
+                </ul>
+                <button class="ViewMoreButton">
+                    View more
+                    <span class="material-icons">expand_more</span>
+                </button>
+            </nav>
+            <div class="Categories">
+                <h3>Categories</h3>
+                <ul>
+                    <li><a href="#">Category</a></li>
+                    <li><a href="#">Category</a></li>
+                    <li><a href="#">Category</a></li>
+                    <li><a href="#">Category</a></li>
+                    <li><a href="#">Category</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <main class="MainContentArea">
+            <div class="FeedColumn">
+                <div class="ActionBar">
+                    <div class="ActionIcons">
+                        <button class="IconButton"><span class="material-icons">add</span></button>
+                        <button class="IconButton"><span class="material-icons">mail_outline</span></button>
+                    </div>
+                    <div class="SearchContainer">
+                        <div class="SearchBar">
+                            <input type="text" placeholder="find by title">
+                        </div>
+                        <button class="IconButton"><span class="material-icons">search</span></button>
+                    </div>
+                </div>
+
+                <div class="Publication">
+                    <article class="ContentCard">
+                        <div class="CardHeader">
+                            <h2>"Title"</h2>
+                            <div class="CardControls">
+                                <select class="PrivacySelector">
+                                    <option value="privado">Private</option>
+                                    <option value="publico">Public</option>
+                                </select>
+                                <button class="IconButton"><span class="material-icons">delete_outline</span></button>
+                                <button class="IconButton"><span class="material-icons">share</span></button>
+                            </div>
+                        </div>
+                        <p class="CardDescription">Description</p>
+                        <div class="MusicPlayer">
+                            <img src="https://i.pravatar.cc/150?img=3" alt="Cover" class="MusicCover">
+                            <div class="MusicInfo">
+                                <p class="SongName">Name</p>
+                                <p class="ArtistInfo">Artist - Album - Etc.</p>
+                            </div>
+                            <div class="MusicTime">0:00 - 3:50</div>
+                        </div>
+                        <div class="CardFooter">
+                            <div class="Tag">Category <span class="material-icons">close</span></div>
+                            <div class="Tag">Category <span class="material-icons">close</span></div>
+                        </div>
+                    </article>
+                    <div class="BottomBar">
+                        <button class="IconButton"><span class="material-icons">message</span></button>
+                        <span>0</span>
+                        <button class="IconButton"><span class="material-icons">open_in_new</span></button>
+                    </div>
+                </div>
+
+                <div class="Publication">
+                    <article class="ContentCard">
+                        <div class="CardHeader">
+                            <h2>"Title"</h2>
+                            <div class="CardControls">
+                                <select class="PrivacySelector">
+                                    <option value="privado">Private</option>
+                                    <option value="publico">Public</option>
+                                </select>
+                                <button class="IconButton"><span class="material-icons">delete_outline</span></button>
+                                <button class="IconButton"><span class="material-icons">share</span></button>
+                            </div>
+                        </div>
+                        <p class="CardDescription">Description</p>
+                        <div>
+                            <img class="CardImage"
+                                src="https://images.pexels.com/photos/3754303/pexels-photo-3754303.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                alt="User Image">
+                            <img class="CardImage"
+                                src="https://images.pexels.com/photos/3754303/pexels-photo-3754303.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                                alt="User Image">
+                        </div>
+                        <div class="CardFooter">
+                            <div class="Tag">Category <span class="material-icons">close</span></div>
+                        </div>
+                    </article>
+                    <div class="BottomBar">
+                        <button class="IconButton"><span class="material-icons">message</span></button>
+                        <span>0</span>
+                        <button class="IconButton"><span class="material-icons">open_in_new</span></button>
+                    </div>
+                </div>
+
+                <div class="Publication">
+                    <article class="ContentCard">
+                        <div class="CardHeader">
+                            <h2>"Title"</h2>
+                            <div class="CardControls">
+                                <select class="PrivacySelector">
+                                    <option value="privado">Private</option>
+                                    <option value="publico">Public</option>
+                                </select>
+                                <button class="IconButton"><span class="material-icons">delete_outline</span></button>
+                                <button class="IconButton"><span class="material-icons">share</span></button>
+                            </div>
+                        </div>
+                        <p class="CardDescription">Description</p>
+                        <div class="CardFooter">
+                            <div class="Tag">Category <span class="material-icons">close</span></div>
+                            <div class="Tag">Category <span class="material-icons">close</span></div>
+                            <div class="Tag">Category <span class="material-icons">close</span></div>
+                        </div>
+                    </article>
+                    <div class="BottomBar">
+                        <button class="IconButton"><span class="material-icons">message</span></button>
+                        <span>0</span>
+                        <button class="IconButton"><span class="material-icons">open_in_new</span></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <aside class="RightSidebar">
+                <div class="CommentCard">
+                    <div class="CommentHeader">
+                        <img src="https://i.pravatar.cc/40?u=user2" alt="Avatar" class="CommentAvatar">
+                        <div>
+                            <p><strong>Name</strong></p>
+                            <p class="CommentContext">comment in "Title"</p>
+                        </div>
+                    </div>
+                    <div class="CommentContent">
+                        <p>Comment</p>
+                    </div>
+                </div>
+                <div class="CommentCard">
+                    <div class="CommentHeader">
+                        <img src="https://i.pravatar.cc/40?u=user3" alt="Avatar" class="CommentAvatar">
+                        <div>
+                            <p><strong>Name</strong></p>
+                            <p class="CommentContext">comment in "Title"</p>
+                        </div>
+                    </div>
+                    <div class="CommentContent">
+                        <p>Comment</p>
+                    </div>
+                </div>
+                <div class="CommentCard">
+                    <div class="CommentHeader">
+                        <img src="https://i.pravatar.cc/40?u=user4" alt="Avatar" class="CommentAvatar">
+                        <div>
+                            <p><strong>Name</strong></p>
+                            <p class="CommentContext">comment in "Title"</p>
+                        </div>
+                    </div>
+                    <div class="CommentContent">
+                        <p>Comment</p>
+                    </div>
+                </div>
+
+            </aside>
+        </main>
+    </div>
+
+    <div id="NotifModal" class="ModalOverlay NotifModal">
+        <div class="Notifications">
+
+            <div class="Notification">
+                <div>
+                    <h4>Notification</h4><span class="material-icons">close</span>
+                </div>
+                <p>Description</p>
+            </div>
+
+            <div class="Notification">
+                <div>
+                    <h4>Notification</h4><span class="material-icons">close</span>
+                </div>
+                <p>Description</p>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="OptionsModal" class="ModalOverlay OptionsModal">
+        <div class="Options">
+            <ul class="OptionsList">
+                <li><a href="">Profile</a></li>
+                <li><a href="">Configuration</a></li>
+                <li>
+                    <div class="Mode">Mode <span>Light</span></div>
+                    <div class="ToggleContainer">
+                        <div class="ToggleSwitch" id="ToggleSwitch"></div>
+                    </div>
+                </li>
+            </ul>
+            <div class="OptionsFooter">
+                <div class="AcountBtns">
+                    <button class="HeaderButton1" id="SignUpBtn">Sign Up</button>
+                    <button class="HeaderButton2" id="LoginBtn">Log In</button>
+                </div>
+                <div>
+                    <p>&copy;2024 - Hubbies</p>
+                    <p>All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="MainModal" class="ModalOverlay">
+        <div class="ModalContent">
+            <button class="CloseButton" id="CloseButton">&times;</button>
+            <div class="ModalHeader">
+                <div class="LogoCircleModal"></div>
+                <h2 id="ModalTitle" class="ModalTitle">Título</h2>
+            </div>
+
+            <form id="ModalForm">
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
