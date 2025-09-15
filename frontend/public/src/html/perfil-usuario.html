@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="../css/perfil-usuario.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <img src="../../assets/hubbies_logo_removebg.png" alt="Logo de Hubbies" style="height:48px; margin-right:16px;">
+            <div class="home-icon">🏠</div>
+        </div>
+        <div class="header-right">
+            <div class="notification">🔔</div>
+            <img class="user-avatar-header" src="../../assets/avatar_icon.png" alt="Avatar" style="width:36px; height:36px; border-radius:50%; object-fit:cover;">
+        </div>
+    </div>
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <h3>Navegar</h3>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">Título</div>
+                <div class="nav-item">
+                    Título
+                    <span class="expand-btn">▼ Ver más</span>
+                </div>
+            </div>
+            <div class="categories">
+                <h3>Categorías</h3>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+                <div class="category-item">Categoría</div>
+            </div>
+        </div>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <div class="avatar-large">👤</div>
+                    <button class="edit-avatar">+</button>
+                </div>
+                <div class="profile-info">
+                    <h1>Nombre: Cualquiera</h1>
+                    <p>Email: cual.quiera@gmail.com</p>
+                    <button class="connect-btn">Compartir mediante enlace</button>
+                </div>
+            </div>
+            <!-- Posts Section -->
+            <div class="posts-section">
+                <h2 class="section-title">Última publicación</h2>
+                <div class="post-card">
+                    <div class="post-header">
+                        <h3 class="post-title">"Título"</h3>
+                        <div class="post-actions">
+                            <select class="privacy-select">
+                                <option>Privado</option>
+                                <option>Público</option>
+                                <option>Amigos</option>
+                            </select>
+                            <button class="delete-btn">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        Descripción
+                    </div>
+                    <div class="post-tags">
+                        <span class="tag">Categoría</span>
+                        <span class="tag">Categoría 2</span>
+                        <span class="tag">Categoría 3</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Comments Section -->
+            <div class="comments-section">
+                <h2 class="section-title">Últimos comentarios</h2>
+                <div class="comments-grid">
+                    <div class="comment-card">
+                        <div class="comment-header">
+                            <div class="comment-avatar">N</div>
+                            <div class="comment-user">Nombre</div>
+                            <div class="comment-time">2h</div>
+                        </div>
+                        <div class="comment-text">
+                            Completa descripción para el desarrollo de la humanidad
+                        </div>
+                    </div>
+                    <div class="comment-card">
+                        <div class="comment-header">
+                            <div class="comment-avatar">N</div>
+                            <div class="comment-user">Nombre</div>
+                            <div class="comment-time">5h</div>
+                        </div>
+                        <div class="comment-text">
+                            Pepinos 🥒
+                        </div>
+                    </div>
+                    <div class="comment-card">
+                        <div class="comment-header">
+                            <div class="comment-avatar">N</div>
+                            <div class="comment-user">Nombre</div>
+                            <div class="comment-time">1d</div>
+                        </div>
+                        <div class="comment-text">
+                            Borra la cuenta
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="../js/perfil-usuario.js"></script>
+</body>
+</html>
