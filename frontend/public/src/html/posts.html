@@ -14,60 +14,15 @@
     <script src="../js/modals.js"></script>
     <script src="../js/script.js"></script>
     <script src="../js/posts.js"></script>
+    <script src="../js/components.js"></script>
 </head>
 
 <body>
 
-    <header class="TopHeader">
-        <div class="HeaderLeft">
-            <div class="HeaderLogo">
-                <div class="Logo">
-                    <img src="../../assets/hubbies_logo_removebg_noname.png" alt="Hubbies Logo" class="HighlightImage">
-                </div>
-            </div>
-            <button class="IconButton"><span class="material-icons">home</span></button>
-        </div>
-        <div class="HeaderRight">
-            <button class="IconButton" id="NotifBtn" onclick="OpenModal('Notif')"><span
-                    class="material-icons">notifications</span></button>
-            <button class="IconButton" id="OptionsBtn" onclick="OpenModal('Options')"><img
-                    src="https://i.pravatar.cc/40?u=user1" alt="Avatar de usuario" class="UserAvatar"></button>
-        </div>
-    </header>
+    <div id="navbar"></div>
 
     <div class="AppContainer">
-        <aside class="LeftSidebar">
-            <nav class="Navigation">
-                <h3>Navigation</h3>
-                <ul>
-                    <li><a href="#">+ Title</a></li>
-                    <li><a href="#">+ Title</a></li>
-                    <li><a href="#">+ Title</a></li>
-                    <li><a href="#">+ Title</a></li>
-                    <li><a href="#">+ Title</a></li>
-                    <li><a href="#">+ Title</a></li>
-                    <li><a href="#">+ Title</a></li>
-                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
-                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
-                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
-                    <li class="extra-item" style="display:none;"><a href="#">+ Title</a></li>
-                </ul>
-                <button class="ViewMoreButton">
-                    View more
-                    <span class="material-icons">expand_more</span>
-                </button>
-            </nav>
-            <div class="Categories">
-                <h3>Categories</h3>
-                <ul>
-                    <li><a href="#">Category</a></li>
-                    <li><a href="#">Category</a></li>
-                    <li><a href="#">Category</a></li>
-                    <li><a href="#">Category</a></li>
-                    <li><a href="#">Category</a></li>
-                </ul>
-            </div>
-        </aside>
+        <div id="sidebar"></div>
 
         <main class="MainContentArea">
             <div class="FeedColumn">
