@@ -1,0 +1,330 @@
+ul {
+    display: flex;
+    flex-direction: column;
+    list-style-type: none;
+    gap: 30px;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+}
+
+li .Mode {
+    display: flex;
+    flex-direction: column;
+}
+
+li .Mode span {
+    color: var(--TextColorSecondary);
+}
+
+.AvatarUpload {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.AvatarLabel {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+}
+
+.AvatarLabel img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ddd;
+    background-color: #f9f9f9;
+    transition: opacity 0.3s ease;
+}
+
+.AvatarLabel::after {
+    content: "+";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: var(--ColorDustyRose);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #fff;
+}
+
+.HeaderButton1 {
+    background-color: #ffffff;
+    color: #8b5a3c;
+    border: 1px solid #e2d1d1;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.HeaderButton1:hover {
+    background-color: #f9f6f6;
+    border-color: #8b5a3c;
+    transform: translateY(-1px);
+}
+
+.HeaderButton2 {
+    background-color: #8b5a3c;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.HeaderButton2:hover {
+    background-color: #754832;
+    transform: translateY(-1px);
+}
+
+.FormGroup {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.FormGroup label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.FormGroup input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+}
+
+.FormRow {
+  display: flex;
+  gap: 15px;
+}
+
+.FormRow .FormGroup {
+  flex: 1; 
+}
+
+.SubmitButton {
+  background-color: #8b5a3c;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.SubmitButton:hover {
+  background-color: #754832;
+}
+
+.ForgotPassword {
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.ForgotPassword a, .OptionsList a {
+  color: #333;
+  text-decoration: none;
+}
+
+.ForgotPassword a:hover {
+  text-decoration: underline;
+}
+
+.ModalOverlay {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.ModalContent {
+    background-color: var(--ColorSoftPink);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    text-align: center;
+}
+
+.ModalHeader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.LogoCircleModal {
+    width: 25px;
+    height: 25px;
+    background-color: var(--ColorDustyRose);
+    border-radius: 50%;
+}
+
+.ModalTitle {
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #333;
+}
+
+.CloseButton {
+    color: #aaa;
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.NotifModal {
+    background-color: rgba(0, 0, 0, 0);
+    justify-content: right;
+    align-items: center;
+    display: none;
+}
+
+.Notifications {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-color: var(--ColorLightCoral);
+    padding: 20px;
+    gap: 10px;
+    min-width: 400px;
+    min-height: 600px;
+    border-radius: 15px;
+}
+
+.Notification {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--ColorWhite);
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid var(--BorderColor);
+}
+
+.Notification p,
+h4 {
+    font-size: 15px;
+    margin-bottom: 5px;
+}
+
+.Notification div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.Notification .material-icons {
+    cursor: pointer;
+}
+
+.Notification h4 {
+    max-width: fit-content;
+}
+
+.OptionsModal {
+    background-color: rgba(0, 0, 0, 0);
+    justify-content: right;
+    align-items: center;
+    display: none;
+}
+
+.Options {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 350px;
+    min-width: 320px;
+    background-color: var(--ColorWhite);
+    border-left: 1px solid var(--BorderColor);
+    padding: 20px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.OptionsFooter {
+    display: flex;
+    position: absolute;
+    row-gap: 40px;
+    min-width: 90%;
+    bottom: 30px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.ToggleContainer {
+    width: 54px;
+    height: 28px;
+    background-color: #ccc;
+    border-radius: 28px;
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.3s;
+}
+
+.ToggleSwitch {
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    transition: transform 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.ToggleContainer.on {
+    background-color: var(--ColorDustyRose);
+}
+
+.ToggleContainer.on .ToggleSwitch {
+    transform: translateX(26px);
+}
+
+#ToggleStatus {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
