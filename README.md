@@ -1,17 +1,17 @@
-# Hubbies Web-App
+# Hubbies Web-App 🌐🎮🎬📚
 
-## Description
+## Description 📝
 
 **Hubbies** is a customizable web application designed to help users create, organize, and manage sections dedicated to their hobbies and interests, such as movies, music, books, video games, sports, and more. The main goal is to provide an attractive and modern interface that allows users to:
 
-- Organize and track their hobbies.
-- Keep a history or log of what they’ve consumed or done.
-- Share these sections publicly or privately.
-- Engage with others through comments on their sections.
+- Organize and track their hobbies. 📋
+- Keep a history or log of what they’ve consumed or done. 🕒
+- Share these sections publicly or privately. 🔒📤
+- Engage with others through comments on their sections. 💬
 
 The application focuses on delivering a **clean, responsive design** that is easy to use and adapts to any device.
 
-## Table of Contents
+## Table of Contents 📑
 
 1. [Examples](#examples)
 2. [Features](#features)
@@ -20,7 +20,7 @@ The application focuses on delivering a **clean, responsive design** that is eas
 5. [Useful Resources](#useful-resources)
 6. [Authors](#authors)
 
-## Examples
+## Examples 💡
 
 Here are some sample use cases for **Hubbies**:
 
@@ -29,7 +29,7 @@ Here are some sample use cases for **Hubbies**:
 3. **Video Games Section:** The user logs games they’ve played, achievements they've unlocked, and can comment on others' game experiences.
 4. **Sports Section:** A user tracks their sports activities, sets goals, and can view others' progress on shared sport goals.
 
-## Features
+## Features 🌟
 
 - **Customizable Sections:** Users can create personalized sections for each of their hobbies.
 - **Tracking & History:** Keep a log of the activities you've done, such as movies watched, books read, games played, etc.
@@ -38,7 +38,7 @@ Here are some sample use cases for **Hubbies**:
 - **Responsive Design:** The application works seamlessly on both desktop and mobile devices.
 - **User-Friendly Interface:** Clean and simple design that ensures an intuitive user experience.
 
-## Installation
+## Installation ⚙️
 
 ###  Prerequisites
 - Node.js >= 16.x
@@ -48,8 +48,7 @@ Here are some sample use cases for **Hubbies**:
 ### 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/tu-usuario/user-settings-app.git
-cd user-settings-app
+git clone https://github.com/PoliGallego/Hubbies.git
 ```
 ### 2. Install dependencies
 
@@ -85,7 +84,7 @@ Once you have started, open your browser at:
 http://localhost:3000   
 ```
 
-## Technologies
+## Technologies ⚙️
 
 The development of **Hubbies** uses modern technologies for scalability, responsiveness, and efficiency:
 
@@ -98,7 +97,7 @@ The development of **Hubbies** uses modern technologies for scalability, respons
 
 These technologies were chosen for their compatibility and ease of integration, ensuring a modern, flexible, and efficient web application.
 
-## Useful Resources
+## Useful Resources 📚
 
 - [MongoDB Documentation](https://www.mongodb.com/docs/)
 - [Node.js Documentation](https://nodejs.org/en/docs/)
@@ -106,7 +105,7 @@ These technologies were chosen for their compatibility and ease of integration, 
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [CSS Tricks](https://css-tricks.com/)
 
-## Authors
+## Authors ✨
 
 - **Harold Hoyos Cano** – [GitHub](https://github.com/HaroldHoyos1722)
 - **Juan Luis Gallego**  – [GitHub](https://github.com/PoliGallego)
