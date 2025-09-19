@@ -1,4 +1,4 @@
-# 📦 Hubbies Web-App
+# Hubbies Web-App
 
 ## Description
 
@@ -70,7 +70,7 @@ PORT2=8000
 ```
 You can use MongoDB Atlas for remote connection.
 
-### ▶️ How to start the application
+### How to start the application
 Under development
 ```bash
 npm run dev
@@ -78,7 +78,7 @@ npm run dev
 Use nodemon to automatically reload changes.
 
 
-### 🌐 Accessing the App
+### Accessing the App
 Once you have started, open your browser at:
 
 ``` plaintext
