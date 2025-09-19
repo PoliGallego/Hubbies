@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ModalForm.innerHTML = `
         <div class="AvatarUpload">
         <label for="ProfileImage" class="AvatarLabel">
-            <img id="PreviewImg" src="../../assets/avatar_icon.png" alt="Avatar">
+            <img id="PreviewImg" src="../assets/avatar_icon.png" alt="Avatar">
             <input type="file" id="ProfileImage" accept="image/*" style="display: none;">
         </label>
         </div>
