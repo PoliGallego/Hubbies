@@ -76,6 +76,8 @@ The application already includes the necessary connection parameters in db.js:
 ```bash
 await mongoose.connect("mongodb+srv://db_user:vFSHKXrdMZ4xw1li@cluster0.h2dreyu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 ```
+You can leave it as is or use your own URI from your own database.
+
 Just make sure you:
 - Have MongoDB running locally or
 - Have access to a cloud database like MongoDB Atlas if the project is already set up for it.
