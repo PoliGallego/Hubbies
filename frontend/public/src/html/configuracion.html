@@ -1,33 +1,84 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuración</title>
-    <link rel="stylesheet" href="../css/configuracion.css">
-    <link rel="stylesheet" href="../css/posts.css">
-    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="stylesheet" href="/src/css/configuracion.css">
+    <link rel="stylesheet" href="/src/css/posts.css">
+    <link rel="stylesheet" href="/src/css/modals.css">
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div id="navbar"></div>
     <div class="container">
         <div id="sidebar"></div>
         <div class="main-content">
             <div class="config-section">
-                <h2 class="section-title">Configuración</h2>
-                <div class="config-option">Opción 1</div>
-                <div class="config-option">Opción 2</div>
-                <div class="config-option">Opción 3</div>
+                <h2 class="section-title">Configuration</h2>
+                <div class="config-option">Edit profile</div>
                 <div class="action-buttons">
-                    <button class="btn-deactivate" id="deactivateBtn">Desactivar Cuenta</button>
-                    <button class="btn-delete" id="deleteBtn">Eliminar Cuenta</button>
+                    <button class="btn-deactivate" id="deactivateBtn">Deactivate account</button>
+                    <button class="btn-delete" id="deleteBtn">Delete Account</button>
                 </div>
             </div>
         </div>
     </div>
-    <script src="../js/components.js"></script>
-    <script src="../js/configuracion.js"></script>
+    <script src="/src/js/modals.js"></script>
+    <script src="/src/js/components.js"></script>
+    <script src="/src/js/configuracion.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
+
+
+<div id="EditProfileModal" class="ModalOverlay" style="display:none;">
+    <div class="ModalContent">
+        <button class="CloseButton" id="CloseEditProfileModal">&times;</button>
+
+        <h2>Edit Profile</h2>
+        <form id="EditProfileForm">
+            <div class="AvatarUpload">
+                <label for="ProfileImage" class="AvatarLabel">
+                    <img id="PreviewImg" src="../../assets/avatar_icon.png" alt="Avatar">
+                    <input type="file" id="ProfileImage" accept="image/*" style="display: none;">
+                </label>
+            </div>
+
+            <div class="FormRow">
+                <div class="FormGroup">
+                    <label for="FullName">Full Name</label>
+                    <input type="text" id="FullName" required>
+                </div>
+
+                <div class="FormGroup">
+                    <label for="Username">Username</label>
+                    <input type="text" id="Username" required>
+                </div>
+            </div>
+
+            <div class="FormGroup">
+                <label for="BirthDate">Birth Date</label>
+                <input type="date" id="BirthDate" required>
+            </div>
+
+            <div class="FormGroup">
+                <label for="Email">Email</label>
+                <input type="email" id="Email" required>
+            </div>
+
+            <div class="FormGroup">
+                <label for="Password">Password</label>
+                <input type="password" id="Password" placeholder="Leave blank to keep current">
+            </div>
+
+            <button type="submit" class="SubmitButton">Save Changes</button>
+        </form>
+    </div>
+</div>
+
 </html>

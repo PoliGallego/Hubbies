@@ -20,38 +20,37 @@ document.addEventListener("DOMContentLoaded", () => {
       ModalTitle.textContent = "Create an Account";
       ModalForm.innerHTML = `
         <div class="AvatarUpload">
-        <label for="ProfileImage" class="AvatarLabel">
-            <img id="PreviewImg" src="../assets/avatar_icon.png" alt="Avatar">
-            <input type="file" id="ProfileImage" accept="image/*" style="display: none;">
-        </label>
+          <label for="ProfileImage" class="AvatarLabel">
+              <img id="PreviewImg" src="../../assets/avatar_icon.png" alt="Avatar">
+              <input type="file" id="ProfileImage" accept="image/*" style="display: none;">
+          </label>
         </div>
 
-        <!-- Contenedor para FullName y UserName en la misma fila -->
         <div class="FormRow">
-        <div class="FormGroup">
-            <label for="FullName">Full Name</label>
-            <input type="text" id="FullName" placeholder="Enter your name" required>
+          <div class="FormGroup">
+              <label for="FullName">Full Name</label>
+              <input type="text" id="FullName" placeholder="Enter your name" required>
+          </div>
+
+          <div class="FormGroup">
+              <label for="Username">Username</label>
+              <input type="text" id="Username" placeholder="Create a username" required>
+          </div>
         </div>
 
         <div class="FormGroup">
-            <label for="Username">Username</label>
-            <input type="text" id="Username" placeholder="Create a username" required>
-        </div>
-        </div>
-
-        <div class="FormGroup">
-        <label for="BirthDate">Birth Date</label>
-        <input type="date" id="BirthDate" required>
+          <label for="BirthDate">Birth Date</label>
+          <input type="date" id="BirthDate" required>
         </div>
 
         <div class="FormGroup">
-        <label for="Email">Email</label>
-        <input type="email" id="Email" placeholder="Enter your email" required>
+          <label for="Email">Email</label>
+          <input type="email" id="Email" placeholder="Enter your email" required>
         </div>
 
         <div class="FormGroup">
-        <label for="Password">Password</label>
-        <input type="password" id="Password" placeholder="Create a password" required>
+          <label for="Password">Password</label>
+          <input type="password" id="Password" placeholder="Create a password" required>
         </div>
 
         <button type="submit" class="SubmitButton">Sign Up</button>
@@ -81,6 +80,32 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const CloseModal = () => {
     Modal.style.display = "none";
+  };
+
+  const showAlert = (result) => {
+    if (result.message) {
+      Swal.fire({
+        icon: "success",
+        title: `Welcome ${result.user.username}`,
+        text: result.message,
+        confirmButtonText: "Come in!",
+      }).then(() => {
+        if (result.token) {
+          localStorage.setItem("token", result.token);
+        }
+        window.location.href = "/src/html/posts.html";
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: result.error,
+        toast: true,
+        position: "top-end",
+        timer: 3000,
+        showConfirmButton: false,
+      });
+    }
   };
 
   const InitAvatarUpload = () => {
@@ -116,6 +141,59 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       CloseModal();
+    }
+  });
+
+  document.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (
+      e.target.classList.contains("SubmitButton") ||
+      e.target.id === "ModalForm"
+    ) {
+      const formType = ModalTitle.textContent;
+
+      if (formType.includes("Create")) {
+        const formData = new FormData();
+        formData.append("fullName", document.getElementById("FullName").value);
+        formData.append("username", document.getElementById("Username").value);
+        formData.append(
+          "birthDate",
+          document.getElementById("BirthDate").value
+        );
+        formData.append("email", document.getElementById("Email").value);
+        formData.append("password", document.getElementById("Password").value);
+
+        const fileInput = document.getElementById("ProfileImage");
+        if (fileInput && fileInput.files.length > 0) {
+          formData.append("avatar", fileInput.files[0]);
+        }
+
+        const res = await fetch("http://localhost:5000/api/auth/register", {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await res.json();
+        console.log("✅ Registro:", result);
+        showAlert(result);
+        CloseModal();
+      } else {
+        const data = {
+          username: document.getElementById("LoginUser").value,
+          password: document.getElementById("LoginPassword").value,
+        };
+
+        const res = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+        console.log("✅ Login:", result);
+        showAlert(result);
+      }
     }
   });
 });
