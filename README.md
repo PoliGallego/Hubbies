@@ -20,7 +20,7 @@ The application focuses on delivering a **clean, responsive design** that is eas
 5. [Useful Resources](#useful-resources)
 6. [Authors](#authors)
 
-## Examples 💡
+## Examples 
 
 Here are some sample use cases for **Hubbies**:
 
@@ -29,7 +29,7 @@ Here are some sample use cases for **Hubbies**:
 3. **Video Games Section:** The user logs games they’ve played, achievements they've unlocked, and can comment on others' game experiences.
 4. **Sports Section:** A user tracks their sports activities, sets goals, and can view others' progress on shared sport goals.
 
-## Features 🌟
+## Features 
 
 - **Customizable Sections:** Users can create personalized sections for each of their hobbies.
 - **Tracking & History:** Keep a log of the activities you've done, such as movies watched, books read, games played, etc.
@@ -38,53 +38,79 @@ Here are some sample use cases for **Hubbies**:
 - **Responsive Design:** The application works seamlessly on both desktop and mobile devices.
 - **User-Friendly Interface:** Clean and simple design that ensures an intuitive user experience.
 
-## Installation ⚙️
+## Installation
 
 ###  Prerequisites
+Before you begin, make sure you have:
 - Node.js >= 16.x
 - npm (v7 o superior)
-- MongoDB (local o en la nube, como MongoDB Atlas)
+- MongoDB (on-premises or in the cloud, such as MongoDB Atlas)
 
-### 1. **Clone the repository:**
+### 1. **Open the Git Bash and clone the repository:**
 
 ```bash
 git clone https://github.com/PoliGallego/Hubbies.git
 ```
+And then enter the Hubbies Folder with:
+```bash
+cd Hubbies
+```
 ### 2. Install dependencies
+Instead of using npm install manually, run the first_step.bat file that comes in the repository.
+You can do this in two ways:
+- Double-click the first_step.bat file from Windows Explorer.
+- Or from the terminal and in the Hubbies folder enter:
 
 ```bash
-npm install
+./first_step.bat
 ```
+This script:
+- Automatically changes to the project root.
+- Installs all Node dependencies with npm install.
+- Verifies that the installation completes successfully.
 
-### 3. Configure the environment variables
+If everything goes well, you will see the folder "node_modules"
 
-Create an .env file in the project root with the following content:
-
-```env
-MONGO_URI=mongodb+srv://dbadmin:dbpassword@cluster0.itvrl4h.mongodb.net/users?retryWrites=true&w=majority&appName=Cluster0
-PORT=3000
-JWT_SECRET=secret=NV0B7dysi8KA6h9zNIhXUPuVNirIBRmhW57ykoqkfD0=
-NODE_ENV=development
-PORT2=8000
-```
-You can use MongoDB Atlas for remote connection.
-
-### How to start the application
-Under development
+### 3. Configure database connection
+The application already includes the necessary connection parameters in db.js:
 ```bash
-npm run dev
+await mongoose.connect("mongodb+srv://db_user:vFSHKXrdMZ4xw1li@cluster0.h2dreyu.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 ```
-Use nodemon to automatically reload changes.
+Just make sure you:
+- Have MongoDB running locally or
+- Have access to a cloud database like MongoDB Atlas if the project is already set up for it.
 
+There is no need to create or edit .env files.
+
+### 4. Start the application
+The project includes two execution modes, each with its own .bat file:
+
+**-Development:**
+
+Start the server with nodemon to automatically reload changes.
+
+**-Production:**
+
+Start the server in normal mode using node backend/server.js.
+
+### To start it:
+Double-click on the desired file or from the terminal in the hubbies folder:
+```bash
+./dev.bat
+```
+or
+```bash
+./start_server.bat
+```
 
 ### Accessing the App
 Once you have started, open your browser at:
 
 ``` plaintext
-http://localhost:3000   
+http://localhost:5000   
 ```
 
-## Technologies ⚙️
+## Technologies
 
 The development of **Hubbies** uses modern technologies for scalability, responsiveness, and efficiency:
 
@@ -97,7 +123,7 @@ The development of **Hubbies** uses modern technologies for scalability, respons
 
 These technologies were chosen for their compatibility and ease of integration, ensuring a modern, flexible, and efficient web application.
 
-## Useful Resources 📚
+## Useful Resources
 
 - [MongoDB Documentation](https://www.mongodb.com/docs/)
 - [Node.js Documentation](https://nodejs.org/en/docs/)
@@ -105,7 +131,7 @@ These technologies were chosen for their compatibility and ease of integration, 
 - [Visual Studio Code](https://code.visualstudio.com/)
 - [CSS Tricks](https://css-tricks.com/)
 
-## Authors ✨
+## Authors
 
 - **Harold Hoyos Cano** – [GitHub](https://github.com/HaroldHoyos1722)
 - **Juan Luis Gallego**  – [GitHub](https://github.com/PoliGallego)
