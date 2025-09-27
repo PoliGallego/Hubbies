@@ -1,45 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil de Usuario</title>
-    <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="../css/perfil-usuario.css">
-    <link rel="stylesheet" href="../css/posts.css">
-    <link rel="stylesheet" href="../css/modals.css">
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/src/css/perfil-usuario.css">
+    <link rel="stylesheet" href="/src/css/posts.css">
+    <link rel="stylesheet" href="/src/css/modals.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
+
 <body>
     <div id="navbar"></div>
     <div class="AppContainer">
         <div id="sidebar"></div>
         <main class="MainContentArea">
             <div class="FeedColumn">
-                <!-- Profile Header -->
                 <div class="profile-header">
                     <div class="profile-avatar">
                         <div class="avatar-large">👤</div>
                         <button class="edit-avatar">+</button>
                     </div>
                     <div class="profile-info">
-                        <h1>Nombre: Cualquiera</h1>
+                        <h1>Username</h1>
                         <p>Email: cual.quiera@gmail.com</p>
-                        <button class="connect-btn">Compartir mediante enlace</button>
+                        <button class="connect-btn">Share via link</button>
                     </div>
                 </div>
-                <!-- Posts Section -->
                 <div class="posts-section">
-                    <h2 class="section-title">Última publicación</h2>
+                    <h2 class="section-title">Latest publication</h2>
                     <div class="post-card">
                         <div class="post-header">
                             <h3 class="post-title">"Título"</h3>
                             <div class="post-actions">
                                 <select class="privacy-select">
-                                    <option>Privado</option>
-                                    <option>Público</option>
-                                    <option>Amigos</option>
+                                    <option>Private</option>
+                                    <option>Public</option>
                                 </select>
                                 <button class="delete-btn">🗑️</button>
                             </div>
@@ -54,9 +54,8 @@
                         </div>
                     </div>
                 </div>
-                <!-- Comments Section -->
                 <div class="comments-section">
-                    <h2 class="section-title">Últimos comentarios</h2>
+                    <h2 class="section-title">Latest comments</h2>
                     <div class="comments-grid">
                         <div class="comment-card">
                             <div class="comment-header">
@@ -91,10 +90,12 @@
                     </div>
                 </div>
             </div>
-            <!-- Si tienes sidebar derecho, agrégalo aquí -->
         </main>
     </div>
-    <script src="../js/components.js"></script>
-    <script src="../js/perfil-usuario.js"></script>
+    <script src="/src/js/modals.js"></script>
+    <script src="/src/js/components.js"></script>
+    <script src="/src/js/perfil-usuario.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </body>
+
 </html>
