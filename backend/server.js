@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const postsRoutes = require("./routes/postsRoutes");
 const userRoutes = require("./routes/userRoutes");
+const sectionRoutes = require("./routes/sectionRoutes");
 
 const app = express();
 connectDB();
@@ -26,6 +27,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/sections", sectionRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () =>
