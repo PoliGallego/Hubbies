@@ -1,5 +1,5 @@
 const express = require("express");
-const { authMiddleware } = require("../config/session");
+const { authMiddleware } = require("../middleware/authMiddleware");
 const router = express.Router();
 
 router.get("/verify", authMiddleware, (req, res) => {

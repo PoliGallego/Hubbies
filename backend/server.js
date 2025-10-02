@@ -6,9 +6,12 @@ const authRoutes = require("./routes/authRoutes");
 const postsRoutes = require("./routes/postsRoutes");
 const userRoutes = require("./routes/userRoutes");
 const sectionRoutes = require("./routes/sectionRoutes");
+const commentRoutes = require('./routes/commentRoutes');
 
 const app = express();
+
 connectDB();
+
 
 app.use(cors());
 app.use(express.json());
@@ -27,6 +30,7 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
 app.use("/api/users", userRoutes);
+app.use('/api', commentRoutes);
 app.use("/api/sections", sectionRoutes);
 
 const PORT = 5000;
