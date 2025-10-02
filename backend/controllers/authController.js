@@ -1,7 +1,7 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
-const UserPrototype = require("../prototypes/userPrototype");
-const { generateToken, saveUserToken } = require("../config/session");
+const UserPrototype = require("../lib/prototypes/userPrototype");
+const { generateToken, saveUserToken } = require("../lib/utils/generateToken");
 
 const registerUser = async (req, res) => {
   try {
@@ -10,13 +10,14 @@ const registerUser = async (req, res) => {
 
     const existingUser = await User.findOne({ username });
     if (existingUser)
-      return res.status(409).json({ error: "Username in use." });
+      return res.status(409).json({ error: "Nombre de usuario en uso." });
 
     const existingEmail = await User.findOne({ email });
-    if (existingEmail) return res.status(409).json({ error: "Email in use." });
+    if (existingEmail)
+      return res.status(409).json({ error: "Correo electrónico en uso." });
 
     if (!email.includes("@"))
-      return res.status(400).json({ error: "Invalid email." });
+      return res.status(400).json({ error: "Correo electrónico inválido." });
 
     const birth = new Date(birthDate);
     const today = new Date();
@@ -24,24 +25,24 @@ const registerUser = async (req, res) => {
     const monthDiff = today.getMonth() - birth.getMonth();
     const dayDiff = today.getDate() - birth.getDate();
     if (
-      age < 18 ||
-      (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))
+        age < 18 ||
+        (age === 18 && (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)))
     ) {
-      return res.status(400).json({ error: "Must be over 18." });
+      return res.status(400).json({ error: "Debes ser mayor de 18 años." });
     }
 
     const passwordRegex = /^(?=.*[0-9!@#$%^&*])[A-Za-z0-9!@#$%^&*]{8,}$/;
     if (!passwordRegex.test(password)) {
-      return res.status(400).json({ error: "Password too weak." });
+      return res.status(400).json({ error: "Contraseña demasiado débil." });
     }
 
     const prototype = new UserPrototype(
-      fullName,
-      username,
-      birthDate,
-      email,
-      password,
-      avatarPath
+        fullName,
+        username,
+        birthDate,
+        email,
+        password,
+        avatarPath
     );
     const newUserData = prototype.clone();
 
@@ -54,9 +55,9 @@ const registerUser = async (req, res) => {
     const token = generateToken(user);
     await saveUserToken(user, token);
 
-    res.status(201).json({ message: "User registered!", user, token });
+    res.status(201).json({ message: "¡Usuario registrado!", user, token });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: `Error al registrar usuario: ${error.message}` });
   }
 };
 
@@ -65,16 +66,17 @@ const loginUser = async (req, res) => {
     const { username, password } = req.body;
 
     const user = await User.findOne({ username });
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user)
+      return res.status(404).json({ error: "Usuario no encontrado" });
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch)
-      return res.status(400).json({ error: "Incorrect credentials" });
+      return res.status(400).json({ error: "Credenciales incorrectas" });
 
     if (user.currentToken) {
       return res.status(403).json({
         error:
-          "This account already has an active session. Please log out first.",
+            "Esta cuenta ya tiene una sesión activa. Por favor, cierra sesión primero.",
       });
     }
 
@@ -83,19 +85,19 @@ const loginUser = async (req, res) => {
       user.active = true;
       await user.save();
       reactivatedMessage =
-        "Your account was deactivated and is now reactivated by login.";
+          "Tu cuenta estaba desactivada y ahora se ha reactivado al iniciar sesión.";
     }
 
     const token = generateToken(user);
     await saveUserToken(user, token);
 
     res.status(200).json({
-      message: reactivatedMessage || "Login successful!",
+      message: reactivatedMessage || "¡Inicio de sesión exitoso!",
       token,
       user,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: `Error al iniciar sesión: ${error.message}` });
   }
 };
 

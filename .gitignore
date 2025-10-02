@@ -1,2 +1,6 @@
 # Ignorar dependencias
 node_modules/
+.env
+.idea
+.login_data
+loginData.txt
