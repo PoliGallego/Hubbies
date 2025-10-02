@@ -1,5 +1,5 @@
 const Section = require("../models/section");
-const SectionPrototype = require("../prototypes/sectionPrototype");
+const SectionPrototype = require("../lib/prototypes/sectionPrototype");
 
 const listUserSections = async (req, res) => {
     try {
