@@ -397,3 +397,1089 @@ body {
 .IconButton .material-icons {
     color: var(--TextColorSecondary);
 }
+
+/* Modal overlay */
+.ModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* Modal content */
+.ModalContent {
+    background-color: var(--ColorWhite);
+    border: 1px solid var(--BorderColor);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    font-family: "Inter", sans-serif;
+    position: relative;
+}
+
+/* Header del modal */
+.ModalHeader {
+    padding: 20px;
+    border-bottom: 1px solid var(--BorderColor);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--ColorLightCoral);
+    border-radius: 12px 12px 0 0;
+    position: relative;
+}
+
+.LogoCircleModal {
+    width: 40px;
+    height: 40px;
+    background: var(--ColorWhite);
+    border-radius: 50%;
+    background-image: url('/assets/hubbies_logo_removebg_noname.png');
+    background-size: 70%;
+    background-position: center;
+    background-repeat: no-repeat;
+    border: 2px solid var(--BorderColor);
+}
+
+.ModalTitle {
+    font-size: 1.2em;
+    color: var(--TextColorPrimary);
+    font-weight: 600;
+    margin: 0;
+    flex: 1;
+}
+
+.CloseButton {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--TextColorSecondary);
+    padding: 5px;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.CloseButton:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Body del modal */
+.ModalBody {
+    padding: 0;
+}
+
+/* Post editable */
+.EditablePostCard {
+    background-color: var(--ColorWhite);
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Header del post editable */
+.EditableCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+}
+
+.EditableTitleInput {
+    font-size: 1.2em;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+    color: var(--TextColorPrimary);
+    border: none;
+    background: transparent;
+    outline: none;
+    flex: 1;
+    padding: 8px 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.EditableTitleInput:focus {
+    border-bottom-color: var(--TextColorPrimary);
+}
+
+.EditableTitleInput::placeholder {
+    color: var(--TextColorSecondary);
+    font-style: italic;
+}
+
+.CardControls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.PrivacySelector {
+    border: 1px solid var(--BorderColor);
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 0.85em;
+    background: var(--ColorWhite);
+    cursor: pointer;
+}
+
+/* Descripción editable */
+.EditableDescriptionInput {
+    color: var(--TextColorSecondary);
+    font-size: 0.95em;
+    font-family: "Inter", sans-serif;
+    line-height: 1.5;
+    border: none;
+    background: transparent;
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    max-height: 150px;
+    padding: 0;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.EditableDescriptionInput:focus {
+    border-bottom-color: var(--TextColorPrimary);
+}
+
+.EditableDescriptionInput::placeholder {
+    color: var(--TextColorSecondary);
+    font-style: italic;
+}
+
+/* Área de subida de imagen */
+.ImageUploadArea {
+    border: 2px dashed var(--BorderColor);
+    border-radius: 10px;
+    padding: 40px 20px;
+    text-align: center;
+    background-color: var(--ColorSoftPink);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.ImageUploadArea:hover {
+    border-color: var(--TextColorPrimary);
+    background-color: var(--ColorLightCoral);
+    transform: translateY(-2px);
+}
+
+.UploadIcon {
+    font-size: 3em;
+    color: var(--TextColorSecondary);
+    margin-bottom: 10px;
+}
+
+.UploadText {
+    color: var(--TextColorSecondary);
+    font-family: "Inter", sans-serif;
+    text-align: center;
+}
+
+.UploadText strong {
+    color: var(--TextColorPrimary);
+    font-size: 1.1em;
+    display: block;
+    margin-bottom: 5px;
+}
+
+/* Preview de imagen */
+#imageContainer {
+    position: relative;
+    margin: 15px 0 20px 0;
+    order: 0; /* Cambiado de -1 a 0 para que aparezca en orden normal */
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.EditableImagePreview {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 12px;
+    max-height: 350px;
+    transition: transform 0.3s ease;
+}
+
+.EditableImagePreview:hover {
+    transform: scale(1.02);
+}
+
+.RemoveImageBtn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background-color: rgba(231, 76, 60, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(5px);
+}
+
+.RemoveImageBtn:hover {
+    background-color: #c0392b;
+    transform: scale(1.1);
+}
+
+/* Organizar el contenido con flexbox */
+.EditablePostCard {
+    background-color: var(--ColorWhite);
+    padding: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Sección de categorías mejorada */
+.CategorySection {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.CategoryLabel {
+    font-size: 1em;
+    color: var(--TextColorPrimary);
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+}
+
+.EditableCategorySelect {
+    background-color: var(--ColorLightCoral);
+    color: var(--TextColorPrimary);
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-size: 0.9em;
+    font-family: "Inter", sans-serif;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+    min-width: 180px;
+}
+
+.EditableCategorySelect:hover {
+    background-color: var(--ColorDustyRose);
+    border-color: var(--TextColorPrimary);
+}
+
+.EditableCategorySelect:focus {
+    background-color: var(--ColorWhite);
+    border-color: var(--TextColorPrimary);
+    box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
+}
+
+/* Footer del modal más limpio */
+.EditableCardFooter {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding-top: 20px;
+    border-top: 1px solid var(--BorderColor);
+}
+
+/* Tags con mejor espaciado */
+.SelectedTagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 25px;
+}
+
+.SelectedTagsContainer .Tag {
+    background-color: var(--TextColorPrimary);
+    color: var(--ColorWhite);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    animation: tagFadeIn 0.3s ease;
+    transition: all 0.2s ease;
+}
+
+.SelectedTagsContainer .Tag:hover {
+    background-color: #424242;
+    transform: translateY(-1px);
+}
+
+/* Botones de acción mejorados */
+.EditableFormActions {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    padding: 30px 35px;
+    background-color: var(--ColorLightGray);
+    border-top: 1px solid var(--BorderColor);
+    border-radius: 0 0 12px 12px;
+}
+
+.EditableActionButton {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-family: "Inter", sans-serif;
+    font-size: 1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.EditableCancelButton {
+    background-color: var(--ColorWhite);
+    color: var(--TextColorSecondary);
+    border: 2px solid var(--BorderColor);
+}
+
+.EditableCancelButton:hover {
+    background-color: var(--ColorDustyRose);
+    color: var(--TextColorPrimary);
+    border-color: var(--TextColorPrimary);
+}
+
+.EditableSubmitButton {
+    background-color: var(--TextColorPrimary);
+    color: var(--ColorWhite);
+    box-shadow: 0 2px 8px rgba(33, 33, 33, 0.2);
+}
+
+.EditableSubmitButton:hover {
+    background-color: #424242;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(33, 33, 33, 0.3);
+}
+
+/* Animaciones */
+@keyframes tagFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .ModalContent {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .EditableCardHeader {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .EditableTitleInput {
+        width: 100%;
+    }
+    
+    .CardControls {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .EditableFormActions {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .EditableActionButton {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* AGREGAR AL FINAL DEL ARCHIVO - Estilos específicos del modal de posts */
+
+/* Modal overlay específico para posts */
+#MainModal.ModalOverlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    z-index: 2000 !important;
+}
+
+/* Modal content específico para posts - MÁS GRANDE */
+#MainModal .ModalContent {
+    background-color: var(--ColorWhite) !important;
+    border: 1px solid var(--BorderColor) !important;
+    border-radius: 12px !important;
+    width: 90% !important;
+    max-width: 800px !important; /* Mucho más grande */
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+    font-family: "Inter", sans-serif !important;
+    position: relative !important;
+    text-align: left !important; /* No centrado */
+    padding: 0 !important; /* Sin padding general */
+}
+
+/* Header del modal */
+#MainModal .ModalHeader {
+    padding: 25px 30px !important;
+    border-bottom: 1px solid var(--BorderColor) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    background-color: var(--ColorLightCoral) !important;
+    border-radius: 12px 12px 0 0 !important;
+    position: relative !important;
+}
+
+#MainModal .LogoCircleModal {
+    width: 40px !important;
+    height: 40px !important;
+    background: var(--ColorWhite) !important;
+    border-radius: 50% !important;
+    background-image: url('/assets/hubbies_logo_removebg_noname.png') !important;
+    background-size: 70% !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border: 2px solid var(--BorderColor) !important;
+}
+
+#MainModal .ModalTitle {
+    font-size: 1.4em !important;
+    color: var(--TextColorPrimary) !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+    flex: 1 !important;
+}
+
+#MainModal .CloseButton {
+    position: absolute !important;
+    top: 20px !important;
+    right: 25px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 28px !important;
+    cursor: pointer !important;
+    color: var(--TextColorSecondary) !important;
+    padding: 5px !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+}
+
+#MainModal .CloseButton:hover {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Body del modal */
+#MainModal .ModalBody {
+    padding: 0 !important;
+}
+
+/* Post editable */
+#MainModal .EditablePostCard {
+    background-color: var(--ColorWhite) !important;
+    padding: 30px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 20px !important;
+}
+
+/* Header del post editable */
+#MainModal .EditableCardHeader {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 15px !important;
+}
+
+#MainModal .EditableTitleInput {
+    font-size: 1.4em !important;
+    font-family: "Inter", sans-serif !important;
+    font-weight: 600 !important;
+    color: var(--TextColorPrimary) !important;
+    border: none !important;
+    background: transparent !important;
+    outline: none !important;
+    flex: 1 !important;
+    padding: 10px 0 !important;
+    border-bottom: 2px solid transparent !important;
+    transition: all 0.2s ease !important;
+}
+
+#MainModal .EditableTitleInput:focus {
+    border-bottom-color: var(--TextColorPrimary) !important;
+}
+
+#MainModal .EditableTitleInput::placeholder {
+    color: var(--TextColorSecondary) !important;
+    font-style: italic !important;
+}
+
+#MainModal .CardControls {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+#MainModal .PrivacySelector {
+    border: 1px solid var(--BorderColor) !important;
+    border-radius: 6px !important;
+    padding: 8px 12px !important;
+    font-family: inherit !important;
+    font-size: 0.9em !important;
+    background: var(--ColorWhite) !important;
+    cursor: pointer !important;
+}
+
+/* Descripción editable */
+#MainModal .EditableDescriptionInput {
+    color: var(--TextColorSecondary) !important;
+    font-size: 1.1em !important;
+    font-family: "Inter", sans-serif !important;
+    line-height: 1.6 !important;
+    border: 1px solid var(--BorderColor) !important;
+    background: var(--ColorSoftPink) !important;
+    outline: none !important;
+    resize: vertical !important;
+    min-height: 100px !important;
+    max-height: 200px !important;
+    padding: 10px 0 !important;
+    border-bottom: 2px solid transparent !important;
+    transition: all 0.2s ease !important;
+    width: 100% !important;
+}
+
+#MainModal .EditableDescriptionInput:focus {
+    border-bottom-color: var(--TextColorPrimary) !important;
+    background-color: var(--ColorWhite) !important;
+    box-shadow: 0 0 0 3px rgba(33, 33, 33, 0.1) !important;
+    transform: translateY(-2px) !important;
+}
+
+#MainModal .EditableDescriptionInput::placeholder {
+    color: var(--TextColorSecondary) !important;
+    font-style: italic !important;
+    line-height: 1.4 !important;
+}
+
+/* Área de subida de imagen */
+#MainModal .ImageUploadArea {
+    border: 2px dashed var(--BorderColor) !important;
+    border-radius: 10px !important;
+    padding: 40px 20px !important;
+    text-align: center !important;
+    background-color: var(--ColorSoftPink) !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    position: relative !important;
+}
+
+#MainModal .ImageUploadArea:hover {
+    border-color: var(--TextColorPrimary) !important;
+    background-color: var(--ColorLightCoral) !important;
+    transform: translateY(-2px) !important;
+}
+
+#MainModal .UploadIcon {
+    font-size: 3em !important;
+    color: var(--TextColorSecondary) !important;
+    margin-bottom: 10px !important;
+}
+
+#MainModal .UploadText {
+    color: var(--TextColorSecondary) !important;
+    font-family: "Inter", sans-serif !important;
+    text-align: center !important;
+}
+
+#MainModal .UploadText strong {
+    color: var(--TextColorPrimary) !important;
+    font-size: 1.1em !important;
+    display: block !important;
+    margin-bottom: 5px !important;
+}
+
+/* Preview de imagen */
+#MainModal #imageContainer {
+    position: relative !important;
+    margin: 15px 0 20px 0 !important;
+    order: 0 !important; /* Cambiado de -1 a 0 para que aparezca en orden normal */
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+#MainModal .EditableImagePreview {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: cover !important;
+    border-radius: 12px !important;
+    max-height: 350px !important;
+    transition: transform 0.3s ease !important;
+}
+
+#MainModal .EditableImagePreview:hover {
+    transform: scale(1.02) !important;
+}
+
+#MainModal .RemoveImageBtn {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background-color: rgba(231, 76, 60, 0.9) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 35px !important;
+    height: 35px !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 20px !important;
+    transition: all 0.2s ease !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+#MainModal .RemoveImageBtn:hover {
+    background-color: #c0392b !important;
+    transform: scale(1.1) !important;
+}
+
+/* Organizar el contenido con flexbox */
+#MainModal .EditablePostCard {
+    background-color: var(--ColorWhite) !important;
+    padding: 35px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 25px !important;
+}
+
+/* Sección de categorías mejorada */
+#MainModal .CategorySection {
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+    margin-bottom: 10px !important;
+}
+
+#MainModal .CategoryLabel {
+    font-size: 1em !important;
+    color: var(--TextColorPrimary) !important;
+    font-family: "Inter", sans-serif !important;
+    font-weight: 600 !important;
+}
+
+#MainModal .EditableCategorySelect {
+    background-color: var(--ColorLightCoral) !important;
+    color: var(--TextColorPrimary) !important;
+    border: 1px solid var(--BorderColor) !important;
+    border-radius: 8px !important;
+    padding: 8px 15px !important;
+    font-size: 0.9em !important;
+    font-family: "Inter", sans-serif !important;
+    cursor: pointer !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    min-width: 180px !important;
+}
+
+#MainModal .EditableCategorySelect:hover {
+    background-color: var(--ColorDustyRose) !important;
+    border-color: var(--TextColorPrimary) !important;
+}
+
+#MainModal .EditableCategorySelect:focus {
+    background-color: var(--ColorWhite) !important;
+    border-color: var(--TextColorPrimary) !important;
+    box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1) !important;
+}
+
+/* Footer del modal más limpio */
+#MainModal .EditableCardFooter {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 15px !important;
+    padding-top: 20px !important;
+    border-top: 1px solid var(--BorderColor) !important;
+}
+
+/* Tags con mejor espaciado */
+#MainModal .SelectedTagsContainer {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    min-height: 25px !important;
+}
+
+#MainModal .SelectedTagsContainer .Tag {
+    background-color: var(--TextColorPrimary) !important;
+    color: var(--ColorWhite) !important;
+    padding: 6px 12px !important;
+    border-radius: 20px !important;
+    font-size: 0.85em !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    animation: tagFadeIn 0.3s ease !important;
+    transition: all 0.2s ease !important;
+}
+
+#MainModal .SelectedTagsContainer .Tag:hover {
+    background-color: #424242 !important;
+    transform: translateY(-1px) !important;
+}
+
+/* Botones de acción mejorados */
+#MainModal .EditableFormActions {
+    display: flex !important;
+    gap: 20px !important;
+    justify-content: flex-end !important;
+    padding: 30px 35px !important;
+    background-color: var(--ColorLightGray) !important;
+    border-top: 1px solid var(--BorderColor) !important;
+    border-radius: 0 0 12px 12px !important;
+}
+
+#MainModal .EditableActionButton {
+    padding: 12px 30px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-family: "Inter", sans-serif !important;
+    font-size: 1em !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+#MainModal .EditableCancelButton {
+    background-color: var(--ColorWhite) !important;
+    color: var(--TextColorSecondary) !important;
+    border: 2px solid var(--BorderColor) !important;
+}
+
+#MainModal .EditableCancelButton:hover {
+    background-color: var(--ColorDustyRose) !important;
+    color: var(--TextColorPrimary) !important;
+    border-color: var(--TextColorPrimary) !important;
+}
+
+#MainModal .EditableSubmitButton {
+    background-color: var(--TextColorPrimary) !important;
+    color: var(--ColorWhite) !important;
+    box-shadow: 0 2px 8px rgba(33, 33, 33, 0.2) !important;
+}
+
+#MainModal .EditableSubmitButton:hover {
+    background-color: #424242 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(33, 33, 33, 0.3) !important;
+}
+
+/* Responsive mejorado */
+@media (max-width: 768px) {
+    #MainModal .EditablePostCard {
+        padding: 25px !important;
+        gap: 20px !important;
+    }
+    
+    #MainModal .EditableTitleInput {
+        font-size: 1.4em !important;
+        padding: 12px 0 !important;
+    }
+    
+    #MainModal .EditableDescriptionInput {
+        min-height: 100px !important;
+        font-size: 1em !important;
+        padding: 12px !important;
+    }
+    
+    #MainModal .CategorySection {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+    
+    #MainModal .EditableCategorySelect {
+        width: 100% !important;
+    }
+    
+    #MainModal .EditableFormActions {
+        flex-direction: column !important;
+        gap: 15px !important;
+        padding: 25px !important;
+    }
+    
+    #MainModal .EditableActionButton {
+        width: 100% !important;
+        justify-content: center !important;
+        padding: 15px !important;
+    }
+}
+
+/* AGREGAR al final del archivo - Estilos para forzar el comportamiento del modal */
+
+/* Clases de estado del modal */
+#MainModal.hidden {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+#MainModal.show {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* Forzar el comportamiento del modal */
+#MainModal[style*="display: none"] {
+    display: none !important;
+}
+
+#MainModal[style*="display: flex"] {
+    display: flex !important;
+}
+
+/* Asegurar z-index correcto */
+#MainModal {
+    z-index: 9999 !important;
+}
+
+/* Transiciones suaves */
+#MainModal {
+    transition: opacity 0.2s ease, visibility 0.2s ease !important;
+}
+
+/* AGREGAR al final del archivo - Estilos para posts no editables */
+
+/* Posts en modo solo lectura */
+.PostTitleReadOnly {
+  color: var(--TextColorPrimary) !important;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 1.3em !important;
+  margin: 0 !important;
+  cursor: default !important;
+}
+
+.DescriptionReadOnly {
+  color: var(--TextColorSecondary) !important;
+  font-family: "Inter", sans-serif !important;
+  line-height: 1.6 !important;
+  margin: 15px 0 !important;
+  cursor: default !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+/* Mostrar privacidad como texto estilizado */
+.PrivacyDisplay {
+  padding: 6px 15px !important;
+  border-radius: 20px !important;
+  font-size: 0.85em !important;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  cursor: default !important;
+  transition: all 0.2s ease !important;
+}
+
+.PrivacyPublic {
+  background-color: #e8f5e8 !important;
+  color: #2e7d2e !important;
+  border: 1px solid #a8d5a8 !important;
+}
+
+.PrivacyPrivate {
+  background-color: #ffeaa7 !important;
+  color: #6c5500 !important;
+  border: 1px solid #ddc760 !important;
+}
+
+/* Tags de categorías sin botón X (solo lectura) */
+.TagReadOnly {
+  background-color: var(--TextColorPrimary) !important;
+  color: var(--ColorWhite) !important;
+  padding: 6px 15px !important;
+  border-radius: 20px !important;
+  font-size: 0.85em !important;
+  font-family: "Inter", sans-serif !important;
+  font-weight: 500 !important;
+  cursor: default !important;
+  transition: all 0.2s ease !important;
+  display: inline-block !important;
+  margin: 0 8px 8px 0 !important;
+}
+
+.TagReadOnly:hover {
+  background-color: #424242 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 8px rgba(66, 66, 66, 0.3) !important;
+}
+
+/* Botones de acción mejorados */
+.CardControls .IconButton {
+  background-color: transparent !important;
+  border: 1px solid var(--BorderColor) !important;
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin-left: 8px !important;
+}
+
+.CardControls .IconButton:hover {
+  background-color: var(--ColorLightGray) !important;
+  border-color: var(--TextColorPrimary) !important;
+  transform: scale(1.05) !important;
+}
+
+.CardControls .edit-post-btn:hover {
+  background-color: #e3f2fd !important;
+  border-color: #2196f3 !important;
+}
+
+.CardControls .edit-post-btn:hover .material-icons {
+  color: #2196f3 !important;
+}
+
+.CardControls .delete-post-btn:hover {
+  background-color: #ffebee !important;
+  border-color: #f44336 !important;
+}
+
+.CardControls .delete-post-btn:hover .material-icons {
+  color: #f44336 !important;
+}
+
+.CardControls .IconButton .material-icons {
+  color: var(--TextColorSecondary) !important;
+  font-size: 1.2em !important;
+  transition: color 0.2s ease !important;
+}
+
+/* Header del card con mejor distribución */
+.CardHeader {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-start !important;
+  margin-bottom: 15px !important;
+  gap: 15px !important;
+}
+
+.CardControls {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Responsive para controles */
+@media (max-width: 768px) {
+  .CardHeader {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+  
+  .CardControls {
+    align-self: flex-end !important;
+    margin-top: 10px !important;
+  }
+  
+  .PrivacyDisplay {
+    font-size: 0.8em !important;
+    padding: 4px 12px !important;
+  }
+  
+  .CardControls .IconButton {
+    width: 35px !important;
+    height: 35px !important;
+  }
+}
+
+/* Efectos de hover para el card completo */
+.Publication:hover .ContentCard {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+.Publication {
+  transition: all 0.3s ease !important;
+}
+
+/* Estados de carga y transiciones */
+.ContentCard {
+  transition: all 0.3s ease !important;
+}
+
+.TagReadOnly,
+.PrivacyDisplay {
+  user-select: none !important;
+}
+
+/* Mejorar el espaciado del footer */
+.CardFooter {
+  margin-top: 20px !important;
+  padding-top: 15px !important;
+  border-top: 1px solid var(--BorderColor) !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}

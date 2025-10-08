@@ -168,16 +168,15 @@ li .Mode span {
   align-items: center;
 }
 
-.ModalContent {
-  background-color: var(--ColorSoftPink);
-  padding: 30px;
-  border-radius: 15px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  position: relative;
-  text-align: center;
-}
+/*   background-color: var(--ColorSoftPink);
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    position: relative;
+    text-align: center;
+}*/
 
 .ModalHeader {
   display: flex;

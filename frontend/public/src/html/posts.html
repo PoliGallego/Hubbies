@@ -15,7 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="/src/js/modals.js"></script>
     <script src="/src/js/script.js"></script>
-    <script src="/src/js/posts.js "></script>
+    <script src="/src/js/posts.js"></script>
     <script src="/src/js/components.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
@@ -31,7 +31,9 @@
             <div class="FeedColumn">
                 <div class="ActionBar">
                     <div class="ActionIcons">
-                        <button class="IconButton"><span class="material-icons">add</span></button>
+                        <button id="CreatePostBtn" class="IconButton" onclick="openCreatePostModal()">
+                            <span class="material-icons">add</span>
+                        </button>
                         <button class="IconButton"><span class="material-icons">mail_outline</span></button>
                     </div>
                     <div class="SearchContainer">
@@ -180,19 +182,79 @@
         </main>
     </div>
 
-    <div id="MainModal" class="ModalOverlay">
+    <div id="MainModal" class="ModalOverlay" style="display: none;">
         <div class="ModalContent">
-            <button class="CloseButton" id="CloseButton">&times;</button>
             <div class="ModalHeader">
                 <div class="LogoCircleModal"></div>
-                <h2 id="ModalTitle" class="ModalTitle">Título</h2>
+                <h2 class="ModalTitle">Crear Nuevo Post</h2>
+                <button class="CloseButton" type="button">&times;</button>
             </div>
 
-            <form id="ModalForm">
-            </form>
+            <div class="ModalBody">
+                <div class="EditablePostCard">
+                    <div class="EditableCardHeader">
+                        <input 
+                            type="text" 
+                            id="postTitle" 
+                            placeholder="¿Cuál es tu nuevo hobby?"
+                            class="EditableTitleInput"
+                        >
+                        <div class="CardControls">
+                            <select id="postPrivacy" class="PrivacySelector">
+                                <option value="private">Private</option>
+                                <option value="public">Public</option>
+                            </select>
+                            <button type="button" class="IconButton AttachButton" onclick="triggerImageUpload()" title="Adjuntar imagen">
+                                <span class="material-icons">attach_file</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Preview de imagen (aparece cuando se selecciona) -->
+                    <div id="imageContainer" style="display: none;">
+                        <img id="imagePreview" class="EditableImagePreview" src="" alt="Preview">
+                        <button type="button" class="RemoveImageBtn" onclick="removeImage()">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    
+                    <textarea 
+                        id="postDescription" 
+                        placeholder="Cuéntanos sobre tu hobby, qué te gusta de él, cómo empezaste, consejos, experiencias..."
+                        class="EditableDescriptionInput"
+                    ></textarea>
+
+                    <div class="EditableCardFooter">
+                        <div class="CategorySection">
+                            <span class="CategoryLabel">Secciones:</span>
+                            <select id="postCategory" class="EditableCategorySelect">
+                                <option value="">+ Agregar sección...</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Contenedor dinámico de tags seleccionados -->
+                        <div id="selectedTags" class="SelectedTagsContainer">
+                            <!-- Aquí se van agregando los tags dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="EditableFormActions">
+                    <button type="button" class="EditableActionButton EditableCancelButton">
+                        <span class="material-icons">cancel</span>
+                        Cancelar
+                    </button>
+                    <button type="button" class="EditableActionButton EditableSubmitButton">
+                        <span class="material-icons">send</span>
+                        Publicar
+                    </button>
+                </div>
+
+                <!-- Input de archivo oculto -->
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+            </div>
         </div>
     </div>
-
 </body>
 
 </html>
