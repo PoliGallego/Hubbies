@@ -182,6 +182,7 @@
         </main>
     </div>
 
+    <!-- Reemplazar el modal completo -->
     <div id="MainModal" class="ModalOverlay" style="display: none;">
         <div class="ModalContent">
             <div class="ModalHeader">
@@ -210,9 +211,9 @@
                         </div>
                     </div>
                     
-                    <!-- Preview de imagen (aparece cuando se selecciona) -->
+                    <!-- ✅ REVERTIR: Sistema simple de una imagen -->
                     <div id="imageContainer" style="display: none;">
-                        <img id="imagePreview" class="EditableImagePreview" src="" alt="Preview">
+                        <img id="imagePreview" class="EditableImagePreview" alt="Preview">
                         <button type="button" class="RemoveImageBtn" onclick="removeImage()">
                             <span class="material-icons">close</span>
                         </button>
@@ -232,9 +233,8 @@
                             </select>
                         </div>
                         
-                        <!-- Contenedor dinámico de tags seleccionados -->
                         <div id="selectedTags" class="SelectedTagsContainer">
-                            <!-- Aquí se van agregando los tags dinámicamente -->
+                            <p style="color: #999; text-align: center;">No has seleccionado secciones</p>
                         </div>
                     </div>
                 </div>
@@ -250,7 +250,7 @@
                     </button>
                 </div>
 
-                <!-- Input de archivo oculto -->
+                <!-- ✅ REVERTIR: Input simple para una imagen -->
                 <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
             </div>
         </div>
