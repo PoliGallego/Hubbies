@@ -398,7 +398,6 @@ body {
     color: var(--TextColorSecondary);
 }
 
-/* Modal overlay */
 .ModalOverlay {
     position: fixed;
     top: 0;
@@ -412,7 +411,6 @@ body {
     z-index: 2000;
 }
 
-/* Modal content */
 .ModalContent {
     background-color: var(--ColorWhite);
     border: 1px solid var(--BorderColor);
@@ -426,7 +424,6 @@ body {
     position: relative;
 }
 
-/* Header del modal */
 .ModalHeader {
     padding: 20px;
     border-bottom: 1px solid var(--BorderColor);
@@ -481,12 +478,10 @@ body {
     background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Body del modal */
 .ModalBody {
     padding: 0;
 }
 
-/* Post editable */
 .EditablePostCard {
     background-color: var(--ColorWhite);
     padding: 25px;
@@ -495,7 +490,6 @@ body {
     gap: 20px;
 }
 
-/* Header del post editable */
 .EditableCardHeader {
     display: flex;
     justify-content: space-between;
@@ -542,7 +536,6 @@ body {
     cursor: pointer;
 }
 
-/* Descripción editable */
 .EditableDescriptionInput {
     color: var(--TextColorSecondary);
     font-size: 0.95em;
@@ -568,7 +561,6 @@ body {
     font-style: italic;
 }
 
-/* Área de subida de imagen */
 .ImageUploadArea {
     border: 2px dashed var(--BorderColor);
     border-radius: 10px;
@@ -605,11 +597,10 @@ body {
     margin-bottom: 5px;
 }
 
-/* Preview de imagen */
 #imageContainer {
     position: relative;
     margin: 15px 0 20px 0;
-    order: 0; /* Cambiado de -1 a 0 para que aparezca en orden normal */
+    order: 0;
     border-radius: 12px;
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -652,7 +643,6 @@ body {
     transform: scale(1.1);
 }
 
-/* Organizar el contenido con flexbox */
 .EditablePostCard {
     background-color: var(--ColorWhite);
     padding: 35px;
@@ -661,7 +651,6 @@ body {
     gap: 25px;
 }
 
-/* Sección de categorías mejorada */
 .CategorySection {
     display: flex;
     align-items: center;
@@ -701,7 +690,6 @@ body {
     box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1);
 }
 
-/* Footer del modal más limpio */
 .EditableCardFooter {
     display: flex;
     flex-direction: column;
@@ -710,7 +698,6 @@ body {
     border-top: 1px solid var(--BorderColor);
 }
 
-/* Tags con mejor espaciado */
 .SelectedTagsContainer {
     display: flex;
     flex-wrap: wrap;
@@ -736,7 +723,6 @@ body {
     transform: translateY(-1px);
 }
 
-/* Botones de acción mejorados */
 .EditableFormActions {
     display: flex;
     gap: 20px;
@@ -785,7 +771,6 @@ body {
     box-shadow: 0 4px 15px rgba(33, 33, 33, 0.3);
 }
 
-/* Animaciones */
 @keyframes tagFadeIn {
     from {
         opacity: 0;
@@ -797,7 +782,6 @@ body {
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .ModalContent {
         width: 95%;
@@ -829,9 +813,6 @@ body {
     }
 }
 
-/* AGREGAR AL FINAL DEL ARCHIVO - Estilos específicos del modal de posts */
-
-/* Modal overlay específico para posts */
 #MainModal.ModalOverlay {
     position: fixed !important;
     top: 0 !important;
@@ -845,23 +826,21 @@ body {
     z-index: 2000 !important;
 }
 
-/* Modal content específico para posts - MÁS GRANDE */
 #MainModal .ModalContent {
     background-color: var(--ColorWhite) !important;
     border: 1px solid var(--BorderColor) !important;
     border-radius: 12px !important;
     width: 90% !important;
-    max-width: 800px !important; /* Mucho más grande */
+    max-width: 800px !important;
     max-height: 85vh !important;
     overflow-y: auto !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
     font-family: "Inter", sans-serif !important;
     position: relative !important;
-    text-align: left !important; /* No centrado */
-    padding: 0 !important; /* Sin padding general */
+    text-align: left !important;
+    padding: 0 !important;
 }
 
-/* Header del modal */
 #MainModal .ModalHeader {
     padding: 25px 30px !important;
     border-bottom: 1px solid var(--BorderColor) !important;
@@ -916,12 +895,10 @@ body {
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Body del modal */
 #MainModal .ModalBody {
     padding: 0 !important;
 }
 
-/* Post editable */
 #MainModal .EditablePostCard {
     background-color: var(--ColorWhite) !important;
     padding: 30px !important;
@@ -930,7 +907,6 @@ body {
     gap: 20px !important;
 }
 
-/* Header del post editable */
 #MainModal .EditableCardHeader {
     display: flex !important;
     justify-content: space-between !important;
@@ -977,7 +953,6 @@ body {
     cursor: pointer !important;
 }
 
-/* Descripción editable */
 #MainModal .EditableDescriptionInput {
     color: var(--TextColorSecondary) !important;
     font-size: 1.1em !important;
@@ -1008,7 +983,6 @@ body {
     line-height: 1.4 !important;
 }
 
-/* Área de subida de imagen */
 #MainModal .ImageUploadArea {
     border: 2px dashed var(--BorderColor) !important;
     border-radius: 10px !important;
@@ -1045,11 +1019,10 @@ body {
     margin-bottom: 5px !important;
 }
 
-/* Preview de imagen */
 #MainModal #imageContainer {
     position: relative !important;
     margin: 15px 0 20px 0 !important;
-    order: 0 !important; /* Cambiado de -1 a 0 para que aparezca en orden normal */
+    order: 0 !important;
     border-radius: 12px !important;
     overflow: hidden !important;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
@@ -1092,7 +1065,6 @@ body {
     transform: scale(1.1) !important;
 }
 
-/* Organizar el contenido con flexbox */
 #MainModal .EditablePostCard {
     background-color: var(--ColorWhite) !important;
     padding: 35px !important;
@@ -1101,7 +1073,6 @@ body {
     gap: 25px !important;
 }
 
-/* Sección de categorías mejorada */
 #MainModal .CategorySection {
     display: flex !important;
     align-items: center !important;
@@ -1141,7 +1112,6 @@ body {
     box-shadow: 0 0 0 2px rgba(33, 33, 33, 0.1) !important;
 }
 
-/* Footer del modal más limpio */
 #MainModal .EditableCardFooter {
     display: flex !important;
     flex-direction: column !important;
@@ -1150,7 +1120,6 @@ body {
     border-top: 1px solid var(--BorderColor) !important;
 }
 
-/* Tags con mejor espaciado */
 #MainModal .SelectedTagsContainer {
     display: flex !important;
     flex-wrap: wrap !important;
@@ -1176,7 +1145,6 @@ body {
     transform: translateY(-1px) !important;
 }
 
-/* Botones de acción mejorados */
 #MainModal .EditableFormActions {
     display: flex !important;
     gap: 20px !important;
@@ -1225,7 +1193,17 @@ body {
     box-shadow: 0 4px 15px rgba(33, 33, 33, 0.3) !important;
 }
 
-/* Responsive mejorado */
+@keyframes tagFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 @media (max-width: 768px) {
     #MainModal .EditablePostCard {
         padding: 25px !important;
@@ -1266,9 +1244,6 @@ body {
     }
 }
 
-/* AGREGAR al final del archivo - Estilos para forzar el comportamiento del modal */
-
-/* Clases de estado del modal */
 #MainModal.hidden {
     display: none !important;
     visibility: hidden !important;
@@ -1281,7 +1256,6 @@ body {
     opacity: 1 !important;
 }
 
-/* Forzar el comportamiento del modal */
 #MainModal[style*="display: none"] {
     display: none !important;
 }
@@ -1290,19 +1264,15 @@ body {
     display: flex !important;
 }
 
-/* Asegurar z-index correcto */
 #MainModal {
     z-index: 9999 !important;
 }
 
-/* Transiciones suaves */
 #MainModal {
     transition: opacity 0.2s ease, visibility 0.2s ease !important;
 }
 
-/* AGREGAR al final del archivo - Estilos para posts no editables */
 
-/* Posts en modo solo lectura */
 .PostTitleReadOnly {
   color: var(--TextColorPrimary) !important;
   font-family: "Inter", sans-serif !important;
@@ -1323,7 +1293,6 @@ body {
   padding: 0 !important;
 }
 
-/* Mostrar privacidad como texto estilizado */
 .PrivacyDisplay {
   padding: 6px 15px !important;
   border-radius: 20px !important;
@@ -1348,7 +1317,6 @@ body {
   border: 1px solid #ddc760 !important;
 }
 
-/* Tags de categorías sin botón X (solo lectura) */
 .TagReadOnly {
   background-color: var(--TextColorPrimary) !important;
   color: var(--ColorWhite) !important;
@@ -1369,7 +1337,6 @@ body {
   box-shadow: 0 2px 8px rgba(66, 66, 66, 0.3) !important;
 }
 
-/* Botones de acción mejorados */
 .CardControls .IconButton {
   background-color: transparent !important;
   border: 1px solid var(--BorderColor) !important;
@@ -1414,7 +1381,6 @@ body {
   transition: color 0.2s ease !important;
 }
 
-/* Header del card con mejor distribución */
 .CardHeader {
   display: flex !important;
   justify-content: space-between !important;
@@ -1430,7 +1396,6 @@ body {
   flex-shrink: 0 !important;
 }
 
-/* Responsive para controles */
 @media (max-width: 768px) {
   .CardHeader {
     flex-direction: column !important;
@@ -1454,7 +1419,6 @@ body {
   }
 }
 
-/* Efectos de hover para el card completo */
 .Publication:hover .ContentCard {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
   transform: translateY(-2px) !important;
@@ -1464,7 +1428,6 @@ body {
   transition: all 0.3s ease !important;
 }
 
-/* Estados de carga y transiciones */
 .ContentCard {
   transition: all 0.3s ease !important;
 }
@@ -1474,7 +1437,6 @@ body {
   user-select: none !important;
 }
 
-/* Mejorar el espaciado del footer */
 .CardFooter {
   margin-top: 20px !important;
   padding-top: 15px !important;
@@ -1484,212 +1446,14 @@ body {
   gap: 8px !important;
 }
 
-/* ✅ AGREGAR: Estilos para carrusel de imágenes */
-#imageCarousel {
-    position: relative;
-    margin: 15px 0 20px 0;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+.swal2-container {
+  z-index: 10000 !important;
 }
 
-.carousel-container {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    overflow: hidden;
-    border-radius: 12px;
+.swal2-popup {
+  z-index: 10001 !important;
 }
 
-.carousel-images {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.carousel-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.carousel-image.active {
-    opacity: 1;
-}
-
-.carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    z-index: 10;
-    transition: background 0.2s ease;
-}
-
-.carousel-btn:hover {
-    background: rgba(0, 0, 0, 0.9);
-}
-
-.prev-btn {
-    left: 10px;
-}
-
-.next-btn {
-    right: 10px;
-}
-
-.image-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-    background: var(--ColorLightGray);
-    border-radius: 0 0 12px 12px;
-}
-
-#imageCounter {
-    color: var(--TextColorSecondary);
-    font-size: 0.9em;
-    font-weight: 500;
-}
-
-.remove-all-images-btn {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    padding: 6px 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.85em;
-    transition: background 0.2s ease;
-}
-
-.remove-all-images-btn:hover {
-    background: #c0392b;
-}
-
-.individual-image-remove {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: rgba(231, 76, 60, 0.9);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    z-index: 15;
-    transition: all 0.2s ease;
-}
-
-.individual-image-remove:hover {
-    background: rgba(192, 57, 43, 0.9);
-    transform: scale(1.1);
-}
-
-/* Estilos para carrusel en posts mostrados */
-.post-carousel {
-    position: relative;
-    margin: 15px 0;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.post-carousel .carousel-container {
-    position: relative;
-    width: 100%;
-    height: 300px;
-    overflow: hidden;
-    border-radius: 12px;
-}
-
-.post-carousel .carousel-images {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.post-carousel .carousel-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    position: absolute;
-    top: 0;
-    left: 0;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.post-carousel .carousel-image.active {
-    opacity: 1;
-}
-
-.post-carousel .carousel-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 35px;
-    height: 35px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    z-index: 10;
-    transition: background 0.2s ease;
-}
-
-.post-carousel .carousel-btn:hover {
-    background: rgba(0, 0, 0, 0.9);
-}
-
-.post-carousel .prev-btn {
-    left: 10px;
-}
-
-.post-carousel .next-btn {
-    right: 10px;
-}
-
-.post-carousel .image-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 8px 15px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    border-radius: 0 0 12px 12px;
-}
-
-.post-carousel .image-counter {
-    color: white;
-    font-size: 0.85em;
-    font-weight: 500;
+.swal2-backdrop-show {
+  z-index: 9999 !important;
 }

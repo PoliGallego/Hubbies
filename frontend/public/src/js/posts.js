@@ -1,4 +1,3 @@
-// Array para almacenar las secciones seleccionadas
 let selectedSections = [];
 let isCreatingPost = false;
 let isEditMode = false;
@@ -12,7 +11,6 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
-  // Verificar token con endpoint correcto
   fetch("/api/posts/verify", {
     headers: { Authorization: `Bearer ${token}` },
   })
@@ -23,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .then((data) => {
       console.log("Usuario verificado:", data);
       const welcome = document.getElementById("welcomeUser");
-      if (welcome) welcome.textContent = `Bienvenido ${data.user}`;
+      if (welcome) welcome.textContent = `Welcome ${data.user}`;
       
       loadUserPosts();
       loadUserSections();
@@ -36,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 });
 
-// FUNCIÓN: Mostrar mensaje cuando no hay posts
 function renderNoPosts() {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
@@ -49,8 +46,8 @@ function renderNoPosts() {
       <article class="ContentCard">
         <div style="text-align: center; padding: 40px 20px;">
           <span class="material-icons" style="font-size: 4em; color: #ccc; margin-bottom: 20px;">post_add</span>
-          <h3 style="color: #666; margin-bottom: 10px;">No tienes posts aún</h3>
-          <p style="color: #999;">¡Crea tu primer post haciendo clic en "Crear Post"!</p>
+          <h3 style="color: #666; margin-bottom: 10px;">You don't have any posts yet</h3>
+          <p style="color: #999;">Create your first post by clicking "Create Post"!</p>
         </div>
       </article>
     </div>
@@ -59,7 +56,6 @@ function renderNoPosts() {
   feedColumn.insertAdjacentHTML('beforeend', noPostsHTML);
 }
 
-// FUNCIÓN: Cargar secciones del usuario
 async function loadUserSections() {
   try {
     console.log('Cargando secciones del usuario...');
@@ -89,7 +85,6 @@ async function loadUserSections() {
   }
 }
 
-// FUNCIÓN: Renderizar lista de secciones en el SELECT del modal
 function renderSectionsList(sections) {
   const categorySelect = document.getElementById('postCategory');
   if (!categorySelect) {
@@ -97,10 +92,10 @@ function renderSectionsList(sections) {
     return;
   }
 
-  categorySelect.innerHTML = '<option value="">+ Agregar sección...</option>';
+  categorySelect.innerHTML = '<option value="">+ Add section...</option>';
 
   if (!sections || sections.length === 0) {
-    categorySelect.innerHTML += '<option value="" disabled>No tienes secciones creadas</option>';
+    categorySelect.innerHTML += '<option value="" disabled>You don\'t have any sections created</option>';
     return;
   }
 
@@ -122,7 +117,6 @@ function renderSectionsList(sections) {
   console.log('Secciones cargadas en el select:', sections.length);
 }
 
-// FUNCIÓN: Agregar sección al post
 function addSectionToPost(sectionId, sectionTitle) {
   if (selectedSections.find(s => s.id === sectionId)) {
     console.log('Sección ya agregada');
@@ -138,13 +132,12 @@ function addSectionToPost(sectionId, sectionTitle) {
   console.log('Sección agregada:', sectionTitle);
 }
 
-// FUNCIÓN: Actualizar display de tags seleccionados
 function updateSelectedTagsDisplay() {
   const selectedTagsContainer = document.getElementById('selectedTags');
   if (!selectedTagsContainer) return;
 
   if (selectedSections.length === 0) {
-    selectedTagsContainer.innerHTML = '<p style="color: #999; text-align: center;">No has seleccionado secciones</p>';
+    selectedTagsContainer.innerHTML = '<p style="color: #999; text-align: center;">You haven\'t selected any sections</p>';
     return;
   }
 
@@ -158,14 +151,12 @@ function updateSelectedTagsDisplay() {
   selectedTagsContainer.innerHTML = tagsHTML;
 }
 
-// FUNCIÓN: Remover sección seleccionada
 function removeSelectedSection(sectionId) {
   selectedSections = selectedSections.filter(s => s.id !== sectionId);
   updateSelectedTagsDisplay();
   console.log('Sección removida');
 }
 
-// ✅ REVERTIR: Funciones simples de imagen
 function triggerImageUpload() {
   const fileInput = document.getElementById('fileInput');
   if (fileInput) {
@@ -206,7 +197,6 @@ function removeImage() {
   console.log('✅ Imagen removida del formulario');
 }
 
-// FUNCIÓN: Cargar posts del usuario
 async function loadUserPosts() {
   try {
     const token = localStorage.getItem('token');
@@ -232,7 +222,6 @@ async function loadUserPosts() {
   }
 }
 
-// FUNCIÓN: Renderizar posts
 function renderPosts(posts) {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
@@ -253,7 +242,6 @@ function renderPosts(posts) {
   setupPostEventListeners();
 }
 
-// ✅ REVERTIR: Función simple para crear HTML del post
 function createPostHTML(post) {
   const categoryTags = post.categories ? post.categories.map(category => `
     <div class="Tag TagReadOnly">
@@ -265,7 +253,7 @@ function createPostHTML(post) {
     <img class="CardImage" src="/assets/uploads/${post.images[0]}" alt="${post.title}">
   ` : '';
 
-  const privacyText = post.privacy === 'public' ? 'Público' : 'Privado';
+  const privacyText = post.privacy === 'public' ? 'Public' : 'Private';
   const privacyClass = post.privacy === 'public' ? 'PrivacyPublic' : 'PrivacyPrivate';
 
   return `
@@ -298,7 +286,6 @@ function createPostHTML(post) {
   `;
 }
 
-// FUNCIÓN: Configurar event listeners de posts
 function setupPostEventListeners() {
   document.querySelectorAll('.delete-post-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -315,7 +302,6 @@ function setupPostEventListeners() {
   });
 }
 
-// FUNCIÓN: Activar modo edición
 async function enableEditMode(postId) {
   console.log('Iniciando edición del post:', postId);
   
@@ -358,21 +344,20 @@ async function enableEditMode(postId) {
       Swal.fire({
         icon: 'error',
         title: 'Error',
-        text: 'No se pudo cargar el post para editar'
+        text: 'Could not load the post for editing'
       });
     } else {
-      alert('Error al cargar el post para editar');
+      alert('Error loading the post for editing');
     }
   }
 }
 
-// ✅ ACTUALIZAR: Función para rellenar modal en edición con imagen simple
 function fillModalForEdit(postData) {
   console.log('Rellenando modal para edición');
 
   const modalTitle = document.querySelector('#MainModal .ModalTitle');
   if (modalTitle) {
-    modalTitle.textContent = 'Editar Post';
+    modalTitle.textContent = 'Edit Post';
   }
 
   const titleInput = document.getElementById('postTitle');
@@ -396,7 +381,6 @@ function fillModalForEdit(postData) {
   }
   updateSelectedTagsDisplay();
 
-  // ✅ SIMPLIFICAR: Mostrar imagen existente si la hay
   const imagePreview = document.getElementById('imagePreview');
   const imageContainer = document.getElementById('imageContainer');
   
@@ -413,13 +397,12 @@ function fillModalForEdit(postData) {
 
   const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
   if (submitBtn) {
-    submitBtn.innerHTML = '<span class="material-icons">save</span>Guardar Cambios';
+    submitBtn.innerHTML = '<span class="material-icons">save</span>Save Changes';
   }
 
   console.log('Modal configurado para edición');
 }
 
-// Función para abrir modal
 function openCreatePostModal() {
   console.log('Abriendo modal:', isEditMode ? 'EDITAR' : 'CREAR');
   
@@ -447,11 +430,11 @@ function openCreatePostModal() {
       removeImage();
       
       const modalTitle = document.querySelector('#MainModal .ModalTitle');
-      if (modalTitle) modalTitle.textContent = 'Crear Nuevo Post';
+      if (modalTitle) modalTitle.textContent = 'Create New Post';
       
       const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
       if (submitBtn) {
-        submitBtn.innerHTML = '<span class="material-icons">send</span>Publicar';
+        submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
     }
     
@@ -463,7 +446,6 @@ function openCreatePostModal() {
   }
 }
 
-// Función para cerrar modal
 function closeCreatePostModal() {
   console.log('Cerrando modal');
   
@@ -492,17 +474,16 @@ function closeCreatePostModal() {
       removeImage();
       
       const modalTitle = document.querySelector('#MainModal .ModalTitle');
-      if (modalTitle) modalTitle.textContent = 'Crear Nuevo Post';
+      if (modalTitle) modalTitle.textContent = 'Create New Post';
       
       const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
       if (submitBtn) {
-        submitBtn.innerHTML = '<span class="material-icons">send</span>Publicar';
+        submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
     }, 100);
   }
 }
 
-// ✅ ACTUALIZAR: Función crear/editar post con mejor manejo de imágenes
 async function createPost() {
   if (isCreatingPost) {
     console.log('Ya se está procesando, ignorando...');
@@ -533,11 +514,11 @@ async function createPost() {
     if (typeof Swal !== 'undefined') {
       Swal.fire({
         icon: 'error',
-        title: 'Campos incompletos',
-        text: 'Por favor completa el título y la descripción'
+        title: 'Incomplete fields',
+        text: 'Please complete the title and description'
       });
     } else {
-      alert('Por favor completa el título y la descripción');
+      alert('Please complete the title and description');
     }
     return;
   }
@@ -547,11 +528,11 @@ async function createPost() {
     if (typeof Swal !== 'undefined') {
       Swal.fire({
         icon: 'error',
-        title: 'Sin secciones',
-        text: 'Debes seleccionar al menos una sección'
+        title: 'No sections',
+        text: 'You must select at least one section'
       });
     } else {
-      alert('Debes seleccionar al menos una sección');
+      alert('You must select at least one section');
     }
     return;
   }
@@ -559,7 +540,7 @@ async function createPost() {
   const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span class="material-icons">hourglass_empty</span>${isEditMode ? 'Guardando...' : 'Creando...'}`;
+    submitBtn.innerHTML = `<span class="material-icons">hourglass_empty</span>${isEditMode ? 'Saving...' : 'Creating...'}`;
   }
 
   const formData = new FormData();
@@ -571,7 +552,6 @@ async function createPost() {
     formData.append('categories', section.id);
   });
   
-  // ✅ MEJORAR: Manejo de imágenes en edición
   if (isEditMode) {
     const imageContainer = document.getElementById('imageContainer');
     const imagePreview = document.getElementById('imagePreview');
@@ -585,25 +565,20 @@ async function createPost() {
     });
 
     if (hasNewImage) {
-      // Si hay una nueva imagen, la enviamos
       formData.append('image', hasNewImage);
       console.log('✅ Enviando nueva imagen:', hasNewImage.name);
     } else {
-      // Verificar si se removió la imagen existente
       const hadOriginalImage = originalPostData?.images?.length > 0;
       const imageStillVisible = imageContainer?.style.display !== 'none' && imagePreview?.src;
       
       if (hadOriginalImage && !imageStillVisible) {
-        // Tenía imagen pero ya no se muestra = se removió
         formData.append('removeImage', 'true');
         console.log('✅ Marcando imagen para remover');
       } else if (hadOriginalImage && imageStillVisible) {
-        // Tenía imagen y sigue visible = mantener imagen actual
         console.log('✅ Manteniendo imagen existente');
       }
     }
   } else {
-    // Modo crear: simplemente agregar imagen si existe
     if (fileInput?.files[0]) {
       formData.append('image', fileInput.files[0]);
       console.log('✅ Agregando imagen al crear post');
@@ -614,15 +589,15 @@ async function createPost() {
     const token = localStorage.getItem('token');
     
     if (!token) {
-      throw new Error('No hay token de autenticación');
+      throw new Error('No authentication token');
     }
 
     console.log('Enviando petición al servidor...');
     
     if (typeof Swal !== 'undefined') {
       Swal.fire({
-        title: isEditMode ? 'Guardando cambios...' : 'Creando post...',
-        text: 'Por favor espera',
+        title: isEditMode ? 'Saving changes...' : 'Creating post...',
+        text: 'Please wait',
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
@@ -646,26 +621,26 @@ async function createPost() {
     console.log('Respuesta del servidor:', response.status, response.statusText);
 
     if (!response.ok) {
-      throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
     console.log('Datos recibidos:', data);
 
     if (data.success) {
-      const successText = isEditMode ? 'actualizado' : 'creado';
+      const successText = isEditMode ? 'updated' : 'created';
       console.log(`Post ${successText} exitosamente`);
       
       if (typeof Swal !== 'undefined') {
         Swal.fire({
           icon: 'success',
-          title: isEditMode ? 'Post actualizado!' : 'Post creado!',
-          text: `Tu post se ha ${successText} exitosamente`,
+          title: isEditMode ? 'Post updated!' : 'Post created!',
+          text: `Your post has been ${successText} successfully`,
           timer: 2000,
           showConfirmButton: false
         });
       } else {
-        alert(`¡Post ${successText} exitosamente!`);
+        alert(`Post ${successText} successfully!`);
       }
       
       closeCreatePostModal();
@@ -675,7 +650,7 @@ async function createPost() {
       }, 500);
       
     } else {
-      throw new Error(data.message || `Error al ${isEditMode ? 'actualizar' : 'crear'} el post`);
+      throw new Error(data.message || `Error ${isEditMode ? 'updating' : 'creating'} post`);
     }
     
   } catch (error) {
@@ -696,39 +671,37 @@ async function createPost() {
     if (submitBtn) {
       submitBtn.disabled = false;
       if (isEditMode) {
-        submitBtn.innerHTML = '<span class="material-icons">save</span>Guardar Cambios';
+        submitBtn.innerHTML = '<span class="material-icons">save</span>Save Changes';
       } else {
-        submitBtn.innerHTML = '<span class="material-icons">send</span>Publicar';
+        submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
     }
   }
 }
 
-// FUNCIÓN: Confirmar eliminación de post
 async function confirmDeletePost(postId) {
   if (typeof Swal !== 'undefined') {
     const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: 'No podrás revertir esta acción',
+      title: 'Are you sure?',
+      text: 'You won\'t be able to revert this action',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Sí, eliminar',
-      cancelButtonText: 'Cancelar'
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
     });
 
     if (result.isConfirmed) {
       await deletePost(postId);
     }
   } else {
-    if (confirm('¿Estás seguro de que quieres eliminar este post?')) {
+    if (confirm('Are you sure you want to delete this post?')) {
       await deletePost(postId);
     }
   }
 }
 
-// FUNCIÓN: Eliminar post
 async function deletePost(postId) {
   try {
     const token = localStorage.getItem('token');
@@ -751,7 +724,7 @@ async function deletePost(postId) {
       console.log('Post eliminado');
       
       if (typeof Swal !== 'undefined') {
-        Swal.fire('Eliminado', 'Post eliminado exitosamente', 'success');
+        Swal.fire('Deleted!', 'Post deleted successfully', 'success');
       }
       
       loadUserPosts();
@@ -760,14 +733,13 @@ async function deletePost(postId) {
     console.error('Error al eliminar post:', error);
     
     if (typeof Swal !== 'undefined') {
-      Swal.fire('Error', 'No se pudo eliminar el post', 'error');
+      Swal.fire('Error', 'Could not delete the post', 'error');
     } else {
-      alert('Error al eliminar el post');
+      alert('Error deleting the post');
     }
   }
 }
 
-// Configurar event listeners del modal
 function setupModalEventListeners() {
   console.log('Configurando event listeners del modal...');
   
@@ -784,7 +756,6 @@ function setupModalEventListeners() {
   console.log('Event listeners del modal configurados');
 }
 
-// Configurar listeners de cerrar
 function setupModalCloseListeners() {
   const closeBtn = document.querySelector('#MainModal .CloseButton');
   const cancelBtn = document.querySelector('#MainModal .EditableCancelButton');
@@ -803,7 +774,6 @@ function setupModalCloseListeners() {
   }
 }
 
-// Hacer funciones globales
 window.addSectionToPost = addSectionToPost;
 window.removeSelectedSection = removeSelectedSection;
 window.handleImageUpload = handleImageUpload;
@@ -812,8 +782,6 @@ window.triggerImageUpload = triggerImageUpload;
 window.enableEditMode = enableEditMode;
 window.confirmDeletePost = confirmDeletePost;
 window.deletePost = deletePost;
-window.setupModalEventListeners = setupModalEventListeners;
-window.setupModalCloseListeners = setupModalCloseListeners;
 window.openCreatePostModal = openCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
