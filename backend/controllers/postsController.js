@@ -1,8 +1,50 @@
 const Post = require("../models/post");
 const Section = require("../models/section");
 const jwt = require("jsonwebtoken");
+const fs = require('fs');
+const path = require('path');
 
 const JWT_SECRET = "secretKey";
+
+// ✅ AGREGAR: Función auxiliar para eliminar archivos físicos
+const deleteImageFiles = (images) => {
+  if (!images || images.length === 0) {
+    console.log('ℹ️ No hay imágenes para eliminar');
+    return;
+  }
+  
+  console.log('🗑️ Iniciando eliminación de archivos:', images);
+  
+  images.forEach((imageName, index) => {
+    // Saltar archivos por defecto del sistema
+    if (imageName === 'avatar_icon.png' || imageName === 'section_icon.png') {
+      console.log(`🛡️ Archivo protegido, no se elimina: ${imageName}`);
+      return;
+    }
+    
+    // Construir ruta completa del archivo
+    const imagePath = path.join(__dirname, '../../frontend/public/assets/uploads', imageName);
+    
+    console.log(`🔍 Intentando eliminar archivo ${index + 1}/${images.length}: ${imagePath}`);
+    
+    // Verificar si el archivo existe antes de intentar eliminarlo
+    fs.access(imagePath, fs.constants.F_OK, (accessErr) => {
+      if (accessErr) {
+        console.log(`⚠️ Archivo no encontrado: ${imageName} (puede que ya haya sido eliminado)`);
+        return;
+      }
+      
+      // Eliminar el archivo
+      fs.unlink(imagePath, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error(`❌ Error al eliminar archivo ${imageName}:`, unlinkErr.message);
+        } else {
+          console.log(`✅ Imagen eliminada exitosamente: ${imageName}`);
+        }
+      });
+    });
+  });
+};
 
 // Verificar token para posts
 const verifyPostToken = async (req, res) => {
@@ -32,7 +74,7 @@ const verifyPostToken = async (req, res) => {
   }
 };
 
-// ✅ REVERTIR: Crear post con una sola imagen
+// Crear post con una sola imagen
 const createPost = async (req, res) => {
   try {
     const { title, description, privacy, categories } = req.body;
@@ -65,7 +107,7 @@ const createPost = async (req, res) => {
       });
     }
 
-    // ✅ REVERTIR: Procesar una sola imagen
+    // Procesar una sola imagen
     let images = [];
     if (req.file) {
       images = [req.file.filename];
@@ -203,7 +245,7 @@ const getPublicPosts = async (req, res) => {
   }
 };
 
-// ✅ ACTUALIZAR: Función updatePost con logs de debugging
+// ✅ MEJORAR: Función updatePost con eliminación de archivos antiguos
 const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -255,27 +297,34 @@ const updatePost = async (req, res) => {
     if (privacy) updateData.privacy = privacy;
     if (categories) updateData.categories = Array.isArray(categories) ? categories : [categories];
 
-    // ✅ MEJORAR: Manejo inteligente de imágenes
+    // ✅ MEJORAR: Manejo inteligente de imágenes con eliminación
     let currentImages = post.images || [];
+    let imagesToDelete = []; // Tracking de imágenes a eliminar
+
     console.log('🖼️ Imágenes actuales:', currentImages);
 
     // Caso 1: Se solicita remover la imagen existente
     if (removeImage === 'true') {
       console.log('🗑️ Removiendo imagen existente');
+      imagesToDelete = [...currentImages]; // Marcar para eliminar
       currentImages = [];
     }
 
     // Caso 2: Se sube una nueva imagen
     if (req.file) {
       console.log('📷 Nueva imagen subida:', req.file.filename);
-      currentImages = [req.file.filename]; // Reemplaza cualquier imagen existente
+      imagesToDelete = [...currentImages]; // Marcar imagen anterior para eliminar
+      currentImages = [req.file.filename];
     }
-
-    // Caso 3: Si no hay nueva imagen y no se pidió remover, mantener la existente
-    // (esto ya está cubierto porque currentImages mantiene su valor)
 
     updateData.images = currentImages;
     console.log('💾 Imágenes finales a guardar:', updateData.images);
+
+    // ✅ ELIMINAR: Archivos físicos de imágenes reemplazadas/removidas
+    if (imagesToDelete.length > 0) {
+      console.log('🗑️ Eliminando archivos antiguos:', imagesToDelete);
+      deleteImageFiles(imagesToDelete);
+    }
 
     const updatedPost = await Post.findByIdAndUpdate(id, updateData, { new: true });
     
@@ -308,7 +357,7 @@ const updatePost = async (req, res) => {
   }
 };
 
-// Eliminar post
+// ✅ MEJORAR: Función deletePost con eliminación automática de archivos
 const deletePost = async (req, res) => {
   try {
     const { id } = req.params;
@@ -324,6 +373,7 @@ const deletePost = async (req, res) => {
     const decoded = jwt.verify(token, JWT_SECRET);
     const userId = decoded.id;
 
+    // Obtener el post antes de eliminarlo para acceder a las imágenes
     const post = await Post.findOne({ _id: id, idUser: userId });
     
     if (!post) {
@@ -333,7 +383,22 @@ const deletePost = async (req, res) => {
       });
     }
 
-    await Post.findByIdAndUpdate(id, { active: false });
+    console.log('🗑️ Eliminando post:', {
+      id: post._id,
+      title: post.title,
+      images: post.images
+    });
+
+    // ✅ ELIMINAR: Archivos de imagen físicos ANTES de eliminar el post
+    if (post.images && post.images.length > 0) {
+      console.log('🖼️ Eliminando imágenes del post:', post.images);
+      deleteImageFiles(post.images);
+    }
+
+    // ✅ ELIMINAR: Post de la base de datos (eliminación real)
+    await Post.findByIdAndDelete(id);
+
+    console.log('✅ Post e imágenes eliminados correctamente');
 
     res.json({
       success: true,
@@ -341,7 +406,7 @@ const deletePost = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error al eliminar post:", error);
+    console.error("❌ Error al eliminar post:", error);
     
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({ 
@@ -352,7 +417,7 @@ const deletePost = async (req, res) => {
     
     res.status(500).json({ 
       success: false, 
-      message: "Error al eliminar post" 
+      message: "Error al eliminar post: " + error.message 
     });
   }
 };
