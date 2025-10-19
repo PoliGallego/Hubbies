@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -15,13 +15,12 @@
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <script src="/src/js/modals.js"></script>
     <script src="/src/js/script.js"></script>
-    <script src="/src/js/posts.js "></script>
+    <script src="/src/js/posts.js"></script>
     <script src="/src/js/components.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
 <body>
-
     <div id="navbar"></div>
 
     <div class="AppContainer">
@@ -31,168 +30,97 @@
             <div class="FeedColumn">
                 <div class="ActionBar">
                     <div class="ActionIcons">
-                        <button class="IconButton"><span class="material-icons">add</span></button>
+                        <button id="CreatePostBtn" class="IconButton" onclick="openCreatePostModal()">
+                            <span class="material-icons">add</span>
+                        </button>
                         <button class="IconButton"><span class="material-icons">mail_outline</span></button>
                     </div>
                     <div class="SearchContainer">
                         <div class="SearchBar">
-                            <input type="text" placeholder="find by title">
+                            <input type="text" placeholder="Find by title">
                         </div>
                         <button class="IconButton"><span class="material-icons">search</span></button>
                     </div>
                 </div>
-
-                <div class="Publication">
-                    <article class="ContentCard">
-                        <div class="CardHeader">
-                            <h2>"Title"</h2>
-                            <div class="CardControls">
-                                <select class="PrivacySelector">
-                                    <option value="privado">Private</option>
-                                    <option value="publico">Public</option>
-                                </select>
-                                <button class="IconButton"><span class="material-icons">delete_outline</span></button>
-                                <button class="IconButton"><span class="material-icons">edit</span></button>
-                            </div>
-                        </div>
-                        <p class="CardDescription">Description</p>
-                        <div class="MusicPlayer">
-                            <img src="https://i.pravatar.cc/150?img=3" alt="Cover" class="MusicCover">
-                            <div class="MusicInfo">
-                                <p class="SongName">Name</p>
-                                <p class="ArtistInfo">Artist - Album - Etc.</p>
-                            </div>
-                            <div class="MusicTime">0:00 - 3:50</div>
-                        </div>
-                        <div class="CardFooter">
-                            <div class="Tag">Category <span class="material-icons">close</span></div>
-                            <div class="Tag">Category <span class="material-icons">close</span></div>
-                        </div>
-                    </article>
-                    <div class="BottomBar">
-                        <button class="IconButton"><span class="material-icons">message</span></button>
-                        <span>0</span>
-                        <button class="IconButton"><span class="material-icons">share</span></button>
-                    </div>
-                </div>
-
-                <div class="Publication">
-                    <article class="ContentCard">
-                        <div class="CardHeader">
-                            <h2>"Title"</h2>
-                            <div class="CardControls">
-                                <select class="PrivacySelector">
-                                    <option value="privado">Private</option>
-                                    <option value="publico">Public</option>
-                                </select>
-                                <button class="IconButton"><span class="material-icons">delete_outline</span></button>
-                                <button class="IconButton"><span class="material-icons">edit</span></button>
-                            </div>
-                        </div>
-                        <p class="CardDescription">Description</p>
-                        <div>
-                            <img class="CardImage"
-                                src="https://images.pexels.com/photos/3754303/pexels-photo-3754303.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                                alt="User Image">
-                            <img class="CardImage"
-                                src="https://images.pexels.com/photos/3754303/pexels-photo-3754303.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
-                                alt="User Image">
-                        </div>
-                        <div class="CardFooter">
-                            <div class="Tag">Category <span class="material-icons">close</span></div>
-                        </div>
-                    </article>
-                    <div class="BottomBar">
-                        <button class="IconButton"><span class="material-icons">message</span></button>
-                        <span>0</span>
-                        <button class="IconButton"><span class="material-icons">share</span></button>
-                    </div>
-                </div>
-
-                <div class="Publication">
-                    <article class="ContentCard">
-                        <div class="CardHeader">
-                            <h2>"Title"</h2>
-                            <div class="CardControls">
-                                <select class="PrivacySelector">
-                                    <option value="privado">Private</option>
-                                    <option value="publico">Public</option>
-                                </select>
-                                <button class="IconButton"><span class="material-icons">delete_outline</span></button>
-                                <button class="IconButton"><span class="material-icons">edit</span></button>
-                            </div>
-                        </div>
-                        <p class="CardDescription">Description</p>
-                        <div class="CardFooter">
-                            <div class="Tag">Category <span class="material-icons">close</span></div>
-                            <div class="Tag">Category <span class="material-icons">close</span></div>
-                            <div class="Tag">Category <span class="material-icons">close</span></div>
-                        </div>
-                    </article>
-                    <div class="BottomBar">
-                        <button class="IconButton"><span class="material-icons">message</span></button>
-                        <span>0</span>
-                        <button class="IconButton"><span class="material-icons">share</span></button>
-                    </div>
-                </div>
-
             </div>
 
             <aside class="RightSidebar">
-                <div class="CommentCard">
-                    <div class="CommentHeader">
-                        <img src="https://i.pravatar.cc/40?u=user2" alt="Avatar" class="CommentAvatar">
-                        <div>
-                            <p><strong>Name</strong></p>
-                            <p class="CommentContext">comment in "Title"</p>
-                        </div>
-                    </div>
-                    <div class="CommentContent">
-                        <p>Comment</p>
-                    </div>
-                </div>
-                <div class="CommentCard">
-                    <div class="CommentHeader">
-                        <img src="https://i.pravatar.cc/40?u=user3" alt="Avatar" class="CommentAvatar">
-                        <div>
-                            <p><strong>Name</strong></p>
-                            <p class="CommentContext">comment in "Title"</p>
-                        </div>
-                    </div>
-                    <div class="CommentContent">
-                        <p>Comment</p>
-                    </div>
-                </div>
-                <div class="CommentCard">
-                    <div class="CommentHeader">
-                        <img src="https://i.pravatar.cc/40?u=user4" alt="Avatar" class="CommentAvatar">
-                        <div>
-                            <p><strong>Name</strong></p>
-                            <p class="CommentContext">comment in "Title"</p>
-                        </div>
-                    </div>
-                    <div class="CommentContent">
-                        <p>Comment</p>
-                    </div>
-                </div>
-
+                <h3>Recent Comments</h3>
+                <p style="color: #999; text-align: center;">No comments yet</p>
             </aside>
         </main>
     </div>
 
-    <div id="MainModal" class="ModalOverlay">
+    <div id="MainModal" class="ModalOverlay" style="display: none;">
         <div class="ModalContent">
-            <button class="CloseButton" id="CloseButton">&times;</button>
             <div class="ModalHeader">
                 <div class="LogoCircleModal"></div>
-                <h2 id="ModalTitle" class="ModalTitle">Título</h2>
+                <h2 class="ModalTitle">Create New Post</h2>
+                <button class="CloseButton" type="button">&times;</button>
             </div>
 
-            <form id="ModalForm">
-            </form>
+            <div class="ModalBody">
+                <div class="EditablePostCard">
+                    <div class="EditableCardHeader">
+                        <input 
+                            type="text" 
+                            id="postTitle" 
+                            placeholder="What's your new hobby?"
+                            class="EditableTitleInput"
+                        >
+                        <div class="CardControls">
+                            <select id="postPrivacy" class="PrivacySelector">
+                                <option value="private">Private</option>
+                                <option value="public">Public</option>
+                            </select>
+                            <button type="button" class="IconButton AttachButton" onclick="triggerImageUpload()" title="Attach image">
+                                <span class="material-icons">attach_file</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="imageContainer" style="display: none;">
+                        <img id="imagePreview" class="EditableImagePreview" alt="Preview">
+                        <button type="button" class="RemoveImageBtn" onclick="removeImage()">
+                            <span class="material-icons">close</span>
+                        </button>
+                    </div>
+                    
+                    <textarea 
+                        id="postDescription" 
+                        placeholder="Tell us about your hobby, what you like about it, how you started, tips, experiences..."
+                        class="EditableDescriptionInput"
+                    ></textarea>
+
+                    <div class="EditableCardFooter">
+                        <div class="CategorySection">
+                            <span class="CategoryLabel">Sections:</span>
+                            <select id="postCategory" class="EditableCategorySelect">
+                                <option value="">+ Add section...</option>
+                            </select>
+                        </div>
+                        
+                        <div id="selectedTags" class="SelectedTagsContainer">
+                            <p style="color: #999; text-align: center;">You haven't selected any sections</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="EditableFormActions">
+                    <button type="button" class="EditableActionButton EditableCancelButton">
+                        <span class="material-icons">cancel</span>
+                        Cancel
+                    </button>
+                    <button type="button" class="EditableActionButton EditableSubmitButton">
+                        <span class="material-icons">send</span>
+                        Publish
+                    </button>
+                </div>
+
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+            </div>
         </div>
     </div>
-
 </body>
 
 </html>
