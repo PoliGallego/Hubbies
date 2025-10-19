@@ -15,8 +15,8 @@ const PostSchema = new Mongoose.Schema(
       type: String,
       required: true,
     },
-    images: [String], // Array de rutas de imágenes
-    categories: [String], // Array de IDs de secciones
+    images: [String],
+    categories: [String],
     privacy: {
       type: String,
       enum: ["public", "private"],

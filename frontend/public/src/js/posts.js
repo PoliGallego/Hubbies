@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
       console.log("Usuario verificado:", data);
       const welcome = document.getElementById("welcomeUser");
       if (welcome) welcome.textContent = `Welcome ${data.user}`;
-      
+
       loadUserPosts();
       loadUserSections();
       setupModalEventListeners();
@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
 function renderNoPosts() {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
-  
+
   const existingPosts = feedColumn.querySelectorAll('.Publication');
   existingPosts.forEach(post => post.remove());
 
@@ -52,7 +52,7 @@ function renderNoPosts() {
       </article>
     </div>
   `;
-  
+
   feedColumn.insertAdjacentHTML('beforeend', noPostsHTML);
 }
 
@@ -60,10 +60,10 @@ async function loadUserSections() {
   try {
     console.log('Cargando secciones del usuario...');
     const token = localStorage.getItem('token');
-    
+
     const payload = JSON.parse(atob(token.split('.')[1]));
     const userId = payload.id;
-    
+
     const response = await fetch(`/api/sections/${userId}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -77,7 +77,7 @@ async function loadUserSections() {
 
     const sections = await response.json();
     console.log('Secciones recibidas:', sections);
-    
+
     renderSectionsList(sections);
   } catch (error) {
     console.error('Error al cargar secciones:', error);
@@ -168,18 +168,18 @@ function handleImageUpload(event) {
   const fileInput = event ? event.target : document.getElementById('fileInput');
   const imagePreview = document.getElementById('imagePreview');
   const imageContainer = document.getElementById('imageContainer');
-  
+
   if (fileInput && fileInput.files[0]) {
     const file = fileInput.files[0];
     const reader = new FileReader();
-    
+
     reader.onload = function(e) {
       if (imagePreview && imageContainer) {
         imagePreview.src = e.target.result;
         imageContainer.style.display = 'block';
       }
     };
-    
+
     reader.readAsDataURL(file);
     console.log('Imagen cargada:', file.name);
   }
@@ -189,18 +189,18 @@ function removeImage() {
   const fileInput = document.getElementById('fileInput');
   const imagePreview = document.getElementById('imagePreview');
   const imageContainer = document.getElementById('imageContainer');
-  
+
   if (fileInput) fileInput.value = '';
   if (imagePreview) imagePreview.src = '';
   if (imageContainer) imageContainer.style.display = 'none';
-  
+
   console.log('✅ Imagen removida del formulario');
 }
 
 async function loadUserPosts() {
   try {
     const token = localStorage.getItem('token');
-    
+
     const response = await fetch('/api/posts/my-posts', {
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -214,7 +214,7 @@ async function loadUserPosts() {
 
     const posts = await response.json();
     console.log('Posts recibidos:', posts);
-    
+
     renderPosts(posts);
   } catch (error) {
     console.error('Error al cargar posts:', error);
@@ -225,7 +225,7 @@ async function loadUserPosts() {
 function renderPosts(posts) {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
-  
+
   const existingPosts = feedColumn.querySelectorAll('.Publication');
   existingPosts.forEach(post => post.remove());
 
@@ -239,6 +239,12 @@ function renderPosts(posts) {
     feedColumn.insertAdjacentHTML('beforeend', postHTML);
   });
 
+
+  setTimeout(() => {
+    if (typeof loadComments === 'function') {
+      posts.forEach(post => loadComments(post._id));
+    }
+  }, 100);
   setupPostEventListeners();
 }
 
@@ -276,12 +282,34 @@ function createPostHTML(post) {
         <div class="CardFooter">
           ${categoryTags}
         </div>
-      </article>
+      </article>    
+
       <div class="BottomBar">
-        <button class="IconButton"><span class="material-icons">message</span></button>
-        <span>${post.comments?.length || 0}</span>
+        <button class="CommentsButton" data-post-id="${post._id}">
+          <span class="material-icons">message</span>
+        </button>
+        <span class="comments-count" data-post-id="${post._id}">
+          ${post.comments?.length || 0}
+        </span>
         <button class="IconButton"><span class="material-icons">share</span></button>
-      </div>
+      </div>     
+      
+      <div class="CommentsSection" id="comments-section-${post._id}" style="display: none;">
+        <div class="CommentsList" id="comments-list-${post._id}">
+        </div>
+          <div class="CommentBox">
+            <textarea
+              class="CommentInput"
+              placeholder="Escribe un comentario..."
+              data-post-id="${post._id}"
+            ></textarea>
+            <button class="SendCommentBtn" data-post-id="${post._id}">
+              <span class="material-icons">send</span>
+            </button>
+          </div>
+        </div>
+      
+      
     </div>
   `;
 }
@@ -304,7 +332,7 @@ function setupPostEventListeners() {
 
 async function enableEditMode(postId) {
   console.log('Iniciando edición del post:', postId);
-  
+
   try {
     const token = localStorage.getItem('token');
     const response = await fetch('/api/posts/my-posts', {
@@ -339,7 +367,7 @@ async function enableEditMode(postId) {
 
   } catch (error) {
     console.error('Error al iniciar edición:', error);
-    
+
     if (typeof Swal !== 'undefined') {
       Swal.fire({
         icon: 'error',
@@ -363,7 +391,7 @@ function fillModalForEdit(postData) {
   const titleInput = document.getElementById('postTitle');
   const descInput = document.getElementById('postDescription');
   const privacySelect = document.getElementById('postPrivacy');
-  
+
   if (titleInput) titleInput.value = postData.title || '';
   if (descInput) descInput.value = postData.description || '';
   if (privacySelect) privacySelect.value = postData.privacy || 'private';
@@ -383,7 +411,7 @@ function fillModalForEdit(postData) {
 
   const imagePreview = document.getElementById('imagePreview');
   const imageContainer = document.getElementById('imageContainer');
-  
+
   if (postData.images && postData.images.length > 0) {
     if (imagePreview && imageContainer) {
       imagePreview.src = `/assets/uploads/${postData.images[0]}`;
@@ -405,7 +433,7 @@ function fillModalForEdit(postData) {
 
 function openCreatePostModal() {
   console.log('Abriendo modal:', isEditMode ? 'EDITAR' : 'CREAR');
-  
+
   const modal = document.getElementById('MainModal');
   if (modal) {
     modal.style.display = 'flex';
@@ -413,31 +441,31 @@ function openCreatePostModal() {
     modal.style.opacity = '1';
     modal.classList.remove('hidden');
     modal.classList.add('show');
-    
+
     if (!isEditMode) {
       console.log('Limpiando modal para crear nuevo post');
-      
+
       const titleInput = document.getElementById('postTitle');
       const descInput = document.getElementById('postDescription');
       const privacySelect = document.getElementById('postPrivacy');
-      
+
       if (titleInput) titleInput.value = '';
       if (descInput) descInput.value = '';
       if (privacySelect) privacySelect.value = 'private';
-      
+
       selectedSections = [];
       updateSelectedTagsDisplay();
       removeImage();
-      
+
       const modalTitle = document.querySelector('#MainModal .ModalTitle');
       if (modalTitle) modalTitle.textContent = 'Create New Post';
-      
+
       const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
       if (submitBtn) {
         submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
     }
-    
+
     loadUserSections();
 
     setTimeout(() => {
@@ -448,34 +476,34 @@ function openCreatePostModal() {
 
 function closeCreatePostModal() {
   console.log('Cerrando modal');
-  
+
   const modal = document.getElementById('MainModal');
   if (modal) {
     modal.style.display = 'none';
-    
+
     if (isEditMode) {
       console.log('Saliendo del modo edición');
       isEditMode = false;
       editingPostId = null;
       originalPostData = null;
     }
-    
+
     setTimeout(() => {
       const titleInput = document.getElementById('postTitle');
       const descInput = document.getElementById('postDescription');
       const privacySelect = document.getElementById('postPrivacy');
-      
+
       if (titleInput) titleInput.value = '';
       if (descInput) descInput.value = '';
       if (privacySelect) privacySelect.value = 'private';
-      
+
       selectedSections = [];
       updateSelectedTagsDisplay();
       removeImage();
-      
+
       const modalTitle = document.querySelector('#MainModal .ModalTitle');
       if (modalTitle) modalTitle.textContent = 'Create New Post';
-      
+
       const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
       if (submitBtn) {
         submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
@@ -489,12 +517,12 @@ async function createPost() {
     console.log('Ya se está procesando, ignorando...');
     return;
   }
-  
+
   isCreatingPost = true;
-  
+
   const actionText = isEditMode ? 'EDITANDO' : 'CREANDO';
   console.log(`${actionText} post...`);
-  
+
   const title = document.getElementById('postTitle')?.value?.trim();
   const description = document.getElementById('postDescription')?.value?.trim();
   const privacy = document.getElementById('postPrivacy')?.value;
@@ -522,7 +550,7 @@ async function createPost() {
     }
     return;
   }
-  
+
   if (selectedSections.length === 0) {
     isCreatingPost = false;
     if (typeof Swal !== 'undefined') {
@@ -547,16 +575,16 @@ async function createPost() {
   formData.append('title', title);
   formData.append('description', description);
   formData.append('privacy', privacy || 'private');
-  
+
   selectedSections.forEach(section => {
     formData.append('categories', section.id);
   });
-  
+
   if (isEditMode) {
     const imageContainer = document.getElementById('imageContainer');
     const imagePreview = document.getElementById('imagePreview');
     const hasNewImage = fileInput?.files[0];
-    
+
     console.log('Estado de imagen en edición:', {
       hasOriginalImage: originalPostData?.images?.length > 0,
       hasNewImage: !!hasNewImage,
@@ -570,7 +598,7 @@ async function createPost() {
     } else {
       const hadOriginalImage = originalPostData?.images?.length > 0;
       const imageStillVisible = imageContainer?.style.display !== 'none' && imagePreview?.src;
-      
+
       if (hadOriginalImage && !imageStillVisible) {
         formData.append('removeImage', 'true');
         console.log('✅ Marcando imagen para remover');
@@ -587,13 +615,13 @@ async function createPost() {
 
   try {
     const token = localStorage.getItem('token');
-    
+
     if (!token) {
       throw new Error('No authentication token');
     }
 
     console.log('Enviando petición al servidor...');
-    
+
     if (typeof Swal !== 'undefined') {
       Swal.fire({
         title: isEditMode ? 'Saving changes...' : 'Creating post...',
@@ -630,7 +658,7 @@ async function createPost() {
     if (data.success) {
       const successText = isEditMode ? 'updated' : 'created';
       console.log(`Post ${successText} exitosamente`);
-      
+
       if (typeof Swal !== 'undefined') {
         Swal.fire({
           icon: 'success',
@@ -642,20 +670,20 @@ async function createPost() {
       } else {
         alert(`Post ${successText} successfully!`);
       }
-      
+
       closeCreatePostModal();
-      
+
       setTimeout(() => {
         loadUserPosts();
       }, 500);
-      
+
     } else {
       throw new Error(data.message || `Error ${isEditMode ? 'updating' : 'creating'} post`);
     }
-    
+
   } catch (error) {
     console.error('Error:', error);
-    
+
     if (typeof Swal !== 'undefined') {
       Swal.fire({
         icon: 'error',
@@ -667,7 +695,7 @@ async function createPost() {
     }
   } finally {
     isCreatingPost = false;
-    
+
     if (submitBtn) {
       submitBtn.disabled = false;
       if (isEditMode) {
@@ -705,7 +733,7 @@ async function confirmDeletePost(postId) {
 async function deletePost(postId) {
   try {
     const token = localStorage.getItem('token');
-    
+
     const response = await fetch(`/api/posts/${postId}`, {
       method: 'DELETE',
       headers: {
@@ -719,19 +747,19 @@ async function deletePost(postId) {
     }
 
     const data = await response.json();
-    
+
     if (data.success) {
       console.log('Post eliminado');
-      
+
       if (typeof Swal !== 'undefined') {
         Swal.fire('Deleted!', 'Post deleted successfully', 'success');
       }
-      
+
       loadUserPosts();
     }
   } catch (error) {
     console.error('Error al eliminar post:', error);
-    
+
     if (typeof Swal !== 'undefined') {
       Swal.fire('Error', 'Could not delete the post', 'error');
     } else {
@@ -742,7 +770,7 @@ async function deletePost(postId) {
 
 function setupModalEventListeners() {
   console.log('Configurando event listeners del modal...');
-  
+
   const createPostBtn = document.getElementById('CreatePostBtn');
   if (createPostBtn) {
     createPostBtn.addEventListener('click', openCreatePostModal);
@@ -752,7 +780,7 @@ function setupModalEventListeners() {
   setTimeout(() => {
     setupModalCloseListeners();
   }, 500);
-  
+
   console.log('Event listeners del modal configurados');
 }
 
@@ -760,15 +788,15 @@ function setupModalCloseListeners() {
   const closeBtn = document.querySelector('#MainModal .CloseButton');
   const cancelBtn = document.querySelector('#MainModal .EditableCancelButton');
   const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
-  
+
   if (closeBtn) {
     closeBtn.onclick = closeCreatePostModal;
   }
-  
+
   if (cancelBtn) {
     cancelBtn.onclick = closeCreatePostModal;
   }
-  
+
   if (submitBtn) {
     submitBtn.onclick = createPost;
   }
