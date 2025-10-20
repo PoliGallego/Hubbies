@@ -2,7 +2,7 @@ const originalCreatePostHTML = window.createPostHTML;
 
 function defineCreatePostHTML() {
     window.createPostHTML = function(post) {
-        console.log('Generando HTML para post (comments.js):', post._id);
+        //console.log('Generando HTML para post (comments.js):', post._id);
         const categoryTags = post.categories ? post.categories.map(category => `
       <div class="Tag TagReadOnly">
         ${category.title || category}
@@ -68,22 +68,22 @@ function defineCreatePostHTML() {
 defineCreatePostHTML();
 
 async function fetchUserName(userId) {
-    console.log('Intentando obtener nombre para userId:', userId);
+    //console.log('Intentando obtener nombre para userId:', userId);
     try {
         const token = localStorage.getItem('token');
-        console.log('Token usado:', token ? 'Presente' : 'No encontrado');
+        //console.log('Token usado:', token ? 'Presente' : 'No encontrado');
         const response = await fetch(`/api/users/${userId}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         });
-        console.log('Respuesta de /api/users:', response.status, response.statusText);
+        //console.log('Respuesta de /api/users:', response.status, response.statusText);
         if (!response.ok) {
             throw new Error(`Error al obtener datos del usuario: ${response.status}`);
         }
         const data = await response.json();
-        console.log('Datos del usuario:', data);
+        //console.log('Datos del usuario:', data);
         return data.user.fullName || data.user.username || 'Anónimo';
     } catch (error) {
         console.error('Error al obtener nombre del usuario:', error);
@@ -92,7 +92,7 @@ async function fetchUserName(userId) {
 }
 
 async function loadComments(postId) {
-    console.log('Cargando comentarios para postId:', postId);
+    //console.log('Cargando comentarios para postId:', postId);
     try {
         const token = localStorage.getItem('token');
         const response = await fetch(`/api/posts/${postId}/comments`, {
@@ -102,7 +102,7 @@ async function loadComments(postId) {
             }
         });
 
-        console.log('Respuesta de carga de comentarios:', response.status);
+        //console.log('Respuesta de carga de comentarios:', response.status);
         if (!response.ok) {
             throw new Error('Error al cargar comentarios');
         }
@@ -112,7 +112,7 @@ async function loadComments(postId) {
             const currentUser = getCurrentUser();
             const commentsWithNames = await Promise.all(data.comments.map(async comment => {
                 const userName = comment.userId?._id ? await fetchUserName(comment.userId._id) : 'Anónimo';
-                console.log(`Comentario ID ${comment._id}, userId: ${comment.userId?._id}, userName: ${userName}`);
+                //console.log(`Comentario ID ${comment._id}, userId: ${comment.userId?._id}, userName: ${userName}`);
                 return { ...comment, userName };
             }));
             renderComments(postId, commentsWithNames, currentUser);
@@ -128,7 +128,7 @@ async function loadComments(postId) {
 }
 
 function renderComments(postId, comments, currentUser) {
-    console.log('Renderizando comentarios para postId:', postId, 'Comentarios:', comments);
+    //console.log('Renderizando comentarios para postId:', postId, 'Comentarios:', comments);
     const commentsList = document.getElementById(`comments-list-${postId}`);
     if (!commentsList) {
         console.error('No se encontró CommentsList para postId:', postId);
@@ -177,14 +177,14 @@ function getCurrentUser() {
 }
 
 async function toggleCommentBox(postId) {
-    console.log('Alternando CommentsSection para postId:', postId);
+    //console.log('Alternando CommentsSection para postId:', postId);
     const commentsSection = document.getElementById(`comments-section-${postId}`);
     if (!commentsSection) {
         console.error(`No se encontró CommentsSection con ID comments-section-${postId}`);
         const allCommentSections = document.querySelectorAll('.CommentsSection');
-        console.log('Secciones de comentarios en el DOM:', Array.from(allCommentSections).map(el => el.id));
+        //console.log('Secciones de comentarios en el DOM:', Array.from(allCommentSections).map(el => el.id));
         const allPublications = document.querySelectorAll('.Publication');
-        console.log('Publicaciones en el DOM:', Array.from(allPublications).map(el => el.dataset.postId));
+        //console.log('Publicaciones en el DOM:', Array.from(allPublications).map(el => el.dataset.postId));
         if (typeof Swal !== 'undefined') {
             Swal.fire('Error', 'No se pudo abrir la sección de comentarios. La publicación no se encontró.', 'error');
         } else {
@@ -194,7 +194,7 @@ async function toggleCommentBox(postId) {
     }
 
     const isVisible = commentsSection.style.display !== 'none';
-    console.log('CommentsSection encontrado, isVisible:', isVisible);
+    //console.log('CommentsSection encontrado, isVisible:', isVisible);
 
     document.querySelectorAll('.CommentsSection').forEach(section => {
         section.style.display = 'none';
@@ -206,7 +206,7 @@ async function toggleCommentBox(postId) {
         const textarea = commentsSection.querySelector('.CommentInput');
         if (textarea) {
             textarea.focus();
-            console.log('Textarea enfocado');
+            //console.log('Textarea enfocado');
         } else {
             console.error('No se encontró CommentInput dentro de CommentsSection');
         }
@@ -214,14 +214,14 @@ async function toggleCommentBox(postId) {
 }
 
 async function sendComment(postId) {
-    console.log('Enviando comentario para postId:', postId);
+    //console.log('Enviando comentario para postId:', postId);
     const textarea = document.querySelector(`#comments-section-${postId} .CommentInput`);
-    console.log('Textarea encontrado:', textarea);
+    //console.log('Textarea encontrado:', textarea);
     const content = textarea?.value.trim();
-    console.log('Contenido del comentario:', content);
+    //console.log('Contenido del comentario:', content);
 
     if (!content) {
-        console.log('Comentario vacío, mostrando alerta');
+        //console.log('Comentario vacío, mostrando alerta');
         if (typeof Swal !== 'undefined') {
             Swal.fire('Error', 'Por favor, escribe un comentario primero', 'error');
         } else {
@@ -232,7 +232,7 @@ async function sendComment(postId) {
 
     try {
         const token = localStorage.getItem('token');
-        console.log('Token:', token ? 'Presente' : 'No encontrado');
+        //console.log('Token:', token ? 'Presente' : 'No encontrado');
 
         const response = await fetch('/api/comments', {
             method: 'POST',
@@ -246,13 +246,13 @@ async function sendComment(postId) {
             })
         });
 
-        console.log('Respuesta del servidor:', response.status, response.statusText);
+        //console.log('Respuesta del servidor:', response.status, response.statusText);
         if (!response.ok) {
             throw new Error('Error al crear comentario');
         }
 
         const data = await response.json();
-        console.log('Comentario creado:', data);
+        //console.log('Comentario creado:', data);
 
         textarea.value = '';
         await loadComments(postId);
@@ -274,7 +274,7 @@ async function sendComment(postId) {
 }
 
 async function editComment(commentId, postId) {
-    console.log('Editando comentario:', commentId);
+    //console.log('Editando comentario:', commentId);
     const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
     const commentContent = commentItem.querySelector('.CommentContent').textContent;
 
@@ -321,7 +321,7 @@ async function editComment(commentId, postId) {
 }
 
 async function deleteComment(commentId, postId) {
-    console.log('Eliminando comentario:', commentId);
+    //console.log('Eliminando comentario:', commentId);
     const result = await Swal.fire({
         title: '¿Estás seguro?',
         text: 'No podrás deshacer esta acción',
@@ -359,7 +359,7 @@ async function deleteComment(commentId, postId) {
 }
 
 function updateCommentCount(postId, delta = 1) {
-    console.log('Actualizando contador para postId:', postId, 'Delta:', delta);
+    //console.log('Actualizando contador para postId:', postId, 'Delta:', delta);
     const countSpan = document.querySelector(`[data-post-id="${postId}"] .comments-count`);
     if (countSpan) {
         const currentCount = parseInt(countSpan.textContent) || 0;
@@ -368,7 +368,7 @@ function updateCommentCount(postId, delta = 1) {
 }
 
 function setupCommentActionListeners(postId) {
-    console.log('Configurando listeners de acciones para comentarios, postId:', postId);
+    //console.log('Configurando listeners de acciones para comentarios, postId:', postId);
     document.querySelectorAll(`#comments-list-${postId} .edit-comment-btn`).forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
@@ -387,7 +387,7 @@ function setupCommentActionListeners(postId) {
 }
 
 function loadAllComments() {
-    console.log('Cargando comentarios para todas las publicaciones visibles');
+    //console.log('Cargando comentarios para todas las publicaciones visibles');
     const publications = document.querySelectorAll('.Publication');
     publications.forEach(pub => {
         const postId = pub.dataset.postId;
@@ -398,7 +398,7 @@ function loadAllComments() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded disparado, configurando listeners');
+    //console.log('DOMContentLoaded disparado, configurando listeners');
     setupCommentListeners();
     setTimeout(loadAllComments, 12000);
 });
@@ -415,7 +415,7 @@ const observer = new MutationObserver((mutations) => {
         }
     });
     if (newPublications) {
-        console.log('Nuevas publicaciones detectadas, redefiniendo createPostHTML y cargando comentarios');
+        //console.log('Nuevas publicaciones detectadas, redefiniendo createPostHTML y cargando comentarios');
         defineCreatePostHTML();
         loadAllComments();
     }
@@ -427,34 +427,34 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 const redefineInterval = setInterval(() => {
-    console.log('Intentando redefinir createPostHTML');
+    //console.log('Intentando redefinir createPostHTML');
     defineCreatePostHTML();
     const publications = document.querySelectorAll('.Publication');
     if (publications.length > 0) {
-        console.log('Publicaciones encontradas, deteniendo intervalo');
+        //console.log('Publicaciones encontradas, deteniendo intervalo');
         clearInterval(redefineInterval);
     }
 }, 2000);
 
 function setupCommentListeners() {
-    console.log('Configurando listeners de comentarios...');
+    //console.log('Configurando listeners de comentarios...');
     document.removeEventListener('click', handleCommentClick);
     document.addEventListener('click', handleCommentClick);
 }
 
 function handleCommentClick(e) {
-    console.log('Clic detectado en:', e.target);
+    //console.log('Clic detectado en:', e.target);
     if (e.target.closest('.CommentsButton')) {
         e.stopPropagation();
         const postId = e.target.closest('.CommentsButton').dataset.postId;
-        console.log('Clic en CommentsButton, postId:', postId);
+        //console.log('Clic en CommentsButton, postId:', postId);
         toggleCommentBox(postId);
     }
 
     if (e.target.closest('.SendCommentBtn')) {
         e.stopPropagation();
         const postId = e.target.closest('.SendCommentBtn').dataset.postId;
-        console.log('Clic en SendCommentBtn, postId:', postId);
+        //console.log('Clic en SendCommentBtn, postId:', postId);
         sendComment(postId);
     }
 }
@@ -652,7 +652,7 @@ function injectCommentStyles() {
 injectCommentStyles();
 
 setTimeout(() => {
-    console.log('Re-definiendo createPostHTML después de carga inicial');
+    //console.log('Re-definiendo createPostHTML después de carga inicial');
     defineCreatePostHTML();
 }, 15000);
 

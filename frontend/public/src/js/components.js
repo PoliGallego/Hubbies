@@ -43,44 +43,112 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("sidebar").innerHTML = html;
 
           const payload = JSON.parse(atob(token.split(".")[1]));
+          let extraItems;
           const viewMoreBtn = document.querySelector(".ViewMoreButton");
-          const extraItems = document.querySelectorAll(".extra-item");
           const AddCategoryBtn = document.getElementById("AddCategory");
           const categoriesList = document.querySelector(".Categories > ul");
+          const postsList = document.querySelector(".Navigation > ul");
+          const noPostsMsg = document.querySelector(".Navigation .NotFound");
+          const noCategoriesMsg = document.querySelector(".Categories .NotFound");
           let expanded = false;
 
-          if (payload && payload.id && categoriesList) {
-            fetch("/api/sections/" + payload.id, {
-              method: "GET",
-              headers: { "Content-Type": "application/json" }
-            }).then((res) => {
-              if (!res.ok) throw new Error("Error fetching sections");
-              return res.json();
-            }).then((data) => {
-              for (let index = 0; index < data.length; index++) {
-                const li = createSectionCard(data[index]);
-                if (index >= 5) {
-                  li.classList.add("extra-item");
-                  li.style.display = "none";
-                }
-                categoriesList.appendChild(li);
-              }
-            });
+          if (!extraItems || extraItems.length === 0) {
+            viewMoreBtn.style.display = "none";
+          } else {
+            viewMoreBtn.style.display = "block";
           }
 
-          if (viewMoreBtn) {
-            viewMoreBtn.addEventListener("click", function () {
-              expanded = !expanded;
-              extraItems.forEach(function (item) {
-                item.style.display = expanded ? "list-item" : "none";
+          if (payload && payload.id) {
+
+            if (categoriesList) {
+              fetch("/api/sections/" + payload.id, {
+                method: "GET",
+                headers: { "Content-Type": "application/json" }
+              }).then((res) => {
+                if (!res.ok) throw new Error("Error fetching sections");
+                return res.json();
+              }).then((data) => {
+                if (data.length === 0) {
+                  if (noCategoriesMsg) {
+                    noCategoriesMsg.style.display = "block";
+                  }
+                } else {
+                  noCategoriesMsg.style.display = "none";
+                  for (let index = 0; index < data.length; index++) {
+                    const li = createSectionCard(data[index]);
+                    if (index >= 5) {
+                      li.classList.add("ExtraItem");
+                    }
+                    categoriesList.appendChild(li);
+                  }
+                }
               });
-              viewMoreBtn.querySelector("span").textContent = expanded
-                ? "expand_less"
-                : "expand_more";
-              viewMoreBtn.childNodes[0].textContent = expanded
-                ? "View less"
-                : "View more";
-            });
+            }
+
+            if (postsList) {
+              fetch('/api/posts/my-posts', {
+                method: 'GET',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                }
+              }).then((res) => {
+                if (!res.ok) throw new Error("Error fetching posts");
+                return res.json();
+              }).then((data) => {
+                if (data.length === 0) {
+                  if (noPostsMsg) {
+                    noPostsMsg.style.display = "block";
+                  }
+                } else {
+                  noPostsMsg.style.display = "none";
+                  for (let i = 0; i < data.length; i++) {
+                    const newLi = document.createElement("li");
+
+                    if (i <= 7) {
+                      newLi.innerHTML = `
+                      <div class="NavigationRow">
+                      <a href="#" post-id="${data[i]._id}">${data[i].title}</a>
+                      </div>`;
+                    } else {
+                      newLi.innerHTML = `
+                      <div class="ExtraItem">
+                      <a href="#" post-id="${data[i]._id}">${data[i].title}</a>
+                      </div>`;
+                    }
+
+                    const btn = newLi.querySelector("a");
+                    btn.addEventListener("click", e => {
+                        e.preventDefault();
+                        const post = document.getElementById(btn.getAttribute("post-id"));
+                        if (post) post.scrollIntoView();
+                      });
+                    postsList.appendChild(newLi);
+                  }
+
+                  extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+                  if (viewMoreBtn) {
+                    if (!extraItems || extraItems.length === 0) {
+                      viewMoreBtn.style.display = "none";
+                    } else {
+                      viewMoreBtn.style.display = "block";
+                    }
+                    viewMoreBtn.addEventListener("click", function () {
+                      expanded = !expanded;
+                      extraItems.forEach(function (item) {
+                        item.style.display = expanded ? "list-item" : "none";
+                      });
+                      viewMoreBtn.querySelector("span").textContent = expanded
+                        ? "expand_less"
+                        : "expand_more";
+                      viewMoreBtn.childNodes[0].textContent = expanded
+                        ? "View less"
+                        : "View more";
+                    });
+                  }
+                }
+              });
+            }
           }
 
           AddCategoryBtn?.addEventListener("click", () => {
@@ -122,6 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     console.log("Category created:", data);
                     const newLi = createSectionCard(data.section);
                     categoriesList.replaceChild(newLi, li);
+                    noCategoriesMsg.style.display = "none";
                   })
                   .catch((err) => {
                     console.error("Error creating category:", err);

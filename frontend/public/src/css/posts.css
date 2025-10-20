@@ -152,6 +152,10 @@ body {
     background-color: var(--ColorLightGray);
 }
 
+.ExtraItem {
+    display: none;
+}
+
 .Categories span {
     display: flex;
     flex-direction: row;
@@ -189,6 +193,11 @@ body {
     opacity: 1;
 }
 
+.NotFound {
+    color: #999; 
+    text-align: center;
+}
+
 .ViewMoreButton {
     background: none;
     border: none;
@@ -197,6 +206,11 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+.ViewMoreButton span {
+    position: relative;
+    top: 8px;
 }
 
 .ActionBar {

@@ -263,7 +263,7 @@ function createPostHTML(post) {
   const privacyClass = post.privacy === 'public' ? 'PrivacyPublic' : 'PrivacyPrivate';
 
   return `
-    <div class="Publication" data-post-id="${post._id}">
+    <div class="Publication" data-post-id="${post._id}" id="${post._id}">
       <article class="ContentCard">
         <div class="CardHeader">
           <h2 class="PostTitleReadOnly">"${post.title}"</h2>
