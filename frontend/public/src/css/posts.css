@@ -150,6 +150,7 @@ body {
 .Navigation a:hover,
 .Categories a:hover {
     background-color: var(--ColorLightGray);
+    cursor: pointer;
 }
 
 .ExtraItem {
