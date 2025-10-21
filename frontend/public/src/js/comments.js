@@ -1,32 +1,46 @@
 const originalCreatePostHTML = window.createPostHTML;
 
 function defineCreatePostHTML() {
-    window.createPostHTML = function(post) {
-        console.log('Generando HTML para post (comments.js):', post._id);
-        const categoryTags = post.categories ? post.categories.map(category => `
+  window.createPostHTML = function (post) {
+    console.log("Generando HTML para post (comments.js):", post._id);
+    const categoryTags = post.categories
+      ? post.categories
+          .map(
+            (category) => `
       <div class="Tag TagReadOnly">
         ${category.title || category}
       </div>
-    `).join('') : '';
+    `
+          )
+          .join("")
+      : "";
 
-        const imageHTML = post.images && post.images.length > 0 ? `
+    const imageHTML =
+      post.images && post.images.length > 0
+        ? `
       <img class="CardImage" src="/assets/uploads/${post.images[0]}" alt="${post.title}">
-    ` : '';
+    `
+        : "";
 
-        const privacyText = post.privacy === 'public' ? 'Public' : 'Private';
-        const privacyClass = post.privacy === 'public' ? 'PrivacyPublic' : 'PrivacyPrivate';
+    const privacyText = post.privacy === "public" ? "Public" : "Private";
+    const privacyClass =
+      post.privacy === "public" ? "PrivacyPublic" : "PrivacyPrivate";
 
-        return `
+    return `
       <div class="Publication" data-post-id="${post._id}">
         <article class="ContentCard">
           <div class="CardHeader">
             <h2 class="PostTitleReadOnly">"${post.title}"</h2>
             <div class="CardControls">
               <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
-              <button class="IconButton delete-post-btn" data-post-id="${post._id}">
+              <button class="IconButton delete-post-btn" data-post-id="${
+                post._id
+              }">
                 <span class="material-icons">delete_outline</span>
               </button>
-              <button class="IconButton edit-post-btn" data-post-id="${post._id}">
+              <button class="IconButton edit-post-btn" data-post-id="${
+                post._id
+              }">
                 <span class="material-icons">edit</span>
               </button>
             </div>
@@ -45,7 +59,9 @@ function defineCreatePostHTML() {
           <button class="IconButton"><span class="material-icons">share</span></button>
         </div>
         
-        <div class="CommentsSection" id="comments-section-${post._id}" style="display: none;">
+        <div class="CommentsSection" id="comments-section-${
+          post._id
+        }" style="display: none;">
           <div class="CommentsList" id="comments-list-${post._id}">
             <!-- Comentarios se cargarán aquí -->
           </div>
@@ -62,90 +78,116 @@ function defineCreatePostHTML() {
         </div>
       </div>
     `;
-    };
+  };
 }
 
 defineCreatePostHTML();
 
 async function fetchUserName(userId) {
-    console.log('Intentando obtener nombre para userId:', userId);
-    try {
-        const token = localStorage.getItem('token');
-        console.log('Token usado:', token ? 'Presente' : 'No encontrado');
-        const response = await fetch(`/api/users/${userId}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-        console.log('Respuesta de /api/users:', response.status, response.statusText);
-        if (!response.ok) {
-            throw new Error(`Error al obtener datos del usuario: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('Datos del usuario:', data);
-        return data.user.fullName || data.user.username || 'Anónimo';
-    } catch (error) {
-        console.error('Error al obtener nombre del usuario:', error);
-        return 'Anónimo';
+  console.log("Intentando obtener nombre para userId:", userId);
+  try {
+    const token = localStorage.getItem("token");
+    console.log("Token usado:", token ? "Presente" : "No encontrado");
+    const response = await fetch(`/api/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+    console.log(
+      "Respuesta de /api/users:",
+      response.status,
+      response.statusText
+    );
+    if (!response.ok) {
+      throw new Error(`Error al obtener datos del usuario: ${response.status}`);
     }
+    const data = await response.json();
+    console.log("Datos del usuario:", data);
+    return data.user.fullName || data.user.username || "Anónimo";
+  } catch (error) {
+    console.error("Error al obtener nombre del usuario:", error);
+    return "Anónimo";
+  }
 }
 
 async function loadComments(postId) {
-    console.log('Cargando comentarios para postId:', postId);
-    try {
-        const token = localStorage.getItem('token');
-        const response = await fetch(`/api/posts/${postId}/comments`, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
+  console.log("Cargando comentarios para postId:", postId);
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/posts/${postId}/comments`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
 
-        console.log('Respuesta de carga de comentarios:', response.status);
-        if (!response.ok) {
-            throw new Error('Error al cargar comentarios');
-        }
-
-        const data = await response.json();
-        if (data.success) {
-            const currentUser = getCurrentUser();
-            const commentsWithNames = await Promise.all(data.comments.map(async comment => {
-                const userName = comment.userId?._id ? await fetchUserName(comment.userId._id) : 'Anónimo';
-                console.log(`Comentario ID ${comment._id}, userId: ${comment.userId?._id}, userName: ${userName}`);
-                return { ...comment, userName };
-            }));
-            renderComments(postId, commentsWithNames, currentUser);
-        }
-    } catch (error) {
-        console.error('Error cargando comentarios:', error);
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('Error', 'No se pudieron cargar los comentarios', 'error');
-        } else {
-            alert('Error al cargar comentarios: ' + error.message);
-        }
+    console.log("Respuesta de carga de comentarios:", response.status);
+    if (!response.ok) {
+      throw new Error("Error al cargar comentarios");
     }
+
+    const data = await response.json();
+    if (data.success) {
+      const currentUser = getCurrentUser();
+      const commentsWithNames = await Promise.all(
+        data.comments.map(async (comment) => {
+          const userName = comment.userId?._id
+            ? await fetchUserName(comment.userId._id)
+            : "Anónimo";
+          console.log(
+            `Comentario ID ${comment._id}, userId: ${comment.userId?._id}, userName: ${userName}`
+          );
+          return { ...comment, userName };
+        })
+      );
+      renderComments(postId, commentsWithNames, currentUser);
+    }
+  } catch (error) {
+    console.error("Error cargando comentarios:", error);
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Error", "No se pudieron cargar los comentarios", "error");
+    } else {
+      alert("Error al cargar comentarios: " + error.message);
+    }
+  }
 }
 
 function renderComments(postId, comments, currentUser) {
-    console.log('Renderizando comentarios para postId:', postId, 'Comentarios:', comments);
-    const commentsList = document.getElementById(`comments-list-${postId}`);
-    if (!commentsList) {
-        console.error('No se encontró CommentsList para postId:', postId);
-        return;
-    }
+  console.log(
+    "Renderizando comentarios para postId:",
+    postId,
+    "Comentarios:",
+    comments
+  );
+  const commentsList = document.getElementById(`comments-list-${postId}`);
+  if (!commentsList) {
+    console.error("No se encontró CommentsList para postId:", postId);
+    return;
+  }
 
-    if (comments.length === 0) {
-        commentsList.innerHTML = '<p style="color: #999; text-align: center; padding: 10px;">Aún no hay comentarios</p>';
-        return;
-    }
+  if (comments.length === 0) {
+    commentsList.innerHTML =
+      '<p style="color: #999; text-align: center; padding: 10px;">No comments yet</p>';
+    return;
+  }
 
-    const commentsHTML = comments.map(comment => `
+  const commentsHTML = comments
+    .map(
+      (comment) => `
     <div class="CommentItem" data-comment-id="${comment._id}">
       <div class="CommentHeader">
-        <span class="CommentAuthor">${comment.userId?._id === currentUser.id ? currentUser.name : comment.userName}</span>
-        <span class="CommentTime">${new Date(comment.createdAt).toLocaleString()}</span>
-        ${comment.userId?._id === currentUser.id ? `
+        <span class="CommentAuthor">${
+          comment.userId?._id === currentUser.id
+            ? currentUser.name
+            : comment.userName
+        }</span>
+        <span class="CommentTime">${new Date(
+          comment.createdAt
+        ).toLocaleString()}</span>
+        ${
+          comment.userId?._id === currentUser.id
+            ? `
           <div class="CommentControls">
             <button class="IconButton edit-comment-btn" data-comment-id="${comment._id}">
               <span class="material-icons">edit</span>
@@ -154,313 +196,351 @@ function renderComments(postId, comments, currentUser) {
               <span class="material-icons">delete_outline</span>
             </button>
           </div>
-        ` : ''}
+        `
+            : ""
+        }
       </div>
       <p class="CommentContent">${comment.content}</p>
     </div>
-  `).join('');
+  `
+    )
+    .join("");
 
-    commentsList.innerHTML = commentsHTML;
-    setupCommentActionListeners(postId);
+  commentsList.innerHTML = commentsHTML;
+  setupCommentActionListeners(postId);
 }
 
 function getCurrentUser() {
-    const token = localStorage.getItem('token');
-    if (token) {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        return {
-            id: payload.id,
-            name: payload.fullName || payload.username || 'Usuario'
-        };
-    }
-    return { id: null, name: 'Anónimo' };
+  const token = localStorage.getItem("token");
+  if (token) {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return {
+      id: payload.id,
+      name: payload.fullName || payload.username || "Usuario",
+    };
+  }
+  return { id: null, name: "Anónimo" };
 }
 
 async function toggleCommentBox(postId) {
-    console.log('Alternando CommentsSection para postId:', postId);
-    const commentsSection = document.getElementById(`comments-section-${postId}`);
-    if (!commentsSection) {
-        console.error(`No se encontró CommentsSection con ID comments-section-${postId}`);
-        const allCommentSections = document.querySelectorAll('.CommentsSection');
-        console.log('Secciones de comentarios en el DOM:', Array.from(allCommentSections).map(el => el.id));
-        const allPublications = document.querySelectorAll('.Publication');
-        console.log('Publicaciones en el DOM:', Array.from(allPublications).map(el => el.dataset.postId));
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('Error', 'No se pudo abrir la sección de comentarios. La publicación no se encontró.', 'error');
-        } else {
-            alert('No se pudo abrir la sección de comentarios. La publicación no se encontró.');
-        }
-        return;
+  console.log("Alternando CommentsSection para postId:", postId);
+  const commentsSection = document.getElementById(`comments-section-${postId}`);
+  if (!commentsSection) {
+    console.error(
+      `No se encontró CommentsSection con ID comments-section-${postId}`
+    );
+    const allCommentSections = document.querySelectorAll(".CommentsSection");
+    console.log(
+      "Secciones de comentarios en el DOM:",
+      Array.from(allCommentSections).map((el) => el.id)
+    );
+    const allPublications = document.querySelectorAll(".Publication");
+    console.log(
+      "Publicaciones en el DOM:",
+      Array.from(allPublications).map((el) => el.dataset.postId)
+    );
+    if (typeof Swal !== "undefined") {
+      Swal.fire(
+        "Error",
+        "No se pudo abrir la sección de comentarios. La publicación no se encontró.",
+        "error"
+      );
+    } else {
+      alert(
+        "No se pudo abrir la sección de comentarios. La publicación no se encontró."
+      );
     }
+    return;
+  }
 
-    const isVisible = commentsSection.style.display !== 'none';
-    console.log('CommentsSection encontrado, isVisible:', isVisible);
+  const isVisible = commentsSection.style.display !== "none";
+  console.log("CommentsSection encontrado, isVisible:", isVisible);
 
-    document.querySelectorAll('.CommentsSection').forEach(section => {
-        section.style.display = 'none';
-    });
+  document.querySelectorAll(".CommentsSection").forEach((section) => {
+    section.style.display = "none";
+  });
 
-    if (!isVisible) {
-        commentsSection.style.display = 'block';
-        await loadComments(postId);
-        const textarea = commentsSection.querySelector('.CommentInput');
-        if (textarea) {
-            textarea.focus();
-            console.log('Textarea enfocado');
-        } else {
-            console.error('No se encontró CommentInput dentro de CommentsSection');
-        }
+  if (!isVisible) {
+    commentsSection.style.display = "block";
+    await loadComments(postId);
+    const textarea = commentsSection.querySelector(".CommentInput");
+    if (textarea) {
+      textarea.focus();
+      console.log("Textarea enfocado");
+    } else {
+      console.error("No se encontró CommentInput dentro de CommentsSection");
     }
+  }
 }
 
 async function sendComment(postId) {
-    console.log('Enviando comentario para postId:', postId);
-    const textarea = document.querySelector(`#comments-section-${postId} .CommentInput`);
-    console.log('Textarea encontrado:', textarea);
-    const content = textarea?.value.trim();
-    console.log('Contenido del comentario:', content);
+  console.log("Enviando comentario para postId:", postId);
+  const textarea = document.querySelector(
+    `#comments-section-${postId} .CommentInput`
+  );
+  console.log("Textarea encontrado:", textarea);
+  const content = textarea?.value.trim();
+  console.log("Contenido del comentario:", content);
 
-    if (!content) {
-        console.log('Comentario vacío, mostrando alerta');
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('Error', 'Por favor, escribe un comentario primero', 'error');
-        } else {
-            alert('Por favor, escribe un comentario primero');
-        }
-        return;
+  if (!content) {
+    console.log("Comentario vacío, mostrando alerta");
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Error", "Please write a comment first.", "error");
+    } else {
+      alert("Please write a comment first.");
+    }
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    console.log("Token:", token ? "Presente" : "No encontrado");
+
+    const response = await fetch("/api/comments", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        postId: postId,
+        content: content,
+      }),
+    });
+
+    console.log(
+      "Respuesta del servidor:",
+      response.status,
+      response.statusText
+    );
+    if (!response.ok) {
+      throw new Error("Error al crear comentario");
     }
 
-    try {
-        const token = localStorage.getItem('token');
-        console.log('Token:', token ? 'Presente' : 'No encontrado');
+    const data = await response.json();
+    console.log("Comentario creado:", data);
 
-        const response = await fetch('/api/comments', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                postId: postId,
-                content: content
-            })
-        });
+    textarea.value = "";
+    await loadComments(postId);
+    updateCommentCount(postId);
 
-        console.log('Respuesta del servidor:', response.status, response.statusText);
-        if (!response.ok) {
-            throw new Error('Error al crear comentario');
-        }
-
-        const data = await response.json();
-        console.log('Comentario creado:', data);
-
-        textarea.value = '';
-        await loadComments(postId);
-        updateCommentCount(postId);
-
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('Éxito', '¡Comentario publicado!', 'success');
-        } else {
-            alert('¡Comentario publicado!');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        if (typeof Swal !== 'undefined') {
-            Swal.fire('Error', error.message, 'error');
-        } else {
-            alert('Error: ' + error.message);
-        }
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Success", "Comment posted!", "success");
+    } else {
+      alert("Comment posted!");
     }
+  } catch (error) {
+    console.error("Error:", error);
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Error", error.message, "error");
+    } else {
+      alert("Error: " + error.message);
+    }
+  }
 }
 
 async function editComment(commentId, postId) {
-    console.log('Editando comentario:', commentId);
-    const commentItem = document.querySelector(`[data-comment-id="${commentId}"]`);
-    const commentContent = commentItem.querySelector('.CommentContent').textContent;
+  console.log("Editando comentario:", commentId);
+  const commentItem = document.querySelector(
+    `[data-comment-id="${commentId}"]`
+  );
+  const commentContent =
+    commentItem.querySelector(".CommentContent").textContent;
 
-    const { value: newContent } = await Swal.fire({
-        title: 'Editar Comentario',
-        input: 'textarea',
-        inputValue: commentContent,
-        showCancelButton: true,
-        confirmButtonText: 'Guardar',
-        cancelButtonText: 'Cancelar'
-    });
+  const { value: newContent } = await Swal.fire({
+    title: "Edit Comment",
+    input: "textarea",
+    inputValue: commentContent,
+    showCancelButton: true,
+    confirmButtonText: "Save",
+    cancelButtonText: "Cancel",
+  });
 
-    if (newContent && newContent.trim()) {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/comments/${commentId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ content: newContent.trim() })
-            });
+  if (newContent && newContent.trim()) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ content: newContent.trim() }),
+      });
 
-            if (!response.ok) {
-                throw new Error('Error al actualizar comentario');
-            }
+      if (!response.ok) {
+        throw new Error("Error al actualizar comentario");
+      }
 
-            await loadComments(postId);
-            if (typeof Swal !== 'undefined') {
-                Swal.fire('Éxito', '¡Comentario actualizado!', 'success');
-            } else {
-                alert('¡Comentario actualizado!');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            if (typeof Swal !== 'undefined') {
-                Swal.fire('Error', error.message, 'error');
-            } else {
-                alert('Error: ' + error.message);
-            }
-        }
+      await loadComments(postId);
+      if (typeof Swal !== "undefined") {
+        Swal.fire("Sucess", "Updated comment!", "success");
+      } else {
+        alert("Updated comment!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      if (typeof Swal !== "undefined") {
+        Swal.fire("Error", error.message, "error");
+      } else {
+        alert("Error: " + error.message);
+      }
     }
+  }
 }
 
 async function deleteComment(commentId, postId) {
-    console.log('Eliminando comentario:', commentId);
-    const result = await Swal.fire({
-        title: '¿Estás seguro?',
-        text: 'No podrás deshacer esta acción',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-    });
+  console.log("Eliminando comentario:", commentId);
+  const result = await Swal.fire({
+    title: "Are you sure?",
+    text: "You will not be able to undo this action.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete",
+    cancelButtonText: "Cancel",
+  });
 
-    if (result.isConfirmed) {
-        try {
-            const token = localStorage.getItem('token');
-            const response = await fetch(`/api/comments/${commentId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
+  if (result.isConfirmed) {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/api/comments/${commentId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-            if (!response.ok) {
-                throw new Error('Error al eliminar comentario');
-            }
+      if (!response.ok) {
+        throw new Error("Error al eliminar comentario");
+      }
 
-            await loadComments(postId);
-            updateCommentCount(postId, -1);
-            Swal.fire('¡Eliminado!', 'Comentario eliminado con éxito', 'success');
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire('Error', error.message, 'error');
-        }
+      await loadComments(postId);
+      updateCommentCount(postId, -1);
+      Swal.fire("Deleted!", "Comment successfully deleted", "success");
+    } catch (error) {
+      console.error("Error:", error);
+      Swal.fire("Error", error.message, "error");
     }
+  }
 }
 
 function updateCommentCount(postId, delta = 1) {
-    console.log('Actualizando contador para postId:', postId, 'Delta:', delta);
-    const countSpan = document.querySelector(`[data-post-id="${postId}"] .comments-count`);
-    if (countSpan) {
-        const currentCount = parseInt(countSpan.textContent) || 0;
-        countSpan.textContent = currentCount + delta;
-    }
+  console.log("Actualizando contador para postId:", postId, "Delta:", delta);
+  const countSpan = document.querySelector(
+    `[data-post-id="${postId}"] .comments-count`
+  );
+  if (countSpan) {
+    const currentCount = parseInt(countSpan.textContent) || 0;
+    countSpan.textContent = currentCount + delta;
+  }
 }
 
 function setupCommentActionListeners(postId) {
-    console.log('Configurando listeners de acciones para comentarios, postId:', postId);
-    document.querySelectorAll(`#comments-list-${postId} .edit-comment-btn`).forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const commentId = btn.dataset.commentId;
-            editComment(commentId, postId);
-        });
+  console.log(
+    "Configurando listeners de acciones para comentarios, postId:",
+    postId
+  );
+  document
+    .querySelectorAll(`#comments-list-${postId} .edit-comment-btn`)
+    .forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const commentId = btn.dataset.commentId;
+        editComment(commentId, postId);
+      });
     });
 
-    document.querySelectorAll(`#comments-list-${postId} .delete-comment-btn`).forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const commentId = btn.dataset.commentId;
-            deleteComment(commentId, postId);
-        });
+  document
+    .querySelectorAll(`#comments-list-${postId} .delete-comment-btn`)
+    .forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const commentId = btn.dataset.commentId;
+        deleteComment(commentId, postId);
+      });
     });
 }
 
 function loadAllComments() {
-    console.log('Cargando comentarios para todas las publicaciones visibles');
-    const publications = document.querySelectorAll('.Publication');
-    publications.forEach(pub => {
-        const postId = pub.dataset.postId;
-        if (postId) {
-            loadComments(postId);
-        }
-    });
+  console.log("Cargando comentarios para todas las publicaciones visibles");
+  const publications = document.querySelectorAll(".Publication");
+  publications.forEach((pub) => {
+    const postId = pub.dataset.postId;
+    if (postId) {
+      loadComments(postId);
+    }
+  });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded disparado, configurando listeners');
-    setupCommentListeners();
-    setTimeout(loadAllComments, 12000);
+document.addEventListener("DOMContentLoaded", function () {
+  console.log("DOMContentLoaded disparado, configurando listeners");
+  setupCommentListeners();
+  setTimeout(loadAllComments, 12000);
 });
 
 const observer = new MutationObserver((mutations) => {
-    let newPublications = false;
-    mutations.forEach(mutation => {
-        if (mutation.addedNodes.length) {
-            mutation.addedNodes.forEach(node => {
-                if (node.classList && node.classList.contains('Publication')) {
-                    newPublications = true;
-                }
-            });
+  let newPublications = false;
+  mutations.forEach((mutation) => {
+    if (mutation.addedNodes.length) {
+      mutation.addedNodes.forEach((node) => {
+        if (node.classList && node.classList.contains("Publication")) {
+          newPublications = true;
         }
-    });
-    if (newPublications) {
-        console.log('Nuevas publicaciones detectadas, redefiniendo createPostHTML y cargando comentarios');
-        defineCreatePostHTML();
-        loadAllComments();
+      });
     }
+  });
+  if (newPublications) {
+    console.log(
+      "Nuevas publicaciones detectadas, redefiniendo createPostHTML y cargando comentarios"
+    );
+    defineCreatePostHTML();
+    loadAllComments();
+  }
 });
 
-document.addEventListener('DOMContentLoaded', () => {
-    const targetNode = document.querySelector('body') || document;
-    observer.observe(targetNode, { childList: true, subtree: true });
+document.addEventListener("DOMContentLoaded", () => {
+  const targetNode = document.querySelector("body") || document;
+  observer.observe(targetNode, { childList: true, subtree: true });
 });
 
 const redefineInterval = setInterval(() => {
-    console.log('Intentando redefinir createPostHTML');
-    defineCreatePostHTML();
-    const publications = document.querySelectorAll('.Publication');
-    if (publications.length > 0) {
-        console.log('Publicaciones encontradas, deteniendo intervalo');
-        clearInterval(redefineInterval);
-    }
+  console.log("Intentando redefinir createPostHTML");
+  defineCreatePostHTML();
+  const publications = document.querySelectorAll(".Publication");
+  if (publications.length > 0) {
+    console.log("Publicaciones encontradas, deteniendo intervalo");
+    clearInterval(redefineInterval);
+  }
 }, 2000);
 
 function setupCommentListeners() {
-    console.log('Configurando listeners de comentarios...');
-    document.removeEventListener('click', handleCommentClick);
-    document.addEventListener('click', handleCommentClick);
+  console.log("Configurando listeners de comentarios...");
+  document.removeEventListener("click", handleCommentClick);
+  document.addEventListener("click", handleCommentClick);
 }
 
 function handleCommentClick(e) {
-    console.log('Clic detectado en:', e.target);
-    if (e.target.closest('.CommentsButton')) {
-        e.stopPropagation();
-        const postId = e.target.closest('.CommentsButton').dataset.postId;
-        console.log('Clic en CommentsButton, postId:', postId);
-        toggleCommentBox(postId);
-    }
+  console.log("Clic detectado en:", e.target);
+  if (e.target.closest(".CommentsButton")) {
+    e.stopPropagation();
+    const postId = e.target.closest(".CommentsButton").dataset.postId;
+    console.log("Clic en CommentsButton, postId:", postId);
+    toggleCommentBox(postId);
+  }
 
-    if (e.target.closest('.SendCommentBtn')) {
-        e.stopPropagation();
-        const postId = e.target.closest('.SendCommentBtn').dataset.postId;
-        console.log('Clic en SendCommentBtn, postId:', postId);
-        sendComment(postId);
-    }
+  if (e.target.closest(".SendCommentBtn")) {
+    e.stopPropagation();
+    const postId = e.target.closest(".SendCommentBtn").dataset.postId;
+    console.log("Clic en SendCommentBtn, postId:", postId);
+    sendComment(postId);
+  }
 }
 
 function injectCommentStyles() {
-    const styles = `
+  const styles = `
     .CommentsSection {
       padding: 15px;
       background: #f8f9fa;
@@ -644,16 +724,16 @@ function injectCommentStyles() {
     }
   `;
 
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
+  const styleSheet = document.createElement("style");
+  styleSheet.textContent = styles;
+  document.head.appendChild(styleSheet);
 }
 
 injectCommentStyles();
 
 setTimeout(() => {
-    console.log('Re-definiendo createPostHTML después de carga inicial');
-    defineCreatePostHTML();
+  console.log("Re-definiendo createPostHTML después de carga inicial");
+  defineCreatePostHTML();
 }, 15000);
 
 window.toggleCommentBox = toggleCommentBox;
