@@ -35,11 +35,11 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function renderNoPosts() {
-  const feedColumn = document.querySelector('.FeedColumn');
+  const feedColumn = document.querySelector(".FeedColumn");
   if (!feedColumn) return;
 
-  const existingPosts = feedColumn.querySelectorAll('.Publication');
-  existingPosts.forEach(post => post.remove());
+  const existingPosts = feedColumn.querySelectorAll(".Publication");
+  existingPosts.forEach((post) => post.remove());
 
   const noPostsHTML = `
     <div class="Publication">
@@ -53,22 +53,22 @@ function renderNoPosts() {
     </div>
   `;
 
-  feedColumn.insertAdjacentHTML('beforeend', noPostsHTML);
+  feedColumn.insertAdjacentHTML("beforeend", noPostsHTML);
 }
 
 async function loadUserSections() {
   try {
-    console.log('Cargando secciones del usuario...');
-    const token = localStorage.getItem('token');
+    console.log("Cargando secciones del usuario...");
+    const token = localStorage.getItem("token");
 
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     const userId = payload.id;
 
     const response = await fetch(`/api/sections/${userId}`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
@@ -76,31 +76,32 @@ async function loadUserSections() {
     }
 
     const sections = await response.json();
-    console.log('Secciones recibidas:', sections);
+    console.log("Secciones recibidas:", sections);
 
     renderSectionsList(sections);
   } catch (error) {
-    console.error('Error al cargar secciones:', error);
+    console.error("Error al cargar secciones:", error);
     renderSectionsList([]);
   }
 }
 
 function renderSectionsList(sections) {
-  const categorySelect = document.getElementById('postCategory');
+  const categorySelect = document.getElementById("postCategory");
   if (!categorySelect) {
-    console.error('No se encontró el select de categorías');
+    console.error("No se encontró el select de categorías");
     return;
   }
 
   categorySelect.innerHTML = '<option value="">+ Add section...</option>';
 
   if (!sections || sections.length === 0) {
-    categorySelect.innerHTML += '<option value="" disabled>You don\'t have any sections created</option>';
+    categorySelect.innerHTML +=
+      '<option value="" disabled>You don\'t have any sections created</option>';
     return;
   }
 
-  sections.forEach(section => {
-    const option = document.createElement('option');
+  sections.forEach((section) => {
+    const option = document.createElement("option");
     option.value = section._id;
     option.textContent = section.title;
     categorySelect.appendChild(option);
@@ -110,64 +111,69 @@ function renderSectionsList(sections) {
     if (this.value) {
       const selectedText = this.options[this.selectedIndex].text;
       addSectionToPost(this.value, selectedText);
-      this.value = '';
+      this.value = "";
     }
   };
 
-  console.log('Secciones cargadas en el select:', sections.length);
+  console.log("Secciones cargadas en el select:", sections.length);
 }
 
 function addSectionToPost(sectionId, sectionTitle) {
-  if (selectedSections.find(s => s.id === sectionId)) {
-    console.log('Sección ya agregada');
+  if (selectedSections.find((s) => s.id === sectionId)) {
+    console.log("Sección ya agregada");
     return;
   }
 
   selectedSections.push({
     id: sectionId,
-    title: sectionTitle
+    title: sectionTitle,
   });
 
   updateSelectedTagsDisplay();
-  console.log('Sección agregada:', sectionTitle);
+  console.log("Sección agregada:", sectionTitle);
 }
 
 function updateSelectedTagsDisplay() {
-  const selectedTagsContainer = document.getElementById('selectedTags');
+  const selectedTagsContainer = document.getElementById("selectedTags");
   if (!selectedTagsContainer) return;
 
   if (selectedSections.length === 0) {
-    selectedTagsContainer.innerHTML = '<p style="color: #999; text-align: center;">You haven\'t selected any sections</p>';
+    selectedTagsContainer.innerHTML =
+      '<p style="color: #999; text-align: center;">You haven\'t selected any sections</p>';
     return;
   }
 
-  const tagsHTML = selectedSections.map(section => `
+  const tagsHTML = selectedSections
+    .map(
+      (section) => `
     <div class="Tag">
       ${section.title}
       <span class="material-icons" onclick="removeSelectedSection('${section.id}')">close</span>
     </div>
-  `).join('');
+  `
+    )
+    .join("");
 
   selectedTagsContainer.innerHTML = tagsHTML;
 }
 
 function removeSelectedSection(sectionId) {
-  selectedSections = selectedSections.filter(s => s.id !== sectionId);
+  selectedSections = selectedSections.filter((s) => s.id !== sectionId);
   updateSelectedTagsDisplay();
-  console.log('Sección removida');
+  console.log("Sección removida");
 }
 
 function triggerImageUpload() {
-  const fileInput = document.getElementById('fileInput');
+  const fileInput = document.getElementById("fileInput");
   if (fileInput) {
     fileInput.click();
   }
 }
 
 function handleImageUpload(event) {
-  const fileInput = event ? event.target : document.getElementById('fileInput');
-  const imagePreview = document.getElementById('imagePreview');
-  const imageContainer = document.getElementById('imageContainer');
+  const fileInput = event ? event.target : document.getElementById("fileInput");
+  const imagePreview = document.getElementById("imagePreview");
+  const imageContainer = document.getElementById("imageContainer");
 
   if (fileInput && fileInput.files[0]) {
     const file = fileInput.files[0];
@@ -176,36 +182,36 @@ function handleImageUpload(event) {
     reader.onload = function (e) {
       if (imagePreview && imageContainer) {
         imagePreview.src = e.target.result;
-        imageContainer.style.display = 'block';
+        imageContainer.style.display = "block";
       }
     };
 
     reader.readAsDataURL(file);
-    console.log('Imagen cargada:', file.name);
+    console.log("Imagen cargada:", file.name);
   }
 }
 
 function removeImage() {
-  const fileInput = document.getElementById('fileInput');
-  const imagePreview = document.getElementById('imagePreview');
-  const imageContainer = document.getElementById('imageContainer');
+  const fileInput = document.getElementById("fileInput");
+  const imagePreview = document.getElementById("imagePreview");
+  const imageContainer = document.getElementById("imageContainer");
 
-  if (fileInput) fileInput.value = '';
-  if (imagePreview) imagePreview.src = '';
-  if (imageContainer) imageContainer.style.display = 'none';
+  if (fileInput) fileInput.value = "";
+  if (imagePreview) imagePreview.src = "";
+  if (imageContainer) imageContainer.style.display = "none";
 
-  console.log('✅ Imagen removida del formulario');
+  console.log("✅ Imagen removida del formulario");
 }
 
 async function loadUserPosts() {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
-    const response = await fetch('/api/posts/my-posts', {
+    const response = await fetch("/api/posts/my-posts", {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
@@ -213,11 +219,37 @@ async function loadUserPosts() {
     }
 
     const posts = await response.json();
-    console.log('Posts recibidos:', posts);
+    console.log("Posts recibidos:", posts);
 
     renderPosts(posts);
+
+    const params = new URLSearchParams(window.location.search);
+    const targetId = params.get("id");
+
+    if (targetId) {
+      setTimeout(() => {
+        const targetPost = document.querySelector(
+          `.Publication[data-post-id="${targetId}"]`
+        );
+        if (targetPost) {
+          targetPost.scrollIntoView({ behavior: "smooth", block: "center" });
+
+          targetPost.style.transition =
+            "box-shadow 0.6s ease, transform 0.6s ease";
+          targetPost.style.boxShadow = "0 0 20px 3px rgba(239, 222, 222, 0.8)";
+          targetPost.style.transform = "scale(1.02)";
+
+          setTimeout(() => {
+            targetPost.style.boxShadow = "";
+            targetPost.style.transform = "";
+          }, 2000);
+        } else {
+          console.warn("No se encontró el post con ID:", targetId);
+        }
+      }, 500);
+    }
   } catch (error) {
-    console.error('Error al cargar posts:', error);
+    console.error("Error al cargar posts:", error);
     renderNoPosts();
   }
 }
@@ -226,8 +258,8 @@ window.renderPosts = function renderPosts(posts) {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
 
-  const existingPosts = feedColumn.querySelectorAll('.Publication');
-  existingPosts.forEach(post => post.remove());
+  const existingPosts = feedColumn.querySelectorAll(".Publication");
+  existingPosts.forEach((post) => post.remove());
 
   if (!posts || posts.length === 0) {
     renderNoPosts();
@@ -235,15 +267,14 @@ window.renderPosts = function renderPosts(posts) {
     return;
   }
 
-  posts.forEach(post => {
+  posts.forEach((post) => {
     const postHTML = createPostHTML(post);
-    feedColumn.insertAdjacentHTML('beforeend', postHTML);
+    feedColumn.insertAdjacentHTML("beforeend", postHTML);
   });
 
-
   setTimeout(() => {
-    if (typeof loadComments === 'function') {
-      posts.forEach(post => loadComments(post._id));
+    if (typeof loadComments === "function") {
+      posts.forEach((post) => loadComments(post._id));
     }
   }, 100);
   setupPostEventListeners();
@@ -251,18 +282,28 @@ window.renderPosts = function renderPosts(posts) {
 }
 
 function createPostHTML(post) {
-  const categoryTags = post.categories ? post.categories.map(category => `
+  const categoryTags = post.categories
+    ? post.categories
+        .map(
+          (category) => `
     <div class="Tag TagReadOnly">
       ${category.title || category}
     </div>
-  `).join('') : '';
+  `
+        )
+        .join("")
+    : "";
 
-  const imageHTML = post.images && post.images.length > 0 ? `
+  const imageHTML =
+    post.images && post.images.length > 0
+      ? `
     <img class="CardImage" src="/assets/uploads/${post.images[0]}" alt="${post.title}">
-  ` : '';
+  `
+      : "";
 
-  const privacyText = post.privacy === 'public' ? 'Public' : 'Private';
-  const privacyClass = post.privacy === 'public' ? 'PrivacyPublic' : 'PrivacyPrivate';
+  const privacyText = post.privacy === "public" ? "Public" : "Private";
+  const privacyClass =
+    post.privacy === "public" ? "PrivacyPublic" : "PrivacyPrivate";
 
   return `
     <div class="Publication" data-post-id="${post._id}" id="${post._id}">
@@ -271,7 +312,9 @@ function createPostHTML(post) {
           <h2 class="PostTitleReadOnly">"${post.title}"</h2>
           <div class="CardControls">
             <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
-            <button class="IconButton delete-post-btn" data-post-id="${post._id}">
+            <button class="IconButton delete-post-btn" data-post-id="${
+              post._id
+            }">
               <span class="material-icons">delete_outline</span>
             </button>
             <button class="IconButton edit-post-btn" data-post-id="${post._id}">
@@ -296,7 +339,9 @@ function createPostHTML(post) {
         <button class="IconButton"><span class="material-icons">share</span></button>
       </div>     
       
-      <div class="CommentsSection" id="comments-section-${post._id}" style="display: none;">
+      <div class="CommentsSection" id="comments-section-${
+        post._id
+      }" style="display: none;">
         <div class="CommentsList" id="comments-list-${post._id}">
         </div>
           <div class="CommentBox">
@@ -317,45 +362,45 @@ function createPostHTML(post) {
 }
 
 function setupPostEventListeners() {
-  document.querySelectorAll('.delete-post-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const postId = e.target.closest('.delete-post-btn').dataset.postId;
+  document.querySelectorAll(".delete-post-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const postId = e.target.closest(".delete-post-btn").dataset.postId;
       confirmDeletePost(postId);
     });
   });
 
-  document.querySelectorAll('.edit-post-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const postId = e.target.closest('.edit-post-btn').dataset.postId;
+  document.querySelectorAll(".edit-post-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const postId = e.target.closest(".edit-post-btn").dataset.postId;
       enableEditMode(postId);
     });
   });
 }
 
 async function enableEditMode(postId) {
-  console.log('Iniciando edición del post:', postId);
+  console.log("Iniciando edición del post:", postId);
 
   try {
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/posts/my-posts', {
+    const token = localStorage.getItem("token");
+    const response = await fetch("/api/posts/my-posts", {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
-      throw new Error('Error al cargar posts');
+      throw new Error("Error al cargar posts");
     }
 
     const posts = await response.json();
-    const postToEdit = posts.find(post => post._id === postId);
+    const postToEdit = posts.find((post) => post._id === postId);
 
     if (!postToEdit) {
-      throw new Error('Post no encontrado');
+      throw new Error("Post no encontrado");
     }
 
-    console.log('Post encontrado para editar:', postToEdit);
+    console.log("Post encontrado para editar:", postToEdit);
 
     isEditMode = true;
     editingPostId = postId;
@@ -366,103 +411,105 @@ async function enableEditMode(postId) {
     setTimeout(() => {
       fillModalForEdit(postToEdit);
     }, 300);
-
   } catch (error) {
-    console.error('Error al iniciar edición:', error);
+    console.error("Error al iniciar edición:", error);
 
-    if (typeof Swal !== 'undefined') {
+    if (typeof Swal !== "undefined") {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Could not load the post for editing'
+        icon: "error",
+        title: "Error",
+        text: "Could not load the post for editing",
       });
     } else {
-      alert('Error loading the post for editing');
+      alert("Error loading the post for editing");
     }
   }
 }
 
 function fillModalForEdit(postData) {
-  console.log('Rellenando modal para edición');
+  console.log("Rellenando modal para edición");
 
-  const modalTitle = document.querySelector('#MainModal .ModalTitle');
+  const modalTitle = document.querySelector("#MainModal .ModalTitle");
   if (modalTitle) {
-    modalTitle.textContent = 'Edit Post';
+    modalTitle.textContent = "Edit Post";
   }
 
-  const titleInput = document.getElementById('postTitle');
-  const descInput = document.getElementById('postDescription');
-  const privacySelect = document.getElementById('postPrivacy');
+  const titleInput = document.getElementById("postTitle");
+  const descInput = document.getElementById("postDescription");
+  const privacySelect = document.getElementById("postPrivacy");
 
-  if (titleInput) titleInput.value = postData.title || '';
-  if (descInput) descInput.value = postData.description || '';
-  if (privacySelect) privacySelect.value = postData.privacy || 'private';
+  if (titleInput) titleInput.value = postData.title || "";
+  if (descInput) descInput.value = postData.description || "";
+  if (privacySelect) privacySelect.value = postData.privacy || "private";
 
   selectedSections = [];
   if (postData.categories && Array.isArray(postData.categories)) {
-    postData.categories.forEach(category => {
+    postData.categories.forEach((category) => {
       if (category._id && category.title) {
         selectedSections.push({
           id: category._id,
-          title: category.title
+          title: category.title,
         });
       }
     });
   }
   updateSelectedTagsDisplay();
 
-  const imagePreview = document.getElementById('imagePreview');
-  const imageContainer = document.getElementById('imageContainer');
+  const imagePreview = document.getElementById("imagePreview");
+  const imageContainer = document.getElementById("imageContainer");
 
   if (postData.images && postData.images.length > 0) {
     if (imagePreview && imageContainer) {
       imagePreview.src = `/assets/uploads/${postData.images[0]}`;
-      imageContainer.style.display = 'block';
+      imageContainer.style.display = "block";
     }
   } else {
     if (imageContainer) {
-      imageContainer.style.display = 'none';
+      imageContainer.style.display = "none";
     }
   }
 
-  const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
+  const submitBtn = document.querySelector("#MainModal .EditableSubmitButton");
   if (submitBtn) {
-    submitBtn.innerHTML = '<span class="material-icons">save</span>Save Changes';
+    submitBtn.innerHTML =
+      '<span class="material-icons">save</span>Save Changes';
   }
 
-  console.log('Modal configurado para edición');
+  console.log("Modal configurado para edición");
 }
 
 function openCreatePostModal() {
-  console.log('Abriendo modal:', isEditMode ? 'EDITAR' : 'CREAR');
+  console.log("Abriendo modal:", isEditMode ? "EDITAR" : "CREAR");
 
-  const modal = document.getElementById('MainModal');
+  const modal = document.getElementById("MainModal");
   if (modal) {
-    modal.style.display = 'flex';
-    modal.style.visibility = 'visible';
-    modal.style.opacity = '1';
-    modal.classList.remove('hidden');
-    modal.classList.add('show');
+    modal.style.display = "flex";
+    modal.style.visibility = "visible";
+    modal.style.opacity = "1";
+    modal.classList.remove("hidden");
+    modal.classList.add("show");
 
     if (!isEditMode) {
-      console.log('Limpiando modal para crear nuevo post');
+      console.log("Limpiando modal para crear nuevo post");
 
-      const titleInput = document.getElementById('postTitle');
-      const descInput = document.getElementById('postDescription');
-      const privacySelect = document.getElementById('postPrivacy');
+      const titleInput = document.getElementById("postTitle");
+      const descInput = document.getElementById("postDescription");
+      const privacySelect = document.getElementById("postPrivacy");
 
-      if (titleInput) titleInput.value = '';
-      if (descInput) descInput.value = '';
-      if (privacySelect) privacySelect.value = 'private';
+      if (titleInput) titleInput.value = "";
+      if (descInput) descInput.value = "";
+      if (privacySelect) privacySelect.value = "private";
 
       selectedSections = [];
       updateSelectedTagsDisplay();
       removeImage();
 
-      const modalTitle = document.querySelector('#MainModal .ModalTitle');
-      if (modalTitle) modalTitle.textContent = 'Create New Post';
+      const modalTitle = document.querySelector("#MainModal .ModalTitle");
+      if (modalTitle) modalTitle.textContent = "Create New Post";
 
-      const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
+      const submitBtn = document.querySelector(
+        "#MainModal .EditableSubmitButton"
+      );
       if (submitBtn) {
         submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
@@ -477,36 +524,38 @@ function openCreatePostModal() {
 }
 
 function closeCreatePostModal() {
-  console.log('Cerrando modal');
+  console.log("Cerrando modal");
 
-  const modal = document.getElementById('MainModal');
+  const modal = document.getElementById("MainModal");
   if (modal) {
-    modal.style.display = 'none';
+    modal.style.display = "none";
 
     if (isEditMode) {
-      console.log('Saliendo del modo edición');
+      console.log("Saliendo del modo edición");
       isEditMode = false;
       editingPostId = null;
       originalPostData = null;
     }
 
     setTimeout(() => {
-      const titleInput = document.getElementById('postTitle');
-      const descInput = document.getElementById('postDescription');
-      const privacySelect = document.getElementById('postPrivacy');
+      const titleInput = document.getElementById("postTitle");
+      const descInput = document.getElementById("postDescription");
+      const privacySelect = document.getElementById("postPrivacy");
 
-      if (titleInput) titleInput.value = '';
-      if (descInput) descInput.value = '';
-      if (privacySelect) privacySelect.value = 'private';
+      if (titleInput) titleInput.value = "";
+      if (descInput) descInput.value = "";
+      if (privacySelect) privacySelect.value = "private";
 
       selectedSections = [];
       updateSelectedTagsDisplay();
       removeImage();
 
-      const modalTitle = document.querySelector('#MainModal .ModalTitle');
-      if (modalTitle) modalTitle.textContent = 'Create New Post';
+      const modalTitle = document.querySelector("#MainModal .ModalTitle");
+      if (modalTitle) modalTitle.textContent = "Create New Post";
 
-      const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
+      const submitBtn = document.querySelector(
+        "#MainModal .EditableSubmitButton"
+      );
       if (submitBtn) {
         submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
@@ -516,158 +565,167 @@ function closeCreatePostModal() {
 
 async function createPost() {
   if (isCreatingPost) {
-    console.log('Ya se está procesando, ignorando...');
+    console.log("Ya se está procesando, ignorando...");
     return;
   }
 
   isCreatingPost = true;
 
-  const actionText = isEditMode ? 'EDITANDO' : 'CREANDO';
+  const actionText = isEditMode ? "EDITANDO" : "CREANDO";
   console.log(`${actionText} post...`);
 
-  const title = document.getElementById('postTitle')?.value?.trim();
-  const description = document.getElementById('postDescription')?.value?.trim();
-  const privacy = document.getElementById('postPrivacy')?.value;
-  const fileInput = document.getElementById('fileInput');
+  const title = document.getElementById("postTitle")?.value?.trim();
+  const description = document.getElementById("postDescription")?.value?.trim();
+  const privacy = document.getElementById("postPrivacy")?.value;
+  const fileInput = document.getElementById("fileInput");
 
   console.log(`Datos del formulario (${actionText}):`, {
     title,
     description,
     privacy,
     selectedSections: selectedSections.length,
-    hasNewImage: fileInput?.files[0] ? 'Sí' : 'No',
-    postId: isEditMode ? editingPostId : 'Nuevo'
+    hasNewImage: fileInput?.files[0] ? "Sí" : "No",
+    postId: isEditMode ? editingPostId : "Nuevo",
   });
 
   if (!title || !description) {
     isCreatingPost = false;
-    if (typeof Swal !== 'undefined') {
+    if (typeof Swal !== "undefined") {
       Swal.fire({
-        icon: 'error',
-        title: 'Incomplete fields',
-        text: 'Please complete the title and description'
+        icon: "error",
+        title: "Incomplete fields",
+        text: "Please complete the title and description",
       });
     } else {
-      alert('Please complete the title and description');
+      alert("Please complete the title and description");
     }
     return;
   }
 
   if (selectedSections.length === 0) {
     isCreatingPost = false;
-    if (typeof Swal !== 'undefined') {
+    if (typeof Swal !== "undefined") {
       Swal.fire({
-        icon: 'error',
-        title: 'No sections',
-        text: 'You must select at least one section'
+        icon: "error",
+        title: "No sections",
+        text: "You must select at least one section",
       });
     } else {
-      alert('You must select at least one section');
+      alert("You must select at least one section");
     }
     return;
   }
 
-  const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
+  const submitBtn = document.querySelector("#MainModal .EditableSubmitButton");
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span class="material-icons">hourglass_empty</span>${isEditMode ? 'Saving...' : 'Creating...'}`;
+    submitBtn.innerHTML = `<span class="material-icons">hourglass_empty</span>${
+      isEditMode ? "Saving..." : "Creating..."
+    }`;
   }
 
   const formData = new FormData();
-  formData.append('title', title);
-  formData.append('description', description);
-  formData.append('privacy', privacy || 'private');
+  formData.append("title", title);
+  formData.append("description", description);
+  formData.append("privacy", privacy || "private");
 
-  selectedSections.forEach(section => {
-    formData.append('categories', section.id);
+  selectedSections.forEach((section) => {
+    formData.append("categories", section.id);
   });
 
   if (isEditMode) {
-    const imageContainer = document.getElementById('imageContainer');
-    const imagePreview = document.getElementById('imagePreview');
+    const imageContainer = document.getElementById("imageContainer");
+    const imagePreview = document.getElementById("imagePreview");
     const hasNewImage = fileInput?.files[0];
 
-    console.log('Estado de imagen en edición:', {
+    console.log("Estado de imagen en edición:", {
       hasOriginalImage: originalPostData?.images?.length > 0,
       hasNewImage: !!hasNewImage,
-      imageContainerVisible: imageContainer?.style.display !== 'none',
-      imagePreviewSrc: imagePreview?.src || 'sin src'
+      imageContainerVisible: imageContainer?.style.display !== "none",
+      imagePreviewSrc: imagePreview?.src || "sin src",
     });
 
     if (hasNewImage) {
-      formData.append('image', hasNewImage);
-      console.log('✅ Enviando nueva imagen:', hasNewImage.name);
+      formData.append("image", hasNewImage);
+      console.log("✅ Enviando nueva imagen:", hasNewImage.name);
     } else {
       const hadOriginalImage = originalPostData?.images?.length > 0;
-      const imageStillVisible = imageContainer?.style.display !== 'none' && imagePreview?.src;
+      const imageStillVisible =
+        imageContainer?.style.display !== "none" && imagePreview?.src;
 
       if (hadOriginalImage && !imageStillVisible) {
-        formData.append('removeImage', 'true');
-        console.log('✅ Marcando imagen para remover');
+        formData.append("removeImage", "true");
+        console.log("✅ Marcando imagen para remover");
       } else if (hadOriginalImage && imageStillVisible) {
-        console.log('✅ Manteniendo imagen existente');
+        console.log("✅ Manteniendo imagen existente");
       }
     }
   } else {
     if (fileInput?.files[0]) {
-      formData.append('image', fileInput.files[0]);
-      console.log('✅ Agregando imagen al crear post');
+      formData.append("image", fileInput.files[0]);
+      console.log("✅ Agregando imagen al crear post");
     }
   }
 
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     if (!token) {
-      throw new Error('No authentication token');
+      throw new Error("No authentication token");
     }
 
-    console.log('Enviando petición al servidor...');
+    console.log("Enviando petición al servidor...");
 
-    if (typeof Swal !== 'undefined') {
+    if (typeof Swal !== "undefined") {
       Swal.fire({
-        title: isEditMode ? 'Saving changes...' : 'Creating post...',
-        text: 'Please wait',
+        title: isEditMode ? "Saving changes..." : "Creating post...",
+        text: "Please wait",
         allowOutsideClick: false,
         didOpen: () => {
           Swal.showLoading();
-        }
+        },
       });
     }
 
-    const url = isEditMode ? `/api/posts/${editingPostId}` : '/api/posts';
-    const method = isEditMode ? 'PUT' : 'POST';
+    const url = isEditMode ? `/api/posts/${editingPostId}` : "/api/posts";
+    const method = isEditMode ? "PUT" : "POST";
 
     console.log(`${method} ${url}`);
 
     const response = await fetch(url, {
       method,
       headers: {
-        'Authorization': `Bearer ${token}`
+        Authorization: `Bearer ${token}`,
       },
-      body: formData
+      body: formData,
     });
 
-    console.log('Respuesta del servidor:', response.status, response.statusText);
+    console.log(
+      "Respuesta del servidor:",
+      response.status,
+      response.statusText
+    );
 
     if (!response.ok) {
-      throw new Error(`Server error: ${response.status} ${response.statusText}`);
+      throw new Error(
+        `Server error: ${response.status} ${response.statusText}`
+      );
     }
 
     const data = await response.json();
-    console.log('Datos recibidos:', data);
+    console.log("Datos recibidos:", data);
 
     if (data.success) {
-      const successText = isEditMode ? 'updated' : 'created';
+      const successText = isEditMode ? "updated" : "created";
       console.log(`Post ${successText} exitosamente`);
 
-      if (typeof Swal !== 'undefined') {
+      if (typeof Swal !== "undefined") {
         Swal.fire({
-          icon: 'success',
-          title: isEditMode ? 'Post updated!' : 'Post created!',
+          icon: "success",
+          title: isEditMode ? "Post updated!" : "Post created!",
           text: `Your post has been ${successText} successfully`,
           timer: 2000,
-          showConfirmButton: false
+          showConfirmButton: false,
         });
       } else {
         alert(`Post ${successText} successfully!`);
@@ -678,22 +736,22 @@ async function createPost() {
       setTimeout(() => {
         loadUserPosts();
       }, 500);
-
     } else {
-      throw new Error(data.message || `Error ${isEditMode ? 'updating' : 'creating'} post`);
+      throw new Error(
+        data.message || `Error ${isEditMode ? "updating" : "creating"} post`
+      );
     }
-
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
 
-    if (typeof Swal !== 'undefined') {
+    if (typeof Swal !== "undefined") {
       Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: error.message
+        icon: "error",
+        title: "Error",
+        text: error.message,
       });
     } else {
-      alert('Error: ' + error.message);
+      alert("Error: " + error.message);
     }
   } finally {
     isCreatingPost = false;
@@ -701,7 +759,8 @@ async function createPost() {
     if (submitBtn) {
       submitBtn.disabled = false;
       if (isEditMode) {
-        submitBtn.innerHTML = '<span class="material-icons">save</span>Save Changes';
+        submitBtn.innerHTML =
+          '<span class="material-icons">save</span>Save Changes';
       } else {
         submitBtn.innerHTML = '<span class="material-icons">send</span>Publish';
       }
@@ -710,23 +769,23 @@ async function createPost() {
 }
 
 async function confirmDeletePost(postId) {
-  if (typeof Swal !== 'undefined') {
+  if (typeof Swal !== "undefined") {
     const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'You won\'t be able to revert this action',
-      icon: 'warning',
+      title: "Are you sure?",
+      text: "You won't be able to revert this action",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it',
-      cancelButtonText: 'Cancel'
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it",
+      cancelButtonText: "Cancel",
     });
 
     if (result.isConfirmed) {
       await deletePost(postId);
     }
   } else {
-    if (confirm('Are you sure you want to delete this post?')) {
+    if (confirm("Are you sure you want to delete this post?")) {
       await deletePost(postId);
     }
   }
@@ -734,62 +793,62 @@ async function confirmDeletePost(postId) {
 
 async function deletePost(postId) {
   try {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
 
     const response = await fetch(`/api/posts/${postId}`, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
     if (!response.ok) {
-      throw new Error('Error al eliminar post');
+      throw new Error("Error al eliminar post");
     }
 
     const data = await response.json();
 
     if (data.success) {
-      console.log('Post eliminado');
+      console.log("Post eliminado");
 
-      if (typeof Swal !== 'undefined') {
-        Swal.fire('Deleted!', 'Post deleted successfully', 'success');
+      if (typeof Swal !== "undefined") {
+        Swal.fire("Deleted!", "Post deleted successfully", "success");
       }
 
       loadUserPosts();
     }
   } catch (error) {
-    console.error('Error al eliminar post:', error);
+    console.error("Error al eliminar post:", error);
 
-    if (typeof Swal !== 'undefined') {
-      Swal.fire('Error', 'Could not delete the post', 'error');
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Error", "Could not delete the post", "error");
     } else {
-      alert('Error deleting the post');
+      alert("Error deleting the post");
     }
   }
 }
 
 function setupModalEventListeners() {
-  console.log('Configurando event listeners del modal...');
+  console.log("Configurando event listeners del modal...");
 
-  const createPostBtn = document.getElementById('CreatePostBtn');
+  const createPostBtn = document.getElementById("CreatePostBtn");
   if (createPostBtn) {
-    createPostBtn.addEventListener('click', openCreatePostModal);
-    console.log('Botón crear post configurado');
+    createPostBtn.addEventListener("click", openCreatePostModal);
+    console.log("Botón crear post configurado");
   }
 
   setTimeout(() => {
     setupModalCloseListeners();
   }, 500);
 
-  console.log('Event listeners del modal configurados');
+  console.log("Event listeners del modal configurados");
 }
 
 function setupModalCloseListeners() {
-  const closeBtn = document.querySelector('#MainModal .CloseButton');
-  const cancelBtn = document.querySelector('#MainModal .EditableCancelButton');
-  const submitBtn = document.querySelector('#MainModal .EditableSubmitButton');
+  const closeBtn = document.querySelector("#MainModal .CloseButton");
+  const cancelBtn = document.querySelector("#MainModal .EditableCancelButton");
+  const submitBtn = document.querySelector("#MainModal .EditableSubmitButton");
 
   if (closeBtn) {
     closeBtn.onclick = closeCreatePostModal;

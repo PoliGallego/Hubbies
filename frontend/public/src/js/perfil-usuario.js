@@ -1,42 +1,4 @@
-// Funcionalidad para el botón de eliminar post
-const deleteBtn = document.querySelector(".delete-btn");
-if (deleteBtn) {
-  deleteBtn.addEventListener("click", function () {
-    Swal.fire({
-      title: "Delete post?",
-      text: "Are you sure you want to delete this post?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#e74c3c",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete?",
-      cancelButtonText: "Cancel",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const postCard = this.closest(".post-card");
-        postCard.style.transition = "opacity 0.3s ease, transform 0.3s ease";
-        postCard.style.opacity = "0";
-        postCard.style.transform = "scale(0.9)";
-        setTimeout(() => {
-          postCard.remove();
-          Swal.fire({
-            icon: "success",
-            title: "Post deleted",
-            showConfirmButton: false,
-            timer: 1200,
-          });
-        }, 300);
-      }
-    });
-  });
-}
-
-const privacySelect = document.querySelector(".privacy-select");
-if (privacySelect) {
-  privacySelect.addEventListener("change", function () {
-    console.log("Privacidad cambiada a:", this.value);
-  });
-}
+// --- 🔗 Navegación activa ---
 const navItems = document.querySelectorAll(".nav-item, .category-item");
 navItems.forEach((item) => {
   item.addEventListener("click", function () {
@@ -46,10 +8,11 @@ navItems.forEach((item) => {
       .querySelectorAll(selector)
       .forEach((i) => i.classList.remove("active"));
     this.classList.add("active");
-    console.log("Navegando a:", this.textContent.trim());
+    console.log("Navigating to:", this.textContent.trim());
   });
 });
 
+// --- 🔗 Botón de conectar (copiar link del perfil) ---
 const connectBtn = document.querySelector(".connect-btn");
 if (connectBtn) {
   connectBtn.addEventListener("click", function () {
@@ -59,7 +22,7 @@ if (connectBtn) {
       .then(() => {
         const originalText = this.textContent;
         const originalBg = this.style.background;
-        this.textContent = "¡Link copied!";
+        this.textContent = "Link copied!";
         this.style.background = "#28a745";
         this.style.color = "white";
         setTimeout(() => {
@@ -69,7 +32,7 @@ if (connectBtn) {
         }, 2000);
       })
       .catch(() => {
-        alert("Enlace: " + url);
+        alert("Link: " + url);
       });
   });
 }
@@ -79,7 +42,7 @@ if (firstNavItem) {
   firstNavItem.classList.add("active");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
   if (!token) window.location.href = "/src/html/index.html";
 
@@ -98,11 +61,8 @@ document.addEventListener("DOMContentLoaded", () => {
       avatarEl.style.backgroundPosition = "center";
       avatarEl.textContent = "";
     }
-
-    const editAvatarBtn = document.querySelector(".edit-avatar");
-    if (editAvatarBtn) editAvatarBtn.style.display = "none";
   } catch (err) {
-    console.error("Error al leer token:", err);
+    console.error("Error reading token:", err);
     localStorage.removeItem("token");
     window.location.href = "/src/html/index.html";
     return;
@@ -110,20 +70,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!userId) return;
 
-  fetch(`/api/users/${userId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  })
-    .then((res) => {
-      if (!res.ok) throw new Error("Error al obtener datos del usuario");
-      return res.json();
-    })
-    .then((data) => {
-      const emailEl = document.querySelector(".profile-info p");
-      if (emailEl) emailEl.textContent = `Email: ${data.user.email}`;
-    })
-    .catch((err) => {
-      console.error("Error al obtener email del usuario:", err);
-      localStorage.removeItem("token");
-      window.location.href = "/src/html/index.html";
+  try {
+    const res = await fetch(`/api/users/${userId}`, {
+      headers: { Authorization: `Bearer ${token}` },
     });
+    if (!res.ok) throw new Error("Error fetching user data");
+    const data = await res.json();
+    const emailEl = document.querySelector(".profile-info p");
+    if (emailEl) emailEl.textContent = `Email: ${data.user.email}`;
+  } catch (err) {
+    console.error("Error fetching user email:", err);
+    localStorage.removeItem("token");
+    window.location.href = "/src/html/index.html";
+  }
+
+  const box = document.querySelector(".recent-posts-box");
+  const listContainer = document.querySelector(".recent-posts-list");
+  if (!box || !listContainer) return;
+
+  let postsLoaded = false;
+
+  box.addEventListener("click", async () => {
+    const isOpen = box.classList.toggle("open");
+    box.classList.toggle("closed", !isOpen);
+
+    if (isOpen) {
+      listContainer.classList.remove("hidden");
+      listContainer.style.opacity = "0";
+      setTimeout(() => {
+        listContainer.style.opacity = "1";
+        listContainer.style.transform = "translateY(0)";
+      }, 200);
+
+      if (postsLoaded) return;
+
+      try {
+        const response = await fetch("/api/posts/my-posts", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error("Error fetching posts");
+
+        const posts = await response.json();
+        const lastFive = posts.slice(0, 5);
+
+        listContainer.innerHTML =
+          lastFive.length === 0
+            ? `<p class="loading-text">No posts yet.</p>`
+            : lastFive
+                .map((post) => {
+                  const categories =
+                    post.categories && post.categories.length > 0
+                      ? post.categories
+                          .map((cat) =>
+                            typeof cat === "string"
+                              ? cat
+                              : cat.title || cat.name || "Unknown"
+                          )
+                          .join(", ")
+                      : "Uncategorized";
+
+                  return `
+            <div class="recent-post-item" data-id="${post._id}">
+              <strong>${post.title}</strong>
+              <small>
+                🏷️ ${categories} • 📅 ${new Date(
+                    post.createdAt
+                  ).toLocaleDateString()}
+              </small>
+            </div>
+          `;
+                })
+                .join("");
+
+        listContainer.querySelectorAll(".recent-post-item").forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.stopPropagation(); // evita cerrar al hacer clic dentro
+            const id = item.dataset.id;
+            window.location.href = `/src/html/posts.html?id=${id}`;
+          });
+        });
+
+        postsLoaded = true;
+      } catch (error) {
+        console.error("Error loading posts:", error);
+        listContainer.innerHTML = `<p class="loading-text" style="color:#f55;">Error loading posts</p>`;
+      }
+    } else {
+      // 🔴 Si cerramos la caja, animamos el cierre y ocultamos la lista
+      listContainer.style.opacity = "0";
+      listContainer.style.transform = "translateY(-10px)";
+      setTimeout(() => {
+        listContainer.classList.add("hidden");
+      }, 400);
+    }
+  });
 });
