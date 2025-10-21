@@ -543,8 +543,8 @@ function injectCommentStyles() {
   const styles = `
     .CommentsSection {
       padding: 15px;
-      background: #f8f9fa;
-      border-top: 2px solid #e9ecef;
+      background: #F7F5F5;
+      border-top: 2px solid #E5D6D6;
       animation: slideDown 0.3s ease;
     }
 
@@ -569,8 +569,11 @@ function injectCommentStyles() {
 
     .CommentItem {
       padding: 10px;
-      border-bottom: 1px solid #e9ecef;
+      border-bottom: 1px solid #E5D6D6;
       position: relative;
+      background-color: #FFFFFF;
+      border-radius: 8px;
+      margin-bottom: 6px;
     }
 
     .CommentHeader {
@@ -581,18 +584,18 @@ function injectCommentStyles() {
     }
 
     .CommentAuthor {
-      font-weight: 500;
-      color: #333;
+      font-weight: 600;
+      color: #2D2A2A;
     }
 
     .CommentTime {
       font-size: 12px;
-      color: #999;
+      color: #9B8F8F;
     }
 
     .CommentContent {
       margin: 5px 0;
-      color: #444;
+      color: #3E3A3A;
     }
 
     .CommentControls {
@@ -612,63 +615,65 @@ function injectCommentStyles() {
     .CommentInput {
       flex: 1;
       padding: 12px 14px;
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
+      border: 1px solid #D8CACA;
+      border-radius: 10px;
       resize: vertical;
       min-height: 44px;
       max-height: 120px;
-      font-family: inherit;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
       font-size: 14px;
-      color: #495057;
-      background-color: #ffffff;
+      color: #2D2A2A;
+      background-color: #FFFFFF;
       transition: all 0.2s ease;
       width: 100%;
     }
 
     .CommentInput::placeholder {
-      color: #adb5bd;
+      color: #B8AAAA;
     }
 
     .CommentInput:focus {
       outline: none;
-      border-color: #007bff;
-      background-color: #ffffff;
-      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      border-color: #C49B9B;
+      background-color: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(196, 155, 155, 0.2);
     }
 
     .CommentInput:hover:not(:focus) {
-      border-color: #ced4da;
+      border-color: #E0CFCF;
     }
 
     .SendCommentBtn {
-      background: #007bff;
-      color: white;
+      background: #C49B9B;
+      color: #FFFFFF;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 12px 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
-      font-weight: 500;
+      font-weight: 600;
       width: 100%;
+      font-family: 'Inter', sans-serif;
     }
 
     .SendCommentBtn:hover {
-      background: #0056b3;
-      box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+      background: #B88D8D;
+      box-shadow: 0 4px 8px rgba(196, 155, 155, 0.3);
     }
 
     .SendCommentBtn:active {
-      transform: scale(0.95);
-      background: #004085;
+      transform: scale(0.96);
+      background: #A67F7F;
     }
 
     .SendCommentBtn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
-      background: #6c757d;
+      background: #D5C4C4;
     }
 
     .SendCommentBtn .material-icons {
@@ -679,18 +684,18 @@ function injectCommentStyles() {
       background: none;
       border: none;
       cursor: pointer;
-      color: #6c757d;
+      color: #9B8F8F;
       padding: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
-      border-radius: 6px;
+      border-radius: 8px;
     }
 
     .CommentsButton:hover {
-      color: #007bff;
-      background: rgba(0, 123, 255, 0.1);
+      color: #C49B9B;
+      background: rgba(196, 155, 155, 0.15);
     }
 
     .CommentsButton:active {
@@ -728,6 +733,7 @@ function injectCommentStyles() {
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 }
+
 
 injectCommentStyles();
 
