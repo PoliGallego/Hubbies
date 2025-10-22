@@ -20,65 +20,96 @@
         <div id="sidebar"></div>
         <div class="main-content">
             <div class="config-section">
-                <h2 class="section-title">Configuration</h2>
-                <div class="config-option">Edit profile</div>
-                <div class="action-buttons">
-                    <button class="btn-deactivate" id="deactivateBtn">Deactivate account</button>
-                    <button class="btn-delete" id="deleteBtn">Delete Account</button>
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span class="material-icons">settings</span>
+                        Configuration
+                    </h2>
+                </div>
+                <div class="config-content">
+                    <div class="config-option"
+                        onclick="document.getElementById('EditProfileModal').style.display='flex'">
+                        <div class="config-option-text">
+                            <span class="material-icons">person</span>
+                            Edit profile
+                        </div>
+                        <span class="material-icons config-option-arrow">arrow_forward</span>
+                    </div>
+
+                    <div class="danger-zone">
+                        <div class="danger-zone-title">
+                            <span class="material-icons">warning</span>
+                            Danger Zone
+                        </div>
+                        <p class="danger-zone-description">
+                            These actions are irreversible. Please proceed with caution.
+                        </p>
+                        <div class="action-buttons">
+                            <button class="btn-deactivate" id="deactivateBtn">
+                                <span class="material-icons" style="font-size: 18px;">pause_circle</span>
+                                Deactivate account
+                            </button>
+                            <button class="btn-delete" id="deleteBtn">
+                                <span class="material-icons" style="font-size: 18px;">delete_forever</span>
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+
     <script src="/src/js/modals.js"></script>
     <script src="/src/js/components.js"></script>
     <script src="/src/js/configuracion.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</body>
 
 
-<div id="EditProfileModal" class="ModalOverlay" style="display:none;">
-    <div class="ModalContent">
-        <button class="CloseButton" id="CloseEditProfileModal">&times;</button>
+    <div id="EditProfileModal" class="ModalOverlay" style="display:none;">
+        <div class="ModalContent">
+            <button class="CloseButton" id="CloseEditProfileModal">&times;</button>
 
-        <h2>Edit Profile</h2>
-        <form id="EditProfileForm">
-            <div class="AvatarUpload">
-                <label for="ProfileImage" class="AvatarLabel">
-                    <img id="PreviewImg" src="../../assets/avatar_icon.png" alt="Avatar">
-                    <input type="file" id="ProfileImage" accept="image/*" style="display: none;">
-                </label>
-            </div>
+            <h2>Edit Profile</h2>
+            <form id="EditProfileForm">
+                <div class="AvatarUpload">
+                    <label for="ProfileImage" class="AvatarLabel">
+                        <img id="PreviewImg" src="../../assets/avatar_icon.png" alt="Avatar">
+                        <input type="file" id="ProfileImage" accept="image/*" style="display: none;">
+                    </label>
+                </div>
 
-            <div class="FormRow">
-                <div class="FormGroup">
-                    <label for="FullName">Full Name</label>
-                    <input type="text" id="FullName" required>
+                <div class="FormRow">
+                    <div class="FormGroup">
+                        <label for="FullName">Full Name</label>
+                        <input type="text" id="FullName" required>
+                    </div>
+
+                    <div class="FormGroup">
+                        <label for="Username">Username</label>
+                        <input type="text" id="Username" required>
+                    </div>
                 </div>
 
                 <div class="FormGroup">
-                    <label for="Username">Username</label>
-                    <input type="text" id="Username" required>
+                    <label for="BirthDate">Birth Date</label>
+                    <input type="date" id="BirthDate" required>
                 </div>
-            </div>
 
-            <div class="FormGroup">
-                <label for="BirthDate">Birth Date</label>
-                <input type="date" id="BirthDate" required>
-            </div>
+                <div class="FormGroup">
+                    <label for="Email">Email</label>
+                    <input type="email" id="Email" required>
+                </div>
 
-            <div class="FormGroup">
-                <label for="Email">Email</label>
-                <input type="email" id="Email" required>
-            </div>
+                <div class="FormGroup">
+                    <label for="Password">Password</label>
+                    <input type="password" id="Password" placeholder="Leave blank to keep current">
+                </div>
 
-            <div class="FormGroup">
-                <label for="Password">Password</label>
-                <input type="password" id="Password" placeholder="Leave blank to keep current">
-            </div>
-
-            <button type="submit" class="SubmitButton">Save Changes</button>
-        </form>
+                <button type="submit" class="SubmitButton">Save Changes</button>
+            </form>
+        </div>
     </div>
-</div>
 
 </html>
