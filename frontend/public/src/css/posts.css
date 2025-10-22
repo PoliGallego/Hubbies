@@ -132,8 +132,13 @@ body {
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
     margin-bottom: 25px;
+}
+
+.Navigation li:not(.ExtraItem),
+.Categories li:not(.ExtraItem) {
+    margin-bottom: 8px;
 }
 
 .Navigation a,
@@ -204,12 +209,12 @@ body {
     border: none;
     color: var(--TextColorSecondary);
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     gap: 5px;
 }
 
-.ViewMoreButton span {
+.Navigation .ViewMoreButton span {
     position: relative;
     top: 8px;
 }

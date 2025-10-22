@@ -14,19 +14,47 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((html) => {
           document.getElementById("sidebar").innerHTML = html;
 
+          navEventListener();
           if (payload && payload.id) {
             innitCategories();
-            innitNavigation();
           }
         });
     });
 });
 
+function navEventListener() {
+  const navList = document.querySelector(".Navigation > ul");
+  if (navList) {
+    navList.addEventListener("click", (e) => {
+      const a = e.target.closest("a");
+      if (!a) return;
+      e.preventDefault();
+
+      const postId = a.getAttribute("post-id") || a.dataset.postId;
+      if (!window.location.pathname.includes("posts.html")) {
+        window.location.assign("/src/html/posts.html");
+        return;
+      }
+
+      if (postId) {
+        const post = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+        
+        if (post) {
+          window.scrollTo({
+            top: post.getBoundingClientRect().top + window.scrollY - 100,
+            behavior: "smooth",
+          });
+        }
+      }
+    });
+  }
+}
+
 function createSectionCard(section) {
   const newLi = document.createElement("li");
   newLi.innerHTML = `
     <div class="CategoriesRow">
-        <a href="#">${section.title}</a>
+        <a href="/src/html/posts.html">${section.title}</a>
         <input type="hidden" value="${section._id}">
         <div class="ActionIcons">
             <button class="IconButton DeleteBtn"><span class="material-icons">delete_outline</span></button>
@@ -109,9 +137,11 @@ function createSectionCard(section) {
 }
 
 function innitCategories() {
-  const AddSectionBtn = document.getElementById("AddSection");
+  const AddSectionBtn = document.getElementById("AddCategory");
   const categoriesList = document.querySelector(".Categories > ul");
   const noCategoriesMsg = document.querySelector(".Categories .NotFound");
+  const viewMoreBtn = document.querySelector(".Categories .ViewMoreButton");
+  let expanded = false;
 
   if (categoriesList) {
     fetch("/api/sections/" + payload.id, {
@@ -129,132 +159,23 @@ function innitCategories() {
         noCategoriesMsg.style.display = "none";
         for (let index = 0; index < data.length; index++) {
           const li = createSectionCard(data[index]);
-          if (index >= 7) {
+          if (data.length - index >= 7) {
             li.classList.add("ExtraItem");
           }
-          categoriesList.appendChild(li);
+          categoriesList.prepend(li);
         }
-      }
-    });
-  }
-
-  AddSectionBtn?.addEventListener("click", () => {
-    if (!categoriesList) return;
-
-    if (categoriesList.querySelector(".NewSectionInput")) return;
-
-    const li = document.createElement("li");
-    const input = document.createElement("input");
-    input.type = "text";
-    input.placeholder = "New category title";
-    input.className = "NewSectionInput";
-    input.autofocus = true;
-
-    li.appendChild(input);
-    categoriesList.appendChild(li);
-    input.focus();
-
-    input.addEventListener("keydown", function (e) {
-      if (e.key === "Enter" && input.value.trim() !== "") {
-        const categoryName = input.value.trim();
-
-        fetch("/api/sections/create", {
-          method: "POST",
-          body: JSON.stringify({
-            title: categoryName,
-            idUser: payload?.id,
-            type: "category",
-            privacy: "private"
-          }),
-          headers: {
-            "Content-Type": "application/json"
-          }
-        }).then((res) => {
-          if (!res.ok) throw new Error("Error creating category");
-          return res.json();
-        })
-          .then((data) => {
-            console.log("Section created:", data);
-            const newLi = createSectionCard(data.section);
-            categoriesList.replaceChild(newLi, li);
-            noCategoriesMsg.style.display = "none";
-          })
-          .catch((err) => {
-            console.error("Error creating category:", err);
-            categoriesList.removeChild(li);
-          });
-
-      } else if (e.key === "Escape") {
-        categoriesList.removeChild(li);
-      }
-    });
-  });
-}
-
-function innitNavigation() {
-  const viewMoreBtn = document.querySelector(".ViewMoreButton");
-  const postsList = document.querySelector(".Navigation > ul");
-  const noPostsMsg = document.querySelector(".Navigation .NotFound");
-  let expanded = false;
-
-  if (postsList) {
-    fetch('/api/posts/my-posts', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    }).then((res) => {
-      if (!res.ok) throw new Error("Error fetching posts");
-      return res.json();
-    }).then((data) => {
-      if (data.length === 0) {
-        if (noPostsMsg) {
-          noPostsMsg.style.display = "block";
-        }
-      } else {
-        noPostsMsg.style.display = "none";
-        for (let i = 0; i < data.length; i++) {
-          const newLi = document.createElement("li");
-
-          if (i <= 7) {
-            newLi.innerHTML = `
-              <div class="NavigationRow">
-              <a href="/src/html/posts.html" post-id="${data[i]._id}">${data[i].title}</a>
-              </div>`;
-          } else {
-            newLi.innerHTML = `
-              <div class="ExtraItem">
-              <a href="/src/html/posts.html" post-id="${data[i]._id}">${data[i].title}</a>
-              </div>`;
-          }
-
-          const btn = newLi.querySelector("a");
-          btn.addEventListener("click", e => {
-            e.preventDefault();
-            if (!window.location.pathname.includes("posts.html")) {
-              window.location.assign("/src/html/posts.html");
-            }
-            const post = document.getElementById(btn.getAttribute("post-id"));
-            if (post) window.scrollTo({
-              top: post.getBoundingClientRect().top + window.scrollY - 100, 
-              behavior: 'smooth' 
-            });
-          });
-          postsList.appendChild(newLi);
-        }
-
-        const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+        const extraItems = document.querySelectorAll(".Categories .ExtraItem");
         if (viewMoreBtn) {
+          console.log("Extras", extraItems);
           if (!extraItems || extraItems.length === 0) {
             viewMoreBtn.style.display = "none";
           } else {
-            viewMoreBtn.style.display = "block";
+            viewMoreBtn.style.display = "flex";
           }
           viewMoreBtn.addEventListener("click", function () {
             expanded = !expanded;
             extraItems.forEach(function (item) {
-              item.style.display = expanded ? "list-item" : "none";
+              item.setAttribute("class", expanded ? "" : "ExtraItem");
             });
             viewMoreBtn.querySelector("span").textContent = expanded
               ? "expand_less"
@@ -265,7 +186,117 @@ function innitNavigation() {
           });
         }
       }
+      document.dispatchEvent(new CustomEvent('categories:ready'));
     });
+  }
+
+  AddSectionBtn?.addEventListener("click", () => {
+    if (!categoriesList) return;
+
+    if (categoriesList.querySelector(".NewCategoryInput")) return;
+
+    const li = document.createElement("li");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.placeholder = "New category title";
+    input.className = "NewCategoryInput";
+    input.autofocus = true;
+
+    li.appendChild(input);
+    categoriesList.prepend(li);
+    input.focus();
+
+    input.addEventListener("keydown", function (e) {
+      if (e.key === "Enter" && input.value.trim() !== "") {
+        if (input.value.trim().length > 2) {
+          const categoryName = input.value.trim();
+
+          fetch("/api/sections/create", {
+            method: "POST",
+            body: JSON.stringify({
+              title: categoryName,
+              idUser: payload?.id,
+              type: "category",
+              privacy: "private"
+            }),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          }).then((res) => {
+            if (!res.ok) throw new Error("Error creating category");
+            return res.json();
+          })
+            .then((data) => {
+              console.log("Section created:", data);
+              const newLi = createSectionCard(data.section);
+              categoriesList.replaceChild(newLi, li);
+              noCategoriesMsg.style.display = "none";
+            })
+            .catch((err) => {
+              console.error("Error creating category:", err);
+              categoriesList.removeChild(li);
+            });
+        } else {
+          alert("Section name too short");
+        }
+
+      } else if (e.key === "Escape") {
+        categoriesList.removeChild(li);
+      }
+    });
+  });
+}
+
+window.renderNavPosts = function (posts) {
+  const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
+  const postsList = document.querySelector(".Navigation > ul");
+  const noPostsMsg = document.querySelector(".Navigation .NotFound");
+  let expanded = false;
+
+  if (postsList) {
+    postsList.innerHTML = ``;
+    if (posts.length === 0) {
+      if (noPostsMsg) {
+        noPostsMsg.style.display = "block";
+      }
+    } else {
+      noPostsMsg.style.display = "none";
+      for (let i = 0; i < posts.length; i++) {
+        const newLi = document.createElement("li");
+
+        newLi.innerHTML = `
+            <div class="NavigationRow">
+            <a href="/src/html/posts.html" post-id="${posts[i]._id}">${posts[i].title}</a>
+            </div>`;
+        if (i > 7) {
+          newLi.setAttribute("class", "ExtraItem");
+        }
+
+        navEventListener();
+        postsList.appendChild(newLi);
+      }
+
+      const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+      if (viewMoreBtn) {
+        if (!extraItems || extraItems.length === 0) {
+          viewMoreBtn.style.display = "none";
+        } else {
+          viewMoreBtn.style.display = "block";
+        }
+        viewMoreBtn.addEventListener("click", function () {
+          expanded = !expanded;
+          extraItems.forEach(function (item) {
+            item.setAttribute("class", expanded ? "" : "ExtraItem");
+          });
+          viewMoreBtn.querySelector("span").textContent = expanded
+            ? "expand_less"
+            : "expand_more";
+          viewMoreBtn.childNodes[0].textContent = expanded
+            ? "View less"
+            : "View more";
+        });
+      }
+    }
   }
 }
 

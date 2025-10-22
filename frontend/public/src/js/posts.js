@@ -106,7 +106,7 @@ function renderSectionsList(sections) {
     categorySelect.appendChild(option);
   });
 
-  categorySelect.onchange = function() {
+  categorySelect.onchange = function () {
     if (this.value) {
       const selectedText = this.options[this.selectedIndex].text;
       addSectionToPost(this.value, selectedText);
@@ -173,7 +173,7 @@ function handleImageUpload(event) {
     const file = fileInput.files[0];
     const reader = new FileReader();
 
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       if (imagePreview && imageContainer) {
         imagePreview.src = e.target.result;
         imageContainer.style.display = 'block';
@@ -222,7 +222,7 @@ async function loadUserPosts() {
   }
 }
 
-function renderPosts(posts) {
+window.renderPosts = function renderPosts(posts) {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
 
@@ -231,6 +231,7 @@ function renderPosts(posts) {
 
   if (!posts || posts.length === 0) {
     renderNoPosts();
+    window.renderNavPosts([]);
     return;
   }
 
@@ -246,6 +247,7 @@ function renderPosts(posts) {
     }
   }, 100);
   setupPostEventListeners();
+  window.renderNavPosts(posts);
 }
 
 function createPostHTML(post) {
