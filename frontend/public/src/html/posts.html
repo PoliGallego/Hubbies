@@ -37,12 +37,28 @@
                         </button>
                         <button class="IconButton"><span class="material-icons">mail_outline</span></button>
                     </div>
+
                     <div class="SearchContainer">
                         <div class="SearchBar">
                             <input type="text" placeholder="Find by title">
                         </div>
                         <button class="IconButton"><span class="material-icons">search</span></button>
+
+                        <div class="FilterWrapper">
+                            <button id="FilterToggleBtn" class="IconButton" title="Filter posts">
+                                <span class="material-icons">filter_list</span>
+                            </button>
+
+                            <div id="FilterDropdown" class="FilterDropdown">
+                                <label><input type="checkbox" id="filterByDate"> Order by date</label>
+                                <label><input type="checkbox" id="filterByTitle"> Order by title</label>
+                                <label><input type="checkbox" id="filterBySection"> Order by section</label>
+                            </div>
+                        </div>
                     </div>
+
+
+
                 </div>
             </div>
 
@@ -64,35 +80,30 @@
             <div class="ModalBody">
                 <div class="EditablePostCard">
                     <div class="EditableCardHeader">
-                        <input 
-                            type="text" 
-                            id="postTitle" 
-                            placeholder="What's your new hobby?"
-                            class="EditableTitleInput"
-                        >
+                        <input type="text" id="postTitle" placeholder="What's your new hobby?"
+                            class="EditableTitleInput">
                         <div class="CardControls">
                             <select id="postPrivacy" class="PrivacySelector">
                                 <option value="private">Private</option>
                                 <option value="public">Public</option>
                             </select>
-                            <button type="button" class="IconButton AttachButton" onclick="triggerImageUpload()" title="Attach image">
+                            <button type="button" class="IconButton AttachButton" onclick="triggerImageUpload()"
+                                title="Attach image">
                                 <span class="material-icons">attach_file</span>
                             </button>
                         </div>
                     </div>
-                    
+
                     <div id="imageContainer" style="display: none;">
                         <img id="imagePreview" class="EditableImagePreview" alt="Preview">
                         <button type="button" class="RemoveImageBtn" onclick="removeImage()">
                             <span class="material-icons">close</span>
                         </button>
                     </div>
-                    
-                    <textarea 
-                        id="postDescription" 
+
+                    <textarea id="postDescription"
                         placeholder="Tell us about your hobby, what you like about it, how you started, tips, experiences..."
-                        class="EditableDescriptionInput"
-                    ></textarea>
+                        class="EditableDescriptionInput"></textarea>
 
                     <div class="EditableCardFooter">
                         <div class="CategorySection">
@@ -101,7 +112,7 @@
                                 <option value="">+ Add section...</option>
                             </select>
                         </div>
-                        
+
                         <div id="selectedTags" class="SelectedTagsContainer">
                             <p style="color: #999; text-align: center;">You haven't selected any sections</p>
                         </div>
@@ -119,7 +130,8 @@
                     </button>
                 </div>
 
-                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;"
+                    onchange="handleImageUpload(event)">
             </div>
         </div>
     </div>

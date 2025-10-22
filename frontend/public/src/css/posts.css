@@ -16,6 +16,12 @@
 }
 
 div {
+    overflow: visible; 
+}
+
+.CardImage,
+.CommentCard,
+.ContentCard {
     overflow: hidden;
 }
 
@@ -191,7 +197,7 @@ body {
 }
 
 .CategoriesRow button {
-    opacity: 0.1;
+    opacity: 0.6;
 }
 
 .CategoriesRow button:hover {
@@ -234,6 +240,7 @@ body {
 .SearchContainer {
     display: flex;
     max-height: 40px;
+    position: relative; 
 }
 
 .SearchBar {
@@ -254,6 +261,46 @@ body {
     position: absolute;
     right: 10px;
     color: var(--TextColorSecondary);
+}
+
+.FilterWrapper {
+    position: relative;
+}
+
+.FilterDropdown {
+    position: absolute;
+    right: 0;
+    top: 100%; 
+    margin-top: 8px; 
+    background-color: var(--ColorWhite);
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    padding: 12px 15px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1500;
+    animation: fadeIn 0.2s ease;
+    min-width: 180px;
+    white-space: nowrap;
+}
+
+.FilterDropdown.show {
+    display: flex;
+}
+
+.FilterDropdown label {
+    font-size: 0.9em;
+    color: var(--TextColorPrimary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.FilterDropdown input[type="checkbox"] {
+    accent-color: var(--TextColorPrimary);
 }
 
 .ContentCard {
