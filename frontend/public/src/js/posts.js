@@ -302,7 +302,7 @@ function createPostHTML(post) {
           <div class="CommentBox">
             <textarea
               class="CommentInput"
-              placeholder="Escribe un comentario..."
+              placeholder="Write a comment..."
               data-post-id="${post._id}"
             ></textarea>
             <button class="SendCommentBtn" data-post-id="${post._id}">
