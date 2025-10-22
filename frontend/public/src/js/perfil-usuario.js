@@ -111,11 +111,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!response.ok) throw new Error("Error fetching posts");
 
         const posts = await response.json();
-        const lastFive = posts.slice(0, 5);
+        const lastFive = posts.slice(1, 6); // ← excluimos el más reciente
 
         listContainer.innerHTML =
           lastFive.length === 0
-            ? `<p class="loading-text">No posts yet.</p>`
+            ? `<p class="loading-text">No more posts.</p>`
             : lastFive
                 .map((post) => {
                   const categories =
@@ -130,21 +130,21 @@ document.addEventListener("DOMContentLoaded", async () => {
                       : "Uncategorized";
 
                   return `
-            <div class="recent-post-item" data-id="${post._id}">
-              <strong>${post.title}</strong>
-              <small>
-                🏷️ ${categories} • 📅 ${new Date(
+              <div class="recent-post-item" data-id="${post._id}">
+                <strong>${post.title}</strong>
+                <small>
+                  🏷️ ${categories} • 📅 ${new Date(
                     post.createdAt
                   ).toLocaleDateString()}
-              </small>
-            </div>
-          `;
+                </small>
+              </div>
+            `;
                 })
                 .join("");
 
         listContainer.querySelectorAll(".recent-post-item").forEach((item) => {
           item.addEventListener("click", (e) => {
-            e.stopPropagation(); // evita cerrar al hacer clic dentro
+            e.stopPropagation();
             const id = item.dataset.id;
             window.location.href = `/src/html/posts.html?id=${id}`;
           });
@@ -156,7 +156,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         listContainer.innerHTML = `<p class="loading-text" style="color:#f55;">Error loading posts</p>`;
       }
     } else {
-      // 🔴 Si cerramos la caja, animamos el cierre y ocultamos la lista
       listContainer.style.opacity = "0";
       listContainer.style.transform = "translateY(-10px)";
       setTimeout(() => {
@@ -165,3 +164,58 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
+
+async function loadMostRecentPost() {
+  const token = localStorage.getItem("token");
+  const latestCard = document.querySelector(".latest-post-card");
+
+  if (!latestCard) return;
+
+  try {
+    const response = await fetch("/api/posts/my-posts", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (!response.ok) throw new Error("Error fetching posts");
+
+    const posts = await response.json();
+
+    if (!posts || posts.length === 0) {
+      latestCard.innerHTML = `<p class="loading-text">No posts yet.</p>`;
+      return;
+    }
+
+    const mostRecent = posts[0];
+    const categories =
+      mostRecent.categories && mostRecent.categories.length > 0
+        ? mostRecent.categories
+            .map((cat) =>
+              typeof cat === "string"
+                ? cat
+                : cat.title || cat.name || "Uncategorized"
+            )
+            .join(", ")
+        : "Uncategorized";
+
+    latestCard.innerHTML = `
+      <div class="most-recent-card" data-id="${mostRecent._id}">
+        <h3>${mostRecent.title}</h3>
+        <p class="recent-category">🏷️ ${categories}</p>
+        <p class="recent-date">📅 ${new Date(
+          mostRecent.createdAt
+        ).toLocaleDateString()}</p>
+        <button class="go-to-post-btn">View Post</button>
+      </div>
+    `;
+
+    latestCard
+      .querySelector(".go-to-post-btn")
+      .addEventListener("click", () => {
+        window.location.href = `/src/html/posts.html?id=${mostRecent._id}`;
+      });
+  } catch (error) {
+    console.error("Error loading most recent post:", error);
+    latestCard.innerHTML = `<p class="loading-text" style="color:#f55;">Error loading post</p>`;
+  }
+}
+
+loadMostRecentPost();
