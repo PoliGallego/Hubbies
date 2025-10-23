@@ -581,3 +581,22 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+.comment-post-link {
+  font-size: 12px;
+  color: #C49B9B;
+  font-style: italic;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #F0E8E8;
+}
+
+.comment-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(196, 155, 155, 0.2);
+  border-color: #C49B9B;
+}
