@@ -168,7 +168,9 @@ function renderComments(postId, comments, currentUser) {
 
   if (comments.length === 0) {
     commentsList.innerHTML =
-      '<p style="color: #999; text-align: center; padding: 10px;">No comments yet</p>';
+        '<p style="color: #999; text-align: center; padding: 10px;">No comments yet</p>';
+    const countSpan = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
+    if (countSpan) countSpan.textContent = '0';
     return;
   }
 
@@ -207,6 +209,11 @@ function renderComments(postId, comments, currentUser) {
     .join("");
 
   commentsList.innerHTML = commentsHTML;
+  const countSpan = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
+  if (countSpan) {
+    countSpan.textContent = comments.length;
+  }
+
   setupCommentActionListeners(postId);
 }
 
@@ -429,9 +436,7 @@ async function deleteComment(commentId, postId) {
 
 function updateCommentCount(postId, delta = 1) {
   console.log("Actualizando contador para postId:", postId, "Delta:", delta);
-  const countSpan = document.querySelector(
-    `[data-post-id="${postId}"] .comments-count`
-  );
+  const countSpan = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
   if (countSpan) {
     const currentCount = parseInt(countSpan.textContent) || 0;
     countSpan.textContent = currentCount + delta;

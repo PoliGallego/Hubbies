@@ -330,12 +330,14 @@ function createPostHTML(post) {
       </article>    
 
       <div class="BottomBar">
-        <button class="CommentsButton" data-post-id="${post._id}">
-          <span class="material-icons">message</span>
-        </button>
-        <span class="comments-count" data-post-id="${post._id}">
-          ${post.comments?.length || 0}
-        </span>
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <button class="CommentsButton" data-post-id="${post._id}">
+            <span class="material-icons">message</span>
+          </button>
+          <span class="comments-count" data-post-id="${post._id}">
+            ${post.comments?.length || 0}
+          </span>
+        </div>
         <button class="IconButton"><span class="material-icons">share</span></button>
       </div>     
       
