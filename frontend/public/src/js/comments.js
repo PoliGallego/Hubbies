@@ -104,7 +104,7 @@ async function fetchUserName(userId) {
     }
     const data = await response.json();
     console.log("Datos del usuario:", data);
-    return data.user.fullName || data.user.username || "Anónimo";
+    return data.user.username || data.user.fullName || "Anónimo";
   } catch (error) {
     console.error("Error al obtener nombre del usuario:", error);
     return "Anónimo";
@@ -338,6 +338,7 @@ async function sendComment(postId) {
     textarea.value = "";
     await loadComments(postId);
     updateCommentCount(postId);
+    loadRecentComments();
 
     if (typeof Swal !== "undefined") {
       Swal.fire("Success", "Comment posted!", "success");
@@ -388,6 +389,7 @@ async function editComment(commentId, postId) {
       }
 
       await loadComments(postId);
+      loadRecentComments();
       if (typeof Swal !== "undefined") {
         Swal.fire("Sucess", "Updated comment!", "success");
       } else {
@@ -434,12 +436,108 @@ async function deleteComment(commentId, postId) {
 
       await loadComments(postId);
       updateCommentCount(postId, -1);
+      loadRecentComments();
       Swal.fire("Deleted!", "Comment successfully deleted", "success");
     } catch (error) {
       console.error("Error:", error);
       Swal.fire("Error", error.message, "error");
     }
   }
+}
+
+async function loadRecentComments() {
+  console.log("Cargando comentarios recientes...");
+  try {
+    const token = localStorage.getItem("token");
+
+    const postsResponse = await fetch("/api/posts/my-posts", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!postsResponse.ok) {
+      throw new Error("Error al cargar posts");
+    }
+
+    const posts = await postsResponse.json();
+
+    const allCommentsPromises = posts.map(post =>
+        fetch(`/api/posts/${post._id}/comments`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
+            .then(res => res.json())
+            .then(data => data.success ? data.comments.map(c => ({
+              ...c,
+              postTitle: post.title,
+              postId: post._id
+            })) : [])
+            .catch(() => [])
+    );
+
+    const allCommentsArrays = await Promise.all(allCommentsPromises);
+    const allComments = allCommentsArrays.flat();
+
+    allComments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const recentComments = allComments.slice(0, 5);
+
+    const userIds = [...new Set(recentComments.map(c => c.userId?._id).filter(id => id))];
+    const userNamesCache = {};
+
+    await Promise.all(
+        userIds.map(async (userId) => {
+          userNamesCache[userId] = await fetchUserName(userId);
+        })
+    );
+
+    const commentsWithNames = recentComments.map(comment => ({
+      ...comment,
+      userName: comment.userId?._id ? userNamesCache[comment.userId._id] : "Anónimo"
+    }));
+
+    renderRecentComments(commentsWithNames);
+  } catch (error) {
+    console.error("Error cargando comentarios recientes:", error);
+    renderRecentComments([]);
+  }
+}
+
+function renderRecentComments(comments) {
+  const sidebar = document.querySelector(".RightSidebar");
+  if (!sidebar) return;
+
+  if (comments.length === 0) {
+    sidebar.innerHTML = `
+      <h3>Recent Comments</h3>
+      <p style="color: #999; text-align: center; padding: 20px;">No comments yet</p>
+    `;
+    return;
+  }
+
+  const commentsHTML = comments.map(comment => `
+    <div class="RecentCommentItem" data-post-id="${comment.postId}">
+      <div class="RecentCommentHeader">
+        <span class="RecentCommentAuthor">${comment.userName}</span>
+        <span class="RecentCommentTime">${getTimeAgo(comment.createdAt)}</span>
+      </div>
+      <p class="RecentCommentContent">${truncateText(comment.content, 60)}</p>
+      <a href="?id=${comment.postId}" class="RecentCommentLink">
+        on "${truncateText(comment.postTitle, 30)}"
+      </a>
+    </div>
+  `).join('');
+
+  sidebar.innerHTML = `
+    <h3>Recent Comments</h3>
+    <div class="RecentCommentsList">
+      ${commentsHTML}
+    </div>
+  `;
 }
 
 function updateCommentCount(postId, delta = 1) {
@@ -491,6 +589,7 @@ function loadAllComments() {
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOMContentLoaded disparado, configurando listeners");
   setupCommentListeners();
+  loadRecentComments();
 
 });
 
@@ -536,6 +635,22 @@ function handleCommentClick(e) {
     console.log("Clic en SendCommentBtn, postId:", postId);
     sendComment(postId);
   }
+}
+
+function getTimeAgo(date) {
+  const now = new Date();
+  const commentDate = new Date(date);
+  const diffInSeconds = Math.floor((now - commentDate) / 1000);
+
+  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  return commentDate.toLocaleDateString();
+}
+function truncateText(text, maxLength) {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
 }
 
 function injectCommentStyles() {
@@ -726,13 +841,95 @@ function injectCommentStyles() {
         min-width: unset;
       }
     }
+        
+    .RightSidebar {
+      position: sticky;
+      top: 20px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+    }
+
+    .RightSidebar h3 {
+      color: #2D2A2A;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #E5D6D6;
+    }
+
+    .RecentCommentsList {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .RecentCommentItem {
+      padding: 12px;
+      background: #FFFFFF;
+      border: 1px solid #E5D6D6;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .RecentCommentItem:hover {
+      background: #F7F5F5;
+      border-color: #C49B9B;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(196, 155, 155, 0.2);
+    }
+
+    .RecentCommentHeader {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .RecentCommentAuthor {
+      font-weight: 600;
+      font-size: 13px;
+      color: #2D2A2A;
+    }
+
+    .RecentCommentTime {
+      font-size: 11px;
+      color: #9B8F8F;
+    }
+
+    .RecentCommentContent {
+      font-size: 13px;
+      color: #3E3A3A;
+      margin: 6px 0;
+      line-height: 1.4;
+    }
+
+    .RecentCommentLink {
+      font-size: 12px;
+      color: #C49B9B;
+      text-decoration: none;
+      display: block;
+      margin-top: 6px;
+      font-style: italic;
+    }
+
+    .RecentCommentLink:hover {
+      color: #B88D8D;
+      text-decoration: underline;
+    }
+
+    @media (max-width: 1024px) {
+      .RightSidebar {
+        display: none;
+      }
+    }
   `;
 
   const styleSheet = document.createElement("style");
   styleSheet.textContent = styles;
   document.head.appendChild(styleSheet);
 }
-
 
 injectCommentStyles();
 
@@ -741,3 +938,4 @@ window.sendComment = sendComment;
 window.loadComments = loadComments;
 window.editComment = editComment;
 window.deleteComment = deleteComment;
+window.loadRecentComments = loadRecentComments;
