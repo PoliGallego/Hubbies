@@ -130,25 +130,33 @@ async function loadComments(postId) {
     const data = await response.json();
     if (data.success) {
       const currentUser = getCurrentUser();
-      const commentsWithNames = await Promise.all(
-        data.comments.map(async (comment) => {
-          const userName = comment.userId?._id
-            ? await fetchUserName(comment.userId._id)
-            : "Anónimo";
-          console.log(
-            `Comentario ID ${comment._id}, userId: ${comment.userId?._id}, userName: ${userName}`
-          );
-          return { ...comment, userName };
-        })
+
+      const userIds = [...new Set(
+          data.comments
+              .map(c => c.userId?._id)
+              .filter(id => id)
+      )];
+
+      const userNamesCache = {};
+      await Promise.all(
+          userIds.map(async (userId) => {
+            userNamesCache[userId] = await fetchUserName(userId);
+          })
       );
+
+      const commentsWithNames = data.comments.map(comment => ({
+        ...comment,
+        userName: comment.userId?._id
+            ? userNamesCache[comment.userId._id]
+            : "Anónimo"
+      }));
+
       renderComments(postId, commentsWithNames, currentUser);
     }
   } catch (error) {
     console.error("Error cargando comentarios:", error);
     if (typeof Swal !== "undefined") {
       Swal.fire("Error", "No se pudieron cargar los comentarios", "error");
-    } else {
-      alert("Error al cargar comentarios: " + error.message);
     }
   }
 }
@@ -483,7 +491,7 @@ function loadAllComments() {
 document.addEventListener("DOMContentLoaded", function () {
   console.log("DOMContentLoaded disparado, configurando listeners");
   setupCommentListeners();
-  setTimeout(loadAllComments, 12000);
+
 });
 
 const observer = new MutationObserver((mutations) => {
@@ -498,11 +506,7 @@ const observer = new MutationObserver((mutations) => {
     }
   });
   if (newPublications) {
-    console.log(
-      "Nuevas publicaciones detectadas, redefiniendo createPostHTML y cargando comentarios"
-    );
-    defineCreatePostHTML();
-    loadAllComments();
+    console.log("Nuevas publicaciones detectadas");
   }
 });
 
@@ -510,16 +514,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const targetNode = document.querySelector("body") || document;
   observer.observe(targetNode, { childList: true, subtree: true });
 });
-
-const redefineInterval = setInterval(() => {
-  console.log("Intentando redefinir createPostHTML");
-  defineCreatePostHTML();
-  const publications = document.querySelectorAll(".Publication");
-  if (publications.length > 0) {
-    console.log("Publicaciones encontradas, deteniendo intervalo");
-    clearInterval(redefineInterval);
-  }
-}, 2000);
 
 function setupCommentListeners() {
   console.log("Configurando listeners de comentarios...");
@@ -741,11 +735,6 @@ function injectCommentStyles() {
 
 
 injectCommentStyles();
-
-setTimeout(() => {
-  console.log("Re-definiendo createPostHTML después de carga inicial");
-  defineCreatePostHTML();
-}, 15000);
 
 window.toggleCommentBox = toggleCommentBox;
 window.sendComment = sendComment;
