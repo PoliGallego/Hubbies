@@ -1,6 +1,40 @@
 const token = localStorage.getItem("token");
 const payload = JSON.parse(atob(token.split(".")[1]));
 
+// Theme Management Functions
+function applyInitialTheme() {
+  const savedTheme = localStorage.getItem("theme") || "light";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+}
+
+function initThemeToggle() {
+  const toggleContainer = document.querySelector(".ToggleContainer");
+  if (toggleContainer) {
+    const currentTheme = localStorage.getItem("theme") || "light";
+    if (currentTheme === "dark") {
+      toggleContainer.classList.add("on");
+    }
+
+    toggleContainer.addEventListener("click", toggleTheme);
+  }
+}
+
+function toggleTheme() {
+  const toggleContainer = document.querySelector(".ToggleContainer");
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const newTheme = currentTheme === "light" ? "dark" : "light";
+
+  document.documentElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("theme", newTheme);
+
+  if (toggleContainer) {
+    toggleContainer.classList.toggle("on", newTheme === "dark");
+  }
+}
+
+// Apply theme immediately before DOMContentLoaded
+applyInitialTheme();
+
 document.addEventListener("DOMContentLoaded", () => {
   fetch("../html/components/navbar.html")
     .then((res) => res.text())
@@ -8,6 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("navbar").innerHTML = html;
 
       innitNavBar();
+      initThemeToggle(); // Initialize theme toggle after navbar loads
 
       fetch("../html/components/sidebar.html")
         .then((res) => res.text())

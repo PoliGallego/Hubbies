@@ -1,6 +1,52 @@
 :root {
   --ColorSoftPink: #f4e4e4;
   --ColorDustyRose: #d4a5a5;
+
+  /* Theme Variables - Light Theme */
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #ffffff;
+  --bg-accent: #fafafa;
+  --bg-soft: #f9f6f6;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --text-muted: #6c757d;
+  --accent-primary: #8b5a3c;
+  --accent-hover: #754832;
+  --accent-soft: #d4a5a5;
+  --border-primary: #e0e0e0;
+  --border-accent: #f0f0f0;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+  --bg-danger: #dc3545;
+  --bg-danger-hover: #c82333;
+  --bg-danger-soft: #fff5f5;
+  --text-danger: #ffffff;
+  --border-danger: #ffe0e0;
+}
+
+[data-theme="dark"] {
+  /* Theme Variables - Dark Theme */
+  --bg-primary: #121212;
+  --bg-secondary: #1a1a1a;
+  --bg-accent: #242424;
+  --bg-soft: #2a2a2a;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #9ca3af;
+  --accent-primary: #d4a574;
+  --accent-hover: #c9985f;
+  --accent-soft: #8b7355;
+  --border-primary: #3a3a3a;
+  --border-accent: #2e2e2e;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.8);
+  --bg-danger: #b91c1c;
+  --bg-danger-hover: #991b1b;
+  --bg-danger-soft: #1f1515;
+  --text-danger: #fecaca;
+  --border-danger: #5a1a1a;
 }
 
 * {
@@ -12,8 +58,9 @@
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
-  background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  background: var(--bg-primary);
   min-height: 100vh;
+  transition: background-color 0.3s ease;
 }
 
 .container {
@@ -39,12 +86,13 @@ body {
 }
 
 .config-section {
-  background: white;
+  background: var(--bg-secondary);
   border-radius: 16px;
   padding: 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-md);
   overflow: hidden;
   animation: fadeIn 0.4s ease;
+  transition: all 0.3s ease;
 }
 
 @keyframes fadeIn {
@@ -59,23 +107,26 @@ body {
 }
 
 .section-header {
-  background: linear-gradient(135deg, var(--ColorSoftPink) 0%, #e8d4d4 100%);
+  background: var(--bg-accent);
   padding: 35px 40px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
 }
 
 .section-title {
-  color: #2c2c2c;
+  color: var(--text-primary);
   font-size: 28px;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: color 0.3s ease;
 }
 
 .section-title .material-icons {
   font-size: 32px;
-  color: var(--ColorDustyRose);
+  color: var(--accent-soft);
+  transition: color 0.3s ease;
 }
 
 .config-content {
@@ -85,16 +136,16 @@ body {
 .config-option {
   padding: 20px 24px;
   margin-bottom: 12px;
-  border: 2px solid #f0f0f0;
+  border: 2px solid var(--border-accent);
   border-radius: 12px;
   font-size: 15px;
-  color: #495057;
+  color: var(--text-secondary);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fafafa;
+  background: var(--bg-accent);
   position: relative;
   overflow: hidden;
 }
@@ -106,17 +157,17 @@ body {
   left: 0;
   width: 4px;
   height: 100%;
-  background: var(--ColorDustyRose);
+  background: var(--accent-soft);
   transform: scaleY(0);
   transition: transform 0.3s ease;
 }
 
 .config-option:hover {
-  background: white;
-  border-color: var(--ColorDustyRose);
+  background: var(--bg-secondary);
+  border-color: var(--accent-soft);
   transform: translateX(8px);
-  box-shadow: 0 4px 16px rgba(212, 165, 165, 0.15);
-  color: #2c2c2c;
+  box-shadow: var(--shadow-sm);
+  color: var(--text-primary);
 }
 
 .config-option:hover::before {
@@ -131,37 +182,40 @@ body {
 }
 
 .config-option .material-icons {
-  color: var(--ColorDustyRose);
+  color: var(--accent-soft);
   font-size: 24px;
+  transition: color 0.3s ease;
 }
 
 .config-option-arrow {
-  color: #adb5bd;
+  color: var(--text-secondary);
   font-size: 20px;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .config-option:hover .config-option-arrow {
   transform: translateX(4px);
-  color: var(--ColorDustyRose);
+  color: var(--accent-soft);
 }
 
 .danger-zone {
   margin-top: 40px;
   padding: 30px;
-  border: 2px solid #ffe0e0;
+  border: 2px solid var(--border-danger);
   border-radius: 12px;
-  background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+  background: var(--bg-danger-soft);
+  transition: all 0.3s ease;
 }
 
 .danger-zone-title {
-  color: #dc3545;
+  color: var(--bg-danger);
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  transition: color 0.3s ease;
 }
 
 .danger-zone-title .material-icons {
@@ -169,10 +223,11 @@ body {
 }
 
 .danger-zone-description {
-  color: #6c757d;
+  color: var(--text-muted);
   font-size: 14px;
   margin-bottom: 20px;
   line-height: 1.5;
+  transition: color 0.3s ease;
 }
 
 .action-buttons {
@@ -197,27 +252,27 @@ body {
 }
 
 .btn-deactivate {
-  background: #efdede;
-  color: #000000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: var(--bg-soft);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-deactivate:hover {
-  background: #e2d1d1;
+  background: var(--bg-accent);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-delete {
-  background: #dc3545;
-  color: white;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2);
+  background: var(--bg-danger);
+  color: var(--text-danger);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-delete:hover {
-  background: #c82333;
+  background: var(--bg-danger-hover);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-deactivate:active,
@@ -242,14 +297,15 @@ body {
 }
 
 #EditProfileModal .ModalContent {
-  background: white;
+  background: var(--bg-secondary);
   padding: 40px;
   border-radius: 20px;
   width: 90%;
   max-width: 520px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-lg);
   position: relative;
   animation: slideUp 0.4s ease;
+  transition: background-color 0.3s ease;
 }
 
 @keyframes slideUp {
@@ -264,7 +320,7 @@ body {
 }
 
 #EditProfileModal .CloseButton {
-  color: #aaa;
+  color: var(--text-secondary);
   position: absolute;
   top: 15px;
   right: 20px;
@@ -273,7 +329,7 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -283,8 +339,8 @@ body {
 }
 
 #EditProfileModal .CloseButton:hover {
-  background: #f0f0f0;
-  color: #333;
+  background: var(--bg-accent);
+  color: var(--text-primary);
   transform: rotate(90deg);
 }
 
@@ -292,19 +348,22 @@ body {
   text-align: center;
   margin-bottom: 35px;
   padding-bottom: 20px;
-  border-bottom: 2px solid var(--ColorSoftPink);
+  border-bottom: 2px solid var(--border-primary);
+  transition: border-color 0.3s ease;
 }
 
 #EditProfileModal .ModalTitle {
   font-size: 26px;
   font-weight: 700;
-  color: #2c2c2c;
+  color: var(--text-primary);
   margin-bottom: 8px;
+  transition: color 0.3s ease;
 }
 
 #EditProfileModal .ModalSubtitle {
   font-size: 14px;
-  color: #6c757d;
+  color: var(--text-muted);
+  transition: color 0.3s ease;
 }
 
 #EditProfileModal .AvatarUpload {
@@ -329,14 +388,14 @@ body {
   height: 110px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid var(--ColorSoftPink);
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 4px solid var(--border-primary);
+  background-color: var(--bg-accent);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
 }
 
 #EditProfileModal .AvatarLabel:hover img {
-  border-color: var(--ColorDustyRose);
+  border-color: var(--accent-soft);
 }
 
 #EditProfileModal .AvatarLabel::after {
@@ -344,8 +403,8 @@ body {
   position: absolute;
   bottom: 5px;
   right: 5px;
-  background: var(--ColorDustyRose);
-  color: white;
+  background: var(--accent-soft);
+  color: var(--bg-secondary);
   font-size: 20px;
   font-weight: bold;
   width: 32px;
@@ -354,8 +413,9 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  border: 3px solid #fff;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 3px solid var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 }
 
 #EditProfileModal .FormGroup {
@@ -366,15 +426,18 @@ body {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #495057;
+  color: var(--text-secondary);
   font-size: 14px;
+  transition: color 0.3s ease;
 }
 
 #EditProfileModal .FormGroup input {
   width: 100%;
   padding: 12px 16px;
   border-radius: 10px;
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--border-primary);
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
   font-size: 15px;
   transition: all 0.3s ease;
   font-family: inherit;
@@ -382,8 +445,8 @@ body {
 
 #EditProfileModal .FormGroup input:focus {
   outline: none;
-  border-color: var(--ColorDustyRose);
-  box-shadow: 0 0 0 4px rgba(212, 165, 165, 0.1);
+  border-color: var(--accent-soft);
+  box-shadow: 0 0 0 4px var(--bg-accent);
 }
 
 #EditProfileModal .FormRow {
@@ -393,8 +456,8 @@ body {
 }
 
 #EditProfileModal .SubmitButton {
-  background: linear-gradient(135deg, #8b5a3c 0%, #754832 100%);
-  color: #ffffff;
+  background: var(--accent-primary);
+  color: var(--bg-secondary);
   border: none;
   padding: 14px 28px;
   border-radius: 10px;
@@ -404,12 +467,13 @@ body {
   width: 100%;
   margin-top: 10px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(139, 90, 60, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 #EditProfileModal .SubmitButton:hover {
+  background: var(--accent-hover);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(139, 90, 60, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 #EditProfileModal .SubmitButton:active {

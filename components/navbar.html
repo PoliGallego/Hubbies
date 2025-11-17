@@ -1,0 +1,60 @@
+<header class="TopHeader">
+    <div class="HeaderLeft">
+        <div class="HeaderLogo">
+            <div class="Logo">
+                <img src="../../assets/hubbies_logo_removebg_noname.png" alt="Hubbies Logo" class="HighlightImage">
+            </div>
+        </div>
+        <button class="IconButton" id="HomeBtn" onclick="window.location.href='/src/html/posts.html'"><span
+                class="material-icons">home</span></button>
+    </div>
+    <div class="HeaderRight">
+        <button class="IconButton" id="NotifBtn" onclick="OpenModal('Notif')"><span
+                class="material-icons">notifications</span></button>
+        <button class="IconButton" id="OptionsBtn" onclick="OpenModal('Options')">
+            <img class="UserAvatar" alt="Avatar de usuario">
+        </button>
+    </div>
+</header>
+
+<div id="OptionsModal" class="ModalOverlay OptionsModal">
+    <div class="Options">
+        <ul class="OptionsList">
+            <li><a href="/src/html/perfil-usuario.html">Profile</a></li>
+            <li><a href="/src/html/configuracion.html">Configuration</a></li>
+            <li>
+                <div class="Mode">Mode <span>Light</span></div>
+                <div class="ToggleContainer">
+                    <div class="ToggleSwitch" id="ToggleSwitch"></div>
+                </div>
+            </li>
+            <li>
+                <button id="LogoutBtn" class="LogoutButton">Logout</button>
+            </li>
+        </ul>
+        <div class="OptionsFooter">
+            <p>&copy;2024 - Hubbies</p>
+            <p>All rights reserved.</p>
+        </div>
+    </div>
+</div>
+
+<div id="NotifModal" class="ModalOverlay NotifModal">
+    <div class="Notifications">
+
+        <div class="Notification">
+            <div>
+                <h4>Notification</h4><span class="material-icons">close</span>
+            </div>
+            <p>Description</p>
+        </div>
+
+        <div class="Notification">
+            <div>
+                <h4>Notification</h4><span class="material-icons">close</span>
+            </div>
+            <p>Description</p>
+        </div>
+
+    </div>
+</div>
