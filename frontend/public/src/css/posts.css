@@ -341,23 +341,21 @@ body {
     bottom: 40px;
     right: 400px;
     z-index: 9999;
-    background: var(--ColorDustyRose);
-    color: var(--ColorWhite);
+    background: var(--accent-primary);
+    color: white;
     border: none;
     border-radius: 50%;
     width: 48px;
     height: 48px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px var(--shadow-sm);
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .ScrollToTopBtn:hover {
-    transition: all 0.2s ease;
-    background: var(--ColorWhite);
-    color: var(--ColorDustyRose);
-    border: 2px, solid, var(--ColorDustyRose);
-    bottom: 43px;
-    box-shadow: 5px 4px 16px rgba(0, 0, 0, 0.15);
+    background: var(--accent-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px var(--shadow-md);
 }
 
 .FilterWrapper {
