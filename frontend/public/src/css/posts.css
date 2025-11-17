@@ -8,6 +8,56 @@
     --TextColorPrimary: #212121;
     --TextColorSecondary: #757575;
     --RightSidebarWidth: 350px; 
+
+    /* Modern theme variables */
+    --bg-primary: #f5f5f5;
+    --bg-secondary: #ffffff;
+    --bg-accent: #f9f6f6;
+    --bg-soft: #efdede;
+
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --text-muted: #9e9e9e;
+
+    --accent-primary: #8b5a3c;
+    --accent-hover: #754832;
+
+    --border-primary: #e0e0e0;
+    --border-secondary: #e2d1d1;
+
+    --shadow-sm: rgba(0, 0, 0, 0.1);
+    --shadow-md: rgba(0, 0, 0, 0.15);
+    --shadow-lg: rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] {
+    --ColorWhite: #1a1a1a;
+    --ColorLightGray: #121212;
+    --ColorSoftPink: #1e1e1e;
+    --ColorLightCoral: #2d2d2d;
+    --ColorDustyRose: #3a3a3a;
+    --BorderColor: #3a3a3a;
+    --TextColorPrimary: #e0e0e0;
+    --TextColorSecondary: #b0b0b0;
+
+    --bg-primary: #121212;
+    --bg-secondary: #1a1a1a;
+    --bg-accent: #242424;
+    --bg-soft: #2d2d2d;
+
+    --text-primary: #e0e0e0;
+    --text-secondary: #b0b0b0;
+    --text-muted: #808080;
+
+    --accent-primary: #d4a574;
+    --accent-hover: #e0b386;
+
+    --border-primary: #3a3a3a;
+    --border-secondary: #2d2d2d;
+
+    --shadow-sm: rgba(0, 0, 0, 0.3);
+    --shadow-md: rgba(0, 0, 0, 0.4);
+    --shadow-lg: rgba(0, 0, 0, 0.5);
 }
 
 * {
@@ -42,8 +92,9 @@ img {
 
 body {
     font-family: "Inter", sans-serif;
-    background-color: var(--ColorLightGray);
-    color: var(--TextColorPrimary);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .TopHeader {
@@ -52,13 +103,14 @@ body {
     left: 0;
     width: 100%;
     height: 60px;
-    background-color: var(--ColorLightCoral);
-    border-bottom: 1px solid var(--BorderColor);
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 20px;
     z-index: 1000;
+    transition: all 0.3s ease;
 }
 
 .AppContainer {
@@ -72,11 +124,12 @@ body {
     left: 0;
     width: 240px;
     height: calc(100vh - 60px);
-    background-color: var(--ColorWhite);
-    border-right: 1px solid var(--BorderColor);
+    background-color: var(--bg-secondary);
+    border-right: 1px solid var(--border-primary);
     padding: 20px;
     overflow-y: auto;
     z-index: 999;
+    transition: all 0.3s ease;
 }
 
 .MainContentArea {
@@ -85,6 +138,8 @@ body {
     display: flex;
     background-color: #FAFAFA;
     position: relative;
+    background-color: var(--bg-primary);
+    transition: background-color 0.3s ease;
 }
 
 .FeedColumn {
@@ -99,8 +154,8 @@ body {
 .RightSidebar {
     width: var(--RightSidebarWidth);
     min-width: 0;              
-    background-color: var(--ColorSoftPink);
-    border-left: 1px solid var(--BorderColor);
+    background-color: var(--bg-accent);
+    border-left: 1px solid var(--border-primary);
     padding: 20px;
     height: calc(100vh - 60px);
     overflow: hidden;
@@ -165,6 +220,7 @@ body {
 
 .RightSidebarToggleBtn.collapsed .material-icons {
     transform: rotate(180deg);
+    transition: all 0.3s ease;
 }
 
 .HeaderLeft,
@@ -191,7 +247,8 @@ body {
 .LeftSidebar h3 {
     font-size: 0.95em;
     margin-bottom: 15px;
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 .Navigation {
@@ -215,17 +272,18 @@ body {
 .Navigation a,
 .Categories a {
     text-decoration: none;
-    color: var(--TextColorPrimary);
+    color: var(--text-primary);
     font-size: 0.95em;
     padding: 5px;
     display: block;
     border-radius: 5px;
+    transition: all 0.3s ease;
 }
 
 .Navigation li.Active a,
 .Navigation a:hover,
 .Categories a:hover {
-    background-color: var(--ColorLightGray);
+    background-color: var(--bg-accent);
     cursor: pointer;
 }
 
@@ -276,18 +334,20 @@ body {
 }
 
 .NotFound {
-    color: #999;
+    color: var(--text-muted);
     text-align: center;
+    transition: color 0.3s ease;
 }
 
 .ViewMoreButton {
     background: none;
     border: none;
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
     cursor: pointer;
     display: none;
     align-items: center;
     gap: 5px;
+    transition: color 0.3s ease;
 }
 
 .Navigation .ViewMoreButton span {
@@ -327,8 +387,8 @@ body {
 }
 
 .SidebarToggleBtn:hover .material-icons {
-  transform: translateX(-1px);
-  transition: transform .2s ease;
+    transform: translateX(-1px);
+    transition: transform .2s ease;
 }
 
 
@@ -362,17 +422,21 @@ body {
 }
 
 .SearchBar input {
-    border: 1px solid var(--BorderColor);
+    border: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: 8px;
     padding: 8px 12px;
     padding-right: 35px;
     width: 250px;
+    transition: all 0.3s ease;
 }
 
 .SearchBar .material-icons {
     position: absolute;
     right: 10px;
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 .ScrollToTopBtn {
@@ -381,23 +445,21 @@ body {
     bottom: 40px;
     right: 400px;
     z-index: 9999;
-    background: var(--ColorDustyRose);
-    color: var(--ColorWhite);
+    background: var(--accent-primary);
+    color: white;
     border: none;
     border-radius: 50%;
     width: 48px;
     height: 48px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px var(--shadow-sm);
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .ScrollToTopBtn:hover {
-    transition: all 0.2s ease;
-    background: var(--ColorWhite);
-    color: var(--ColorDustyRose);
-    border: 2px, solid, var(--ColorDustyRose);
-    bottom: 43px;
-    box-shadow: 5px 4px 16px rgba(0, 0, 0, 0.15);
+    background: var(--accent-hover);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 16px var(--shadow-md);
 }
 
 .FilterWrapper {
@@ -407,12 +469,12 @@ body {
 .FilterDropdown {
     position: absolute;
     right: 0;
-    top: 100%;
-    margin-top: 8px;
-    background-color: var(--ColorWhite);
-    border: 1px solid var(--BorderColor);
+    top: 100%; 
+    margin-top: 8px; 
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 15px var(--shadow-md);
     padding: 12px 15px;
     display: none;
     flex-direction: column;
@@ -421,6 +483,7 @@ body {
     animation: fadeIn 0.2s ease;
     min-width: 180px;
     white-space: nowrap;
+    transition: all 0.3s ease;
 }
 
 .FilterDropdown.show {
@@ -429,25 +492,27 @@ body {
 
 .FilterDropdown label {
     font-size: 0.9em;
-    color: var(--TextColorPrimary);
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    transition: color 0.3s ease;
 }
 
 .FilterDropdown input[type="checkbox"] {
-    accent-color: var(--TextColorPrimary);
+    accent-color: var(--accent-primary);
 }
 
 .ContentCard {
-    background-color: var(--ColorWhite);
-    border: 1px solid var(--BorderColor);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
     border-radius: 12px;
     padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 15px;
+    transition: all 0.3s ease;
 }
 
 .CardHeader {
@@ -467,24 +532,29 @@ body {
 }
 
 .PrivacySelector {
-    border: 1px solid var(--BorderColor);
+    border: 1px solid var(--border-primary);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     border-radius: 6px;
     padding: 5px 8px;
     font-family: inherit;
+    transition: all 0.3s ease;
 }
 
 .CardDescription {
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
     font-size: 0.9em;
+    transition: color 0.3s ease;
 }
 
 .MusicPlayer {
     display: flex;
     align-items: center;
     gap: 15px;
-    border: 1px solid var(--BorderColor);
+    border: 1px solid var(--border-primary);
     border-radius: 8px;
     padding: 10px;
+    transition: all 0.3s ease;
 }
 
 .MusicCover {
@@ -503,13 +573,15 @@ body {
 
 .ArtistInfo {
     font-size: 0.85em;
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 .MusicTime {
     font-size: 0.9em;
     cursor: default;
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 .CardImage {
@@ -527,8 +599,8 @@ body {
 }
 
 .Tag {
-    background-color: var(--TextColorPrimary);
-    color: var(--ColorWhite);
+    background-color: var(--accent-primary);
+    color: white;
     padding: 4px 8px;
     border-radius: 15px;
     font-size: 0.8em;
@@ -536,6 +608,7 @@ body {
     align-items: center;
     cursor: default;
     gap: 4px;
+    transition: all 0.3s ease;
 }
 
 .Tag .material-icons {
@@ -548,7 +621,39 @@ body {
     align-items: center;
     gap: 10px;
     padding: 10px;
-    color: var(--TextColorSecondary);
+    background: var(--bg-primary);
+    border-top: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.CommentsButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.3s ease;
+}
+
+.CommentsButton:hover {
+    background: var(--bg-soft);
+    color: var(--accent-primary);
+}
+
+.CommentsButton .material-icons {
+    font-size: 20px;
+}
+
+.comments-count {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 .CommentCard {
@@ -556,10 +661,12 @@ body {
     flex-direction: column;
     gap: 10px;
     row-gap: 10px;
-    background-color: var(--ColorDustyRose);
+    background-color: var(--bg-accent);
+    border: 1px solid var(--border-primary);
     padding: 15px;
     border-radius: 10px;
     min-height: 10rem;
+    transition: all 0.3s ease;
 }
 
 .CommentAvatar {
@@ -567,6 +674,13 @@ body {
     height: 40px;
     border-radius: 50%;
     overflow: hidden;
+    background: var(--accent-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-primary);
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
 .CommentHeader {
@@ -577,10 +691,13 @@ body {
 
 .CommentContent {
     font-size: 0.9em;
+    color: var(--text-primary);
+    transition: color 0.3s ease;
 }
 
 .CommentContext {
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
 }
 
 .IconButton {
@@ -592,14 +709,177 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: all 0.3s ease;
 }
 
 .IconButton:hover {
-    background-color: var(--ColorLightGray);
+    background-color: var(--bg-soft);
 }
 
 .IconButton .material-icons {
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
+    transition: color 0.3s ease;
+}
+
+.IconButton:hover .material-icons {
+    color: var(--accent-primary);
+}
+
+/* Comment Items (generated dynamically in comments.js) */
+.CommentItem {
+    padding: 10px;
+    border-bottom: 1px solid var(--border-primary);
+    position: relative;
+    background: var(--bg-accent) !important;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: all 0.3s ease;
+}
+
+.CommentItem:last-child {
+    border-bottom: none;
+}
+
+.CommentItem .CommentHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.CommentItem .CommentAuthor {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9em;
+    transition: color 0.3s ease;
+}
+
+.CommentItem .CommentTime {
+    font-size: 0.75em;
+    color: var(--text-secondary);
+    margin-left: auto;
+    transition: color 0.3s ease;
+}
+
+.CommentItem .CommentContent {
+    font-size: 0.9em;
+    color: var(--text-primary);
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+.CommentItem .CommentControls {
+    display: flex;
+    gap: 5px;
+    margin-left: auto;
+}
+
+/* Comments Section Container */
+.CommentsSection {
+    padding: 15px;
+    background: var(--bg-secondary) !important;
+    border-top: 2px solid var(--border-primary);
+    animation: slideDown 0.3s ease;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+        padding: 0 15px;
+    }
+    to {
+        opacity: 1;
+        max-height: 1000px;
+        padding: 15px;
+    }
+}
+
+.CommentsList {
+    max-height: 400px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    background: transparent;
+}
+
+.CommentsList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.CommentsList::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+    border-radius: 4px;
+}
+
+.CommentsList::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 4px;
+}
+
+.CommentsList::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Comment Input Box */
+.CommentBox {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--bg-primary);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+}
+
+.CommentInput {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid var(--border-primary) !important;
+    border-radius: 6px;
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    font-size: 0.9em;
+    resize: vertical;
+    min-height: 40px;
+    max-height: 120px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+}
+
+.CommentInput::placeholder {
+    color: var(--text-secondary) !important;
+    opacity: 0.7;
+}
+
+.CommentInput:focus {
+    outline: none;
+    border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 0 3px var(--shadow-sm) !important;
+}
+
+.SendCommentBtn {
+    padding: 8px 12px;
+    background: var(--accent-primary) !important;
+    color: white !important;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.SendCommentBtn:hover {
+    background: var(--accent-hover) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.SendCommentBtn .material-icons {
+    font-size: 20px;
 }
 
 .ModalOverlay {
@@ -616,47 +896,51 @@ body {
 }
 
 .ModalContent {
-    background-color: var(--ColorWhite);
-    border: 1px solid var(--BorderColor);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
     border-radius: 12px;
     width: 90%;
     max-width: 600px;
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px var(--shadow-lg);
     font-family: "Inter", sans-serif;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 .ModalHeader {
     padding: 20px;
-    border-bottom: 1px solid var(--BorderColor);
+    border-bottom: 1px solid var(--border-primary);
     display: flex;
     align-items: center;
     gap: 15px;
-    background-color: var(--ColorLightCoral);
+    background-color: var(--bg-accent);
     border-radius: 12px 12px 0 0;
     position: relative;
+    transition: all 0.3s ease;
 }
 
 .LogoCircleModal {
     width: 40px;
     height: 40px;
-    background: var(--ColorWhite);
+    background: var(--bg-secondary);
     border-radius: 50%;
     background-image: url('/assets/hubbies_logo_removebg_noname.png');
     background-size: 70%;
     background-position: center;
     background-repeat: no-repeat;
-    border: 2px solid var(--BorderColor);
+    border: 2px solid var(--border-primary);
+    transition: all 0.3s ease;
 }
 
 .ModalTitle {
     font-size: 1.2em;
-    color: var(--TextColorPrimary);
+    color: var(--text-primary);
     font-weight: 600;
     margin: 0;
     flex: 1;
+    transition: color 0.3s ease;
 }
 
 .CloseButton {
@@ -667,7 +951,7 @@ body {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--TextColorSecondary);
+    color: var(--text-secondary);
     padding: 5px;
     border-radius: 50%;
     width: 35px;
@@ -679,7 +963,7 @@ body {
 }
 
 .CloseButton:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+    background-color: var(--bg-soft);
 }
 
 .ModalBody {
@@ -687,11 +971,12 @@ body {
 }
 
 .EditablePostCard {
-    background-color: var(--ColorWhite);
+    background-color: var(--bg-secondary);
     padding: 25px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    transition: all 0.3s ease;
 }
 
 .EditableCardHeader {
@@ -1662,4 +1947,64 @@ body {
 
 .swal2-backdrop-show {
     z-index: 9999 !important;
+}
+
+/* ============================================
+RECENT COMMENTS STYLES
+============================================ */
+.RecentCommentItem {
+    background: var(--bg-secondary) !important;
+    border: 1px solid var(--border-primary) !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+    margin-bottom: 10px !important;
+    transition: all 0.3s ease !important;
+}
+
+.RecentCommentItem:hover {
+    background: var(--bg-accent) !important;
+    box-shadow: 0 2px 8px var(--shadow-sm) !important;
+    transform: translateY(-1px) !important;
+}
+
+.RecentCommentHeader {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 8px !important;
+}
+
+.RecentCommentAuthor {
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    font-size: 0.9em !important;
+    transition: color 0.3s ease !important;
+}
+
+.RecentCommentTime {
+    font-size: 0.8em !important;
+    color: var(--text-secondary) !important;
+    transition: color 0.3s ease !important;
+}
+
+.RecentCommentContent {
+    color: var(--text-primary) !important;
+    font-size: 0.9em !important;
+    margin: 8px 0 !important;
+    line-height: 1.5 !important;
+    transition: color 0.3s ease !important;
+}
+
+.RecentCommentLink {
+    display: inline-block !important;
+    color: var(--accent-primary) !important;
+    font-size: 0.85em !important;
+    text-decoration: none !important;
+    margin-top: 6px !important;
+    transition: all 0.3s ease !important;
+}
+
+.RecentCommentLink:hover {
+    color: var(--accent-hover) !important;
+    text-decoration: underline !important;
 }
