@@ -14,6 +14,49 @@ document.addEventListener("DOMContentLoaded", () => {
         .then((html) => {
           document.getElementById("sidebar").innerHTML = html;
 
+          const sidebar = document.getElementById("LeftSidebar");
+          const toggleBtn = document.getElementById("SidebarToggleBtn");
+
+          if (sidebar && toggleBtn) {
+            document.body.appendChild(toggleBtn);
+
+            const savedState = localStorage.getItem("leftSidebarCollapsed");
+            const isCollapsed = savedState === "true";
+
+            if (isCollapsed) {
+              sidebar.classList.add("Collapsed");
+              toggleBtn.classList.add("collapsed");
+              toggleBtn.querySelector("span.material-icons").textContent =
+                "chevron_right";
+              toggleBtn.setAttribute("aria-expanded", "false");
+            } else {
+              sidebar.classList.remove("Collapsed");
+              toggleBtn.classList.remove("collapsed");
+              toggleBtn.querySelector("span.material-icons").textContent =
+                "chevron_left";
+              toggleBtn.setAttribute("aria-expanded", "true");
+            }
+
+            toggleBtn.addEventListener("click", () => {
+              const collapsed = sidebar.classList.toggle("Collapsed");
+              toggleBtn.classList.toggle("collapsed", collapsed);
+
+              const icon = toggleBtn.querySelector("span.material-icons");
+              icon.textContent = collapsed ? "chevron_right" : "chevron_left";
+
+              toggleBtn.setAttribute("aria-expanded", String(!collapsed));
+
+              try {
+                localStorage.setItem(
+                  "leftSidebarCollapsed",
+                  collapsed ? "true" : "false"
+                );
+              } catch (err) {
+                console.error("Error al guardar en localStorage:", err);
+              }
+            });
+          }
+
           navEventListener();
           if (payload && payload.id) {
             innitCategories();
@@ -37,8 +80,10 @@ function navEventListener() {
       }
 
       if (postId) {
-        const post = document.querySelector(`.Publication[data-post-id="${postId}"]`);
-        
+        const post = document.querySelector(
+          `.Publication[data-post-id="${postId}"]`
+        );
+
         if (post) {
           window.scrollTo({
             top: post.getBoundingClientRect().top + window.scrollY - 100,
@@ -69,16 +114,19 @@ function createSectionCard(section) {
     e.preventDefault();
     fetch("/api/sections/" + section._id, {
       method: "DELETE",
-      headers: { "Content-Type": "application/json" }
-    }).then((res) => {
-      if (!res.ok) throw new Error("Error deleting section");
-      return res.json();
-    }).then((data) => {
-      console.log("Section deleted:", data);
-      newLi.remove();
-    }).catch((err) => {
-      console.error("Error deleting section:", err);
-    });
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error deleting section");
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Section deleted:", data);
+        newLi.remove();
+      })
+      .catch((err) => {
+        console.error("Error deleting section:", err);
+      });
     console.log("Delete section:", section.title);
   });
 
@@ -90,7 +138,9 @@ function createSectionCard(section) {
     input.value = section.title;
     input.className = "NewSectionInput";
     input.autofocus = true;
-    newLi.querySelector(".CategoriesRow").replaceChild(input, newLi.querySelector("a"));
+    newLi
+      .querySelector(".CategoriesRow")
+      .replaceChild(input, newLi.querySelector("a"));
     input.focus();
 
     input.addEventListener("keydown", function (e) {
@@ -98,8 +148,11 @@ function createSectionCard(section) {
       const newA = document.createElement("a");
       newA.href = "#";
 
-      if (e.key === "Enter" && categoryName !== "" && categoryName !== section.title) {
-
+      if (
+        e.key === "Enter" &&
+        categoryName !== "" &&
+        categoryName !== section.title
+      ) {
         fetch("/api/sections/update", {
           method: "PUT",
           body: JSON.stringify({
@@ -110,12 +163,13 @@ function createSectionCard(section) {
             privacy: section.privacy,
           }),
           headers: {
-            "Content-Type": "application/json"
-          }
-        }).then((res) => {
-          if (!res.ok) throw new Error("Error creating category");
-          return res.json();
+            "Content-Type": "application/json",
+          },
         })
+          .then((res) => {
+            if (!res.ok) throw new Error("Error creating category");
+            return res.json();
+          })
           .then((data) => {
             console.log("Section updated:", data);
             newA.textContent = data.section.title;
@@ -125,7 +179,6 @@ function createSectionCard(section) {
           .catch((err) => {
             console.error("Error updating category:", err);
           });
-
       } else if (e.key === "Escape" || e.key === "Enter") {
         newA.textContent = section.title;
         newLi.querySelector(".CategoriesRow").replaceChild(newA, input);
@@ -146,48 +199,52 @@ function innitCategories() {
   if (categoriesList) {
     fetch("/api/sections/" + payload.id, {
       method: "GET",
-      headers: { "Content-Type": "application/json" }
-    }).then((res) => {
-      if (!res.ok) throw new Error("Error fetching sections");
-      return res.json();
-    }).then((data) => {
-      if (data.length === 0) {
-        if (noCategoriesMsg) {
-          noCategoriesMsg.style.display = "block";
-        }
-      } else {
-        noCategoriesMsg.style.display = "none";
-        for (let index = 0; index < data.length; index++) {
-          const li = createSectionCard(data[index]);
-          if (data.length - index >= 7) {
-            li.classList.add("ExtraItem");
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Error fetching sections");
+        return res.json();
+      })
+      .then((data) => {
+        if (data.length === 0) {
+          if (noCategoriesMsg) {
+            noCategoriesMsg.style.display = "block";
           }
-          categoriesList.prepend(li);
-        }
-        const extraItems = document.querySelectorAll(".Categories .ExtraItem");
-        if (viewMoreBtn) {
-          console.log("Extras", extraItems);
-          if (!extraItems || extraItems.length === 0) {
-            viewMoreBtn.style.display = "none";
-          } else {
-            viewMoreBtn.style.display = "flex";
+        } else {
+          noCategoriesMsg.style.display = "none";
+          for (let index = 0; index < data.length; index++) {
+            const li = createSectionCard(data[index]);
+            if (data.length - index >= 7) {
+              li.classList.add("ExtraItem");
+            }
+            categoriesList.prepend(li);
           }
-          viewMoreBtn.addEventListener("click", function () {
-            expanded = !expanded;
-            extraItems.forEach(function (item) {
-              item.setAttribute("class", expanded ? "" : "ExtraItem");
+          const extraItems = document.querySelectorAll(
+            ".Categories .ExtraItem"
+          );
+          if (viewMoreBtn) {
+            console.log("Extras", extraItems);
+            if (!extraItems || extraItems.length === 0) {
+              viewMoreBtn.style.display = "none";
+            } else {
+              viewMoreBtn.style.display = "flex";
+            }
+            viewMoreBtn.addEventListener("click", function () {
+              expanded = !expanded;
+              extraItems.forEach(function (item) {
+                item.setAttribute("class", expanded ? "" : "ExtraItem");
+              });
+              viewMoreBtn.querySelector("span").textContent = expanded
+                ? "expand_less"
+                : "expand_more";
+              viewMoreBtn.childNodes[0].textContent = expanded
+                ? "View less"
+                : "View more";
             });
-            viewMoreBtn.querySelector("span").textContent = expanded
-              ? "expand_less"
-              : "expand_more";
-            viewMoreBtn.childNodes[0].textContent = expanded
-              ? "View less"
-              : "View more";
-          });
+          }
         }
-      }
-      document.dispatchEvent(new CustomEvent('categories:ready'));
-    });
+        document.dispatchEvent(new CustomEvent("categories:ready"));
+      });
   }
 
   AddSectionBtn?.addEventListener("click", () => {
@@ -217,15 +274,16 @@ function innitCategories() {
               title: categoryName,
               idUser: payload?.id,
               type: "category",
-              privacy: "private"
+              privacy: "private",
             }),
             headers: {
-              "Content-Type": "application/json"
-            }
-          }).then((res) => {
-            if (!res.ok) throw new Error("Error creating category");
-            return res.json();
+              "Content-Type": "application/json",
+            },
           })
+            .then((res) => {
+              if (!res.ok) throw new Error("Error creating category");
+              return res.json();
+            })
             .then((data) => {
               console.log("Section created:", data);
               const newLi = createSectionCard(data.section);
@@ -239,7 +297,6 @@ function innitCategories() {
         } else {
           alert("Section name too short");
         }
-
       } else if (e.key === "Escape") {
         categoriesList.removeChild(li);
       }
@@ -298,7 +355,7 @@ window.renderNavPosts = function (posts) {
       }
     }
   }
-}
+};
 
 function innitNavBar() {
   const homeBtn = document.getElementById("HomeBtn");
@@ -321,14 +378,24 @@ function innitNavBar() {
 
   const optionsModal = document.getElementById("OptionsModal");
   if (optionsModal) {
-    const profileOption = optionsModal.querySelector("li a[href*='perfil-usuario.html']");
-    const configOption = optionsModal.querySelector("li a[href*='configuracion.html']");
+    const profileOption = optionsModal.querySelector(
+      "li a[href*='perfil-usuario.html']"
+    );
+    const configOption = optionsModal.querySelector(
+      "li a[href*='configuracion.html']"
+    );
 
-    if (window.location.pathname.includes("perfil-usuario.html") && profileOption) {
+    if (
+      window.location.pathname.includes("perfil-usuario.html") &&
+      profileOption
+    ) {
       profileOption.parentElement.style.display = "none";
     }
 
-    if (window.location.pathname.includes("configuracion.html") && configOption) {
+    if (
+      window.location.pathname.includes("configuracion.html") &&
+      configOption
+    ) {
       configOption.parentElement.style.display = "none";
     }
   }

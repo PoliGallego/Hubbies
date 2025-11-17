@@ -131,24 +131,22 @@ async function loadComments(postId) {
     if (data.success) {
       const currentUser = getCurrentUser();
 
-      const userIds = [...new Set(
-          data.comments
-              .map(c => c.userId?._id)
-              .filter(id => id)
-      )];
+      const userIds = [
+        ...new Set(data.comments.map((c) => c.userId?._id).filter((id) => id)),
+      ];
 
       const userNamesCache = {};
       await Promise.all(
-          userIds.map(async (userId) => {
-            userNamesCache[userId] = await fetchUserName(userId);
-          })
+        userIds.map(async (userId) => {
+          userNamesCache[userId] = await fetchUserName(userId);
+        })
       );
 
-      const commentsWithNames = data.comments.map(comment => ({
+      const commentsWithNames = data.comments.map((comment) => ({
         ...comment,
         userName: comment.userId?._id
-            ? userNamesCache[comment.userId._id]
-            : "Anónimo"
+          ? userNamesCache[comment.userId._id]
+          : "Anónimo",
       }));
 
       renderComments(postId, commentsWithNames, currentUser);
@@ -176,9 +174,11 @@ function renderComments(postId, comments, currentUser) {
 
   if (comments.length === 0) {
     commentsList.innerHTML =
-        '<p style="color: #999; text-align: center; padding: 10px;">No comments yet</p>';
-    const countSpan = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
-    if (countSpan) countSpan.textContent = '0';
+      '<p style="color: #999; text-align: center; padding: 10px;">No comments yet</p>';
+    const countSpan = document.querySelector(
+      `.comments-count[data-post-id="${postId}"]`
+    );
+    if (countSpan) countSpan.textContent = "0";
     return;
   }
 
@@ -217,7 +217,9 @@ function renderComments(postId, comments, currentUser) {
     .join("");
 
   commentsList.innerHTML = commentsHTML;
-  const countSpan = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
+  const countSpan = document.querySelector(
+    `.comments-count[data-post-id="${postId}"]`
+  );
   if (countSpan) {
     countSpan.textContent = comments.length;
   }
@@ -463,20 +465,24 @@ async function loadRecentComments() {
 
     const posts = await postsResponse.json();
 
-    const allCommentsPromises = posts.map(post =>
-        fetch(`/api/posts/${post._id}/comments`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
-            .then(res => res.json())
-            .then(data => data.success ? data.comments.map(c => ({
-              ...c,
-              postTitle: post.title,
-              postId: post._id
-            })) : [])
-            .catch(() => [])
+    const allCommentsPromises = posts.map((post) =>
+      fetch(`/api/posts/${post._id}/comments`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) =>
+          data.success
+            ? data.comments.map((c) => ({
+                ...c,
+                postTitle: post.title,
+                postId: post._id,
+              }))
+            : []
+        )
+        .catch(() => [])
     );
 
     const allCommentsArrays = await Promise.all(allCommentsPromises);
@@ -486,18 +492,22 @@ async function loadRecentComments() {
 
     const recentComments = allComments.slice(0, 5);
 
-    const userIds = [...new Set(recentComments.map(c => c.userId?._id).filter(id => id))];
+    const userIds = [
+      ...new Set(recentComments.map((c) => c.userId?._id).filter((id) => id)),
+    ];
     const userNamesCache = {};
 
     await Promise.all(
-        userIds.map(async (userId) => {
-          userNamesCache[userId] = await fetchUserName(userId);
-        })
+      userIds.map(async (userId) => {
+        userNamesCache[userId] = await fetchUserName(userId);
+      })
     );
 
-    const commentsWithNames = recentComments.map(comment => ({
+    const commentsWithNames = recentComments.map((comment) => ({
       ...comment,
-      userName: comment.userId?._id ? userNamesCache[comment.userId._id] : "Anónimo"
+      userName: comment.userId?._id
+        ? userNamesCache[comment.userId._id]
+        : "Anónimo",
     }));
 
     renderRecentComments(commentsWithNames);
@@ -508,8 +518,47 @@ async function loadRecentComments() {
 }
 
 function renderRecentComments(comments) {
-  const sidebar = document.querySelector(".RightSidebar");
-  if (!sidebar) return;
+  const sidebar =
+    document.getElementById("RightSidebar") ||
+    document.querySelector(".RightSidebar");
+  const toggleBtn =
+    document.getElementById("RightSidebarToggleBtn") ||
+    document.querySelector(".RightSidebarToggleBtn");
+
+  if (!sidebar || !toggleBtn) return;
+
+  let inner = sidebar.querySelector(".RightSidebarInner");
+  if (!inner) {
+    inner = document.createElement("div");
+    inner.className = "RightSidebarInner";
+
+    while (sidebar.firstChild) {
+      inner.appendChild(sidebar.firstChild);
+    }
+    sidebar.appendChild(inner);
+  }
+
+  const saved = localStorage.getItem("rightSidebarCollapsed");
+  if (saved === "true") {
+    sidebar.classList.add("Collapsed");
+    toggleBtn.classList.add("collapsed");
+    toggleBtn.setAttribute("aria-expanded", "false");
+  } else {
+    toggleBtn.setAttribute("aria-expanded", "true");
+  }
+
+  toggleBtn.addEventListener("click", (e) => {
+    const nowCollapsed = sidebar.classList.toggle("Collapsed");
+    toggleBtn.classList.toggle("collapsed", nowCollapsed);
+    toggleBtn.setAttribute("aria-expanded", String(!nowCollapsed));
+
+    try {
+      localStorage.setItem(
+        "rightSidebarCollapsed",
+        nowCollapsed ? "true" : "false"
+      );
+    } catch (err) {}
+  });
 
   if (comments.length === 0) {
     sidebar.innerHTML = `
@@ -519,7 +568,9 @@ function renderRecentComments(comments) {
     return;
   }
 
-  const commentsHTML = comments.map(comment => `
+  const commentsHTML = comments
+    .map(
+      (comment) => `
     <div class="RecentCommentItem" data-post-id="${comment.postId}">
       <div class="RecentCommentHeader">
         <span class="RecentCommentAuthor">${comment.userName}</span>
@@ -530,7 +581,9 @@ function renderRecentComments(comments) {
         on "${truncateText(comment.postTitle, 30)}"
       </a>
     </div>
-  `).join('');
+  `
+    )
+    .join("");
 
   sidebar.innerHTML = `
     <h3>Recent Comments</h3>
@@ -542,7 +595,9 @@ function renderRecentComments(comments) {
 
 function updateCommentCount(postId, delta = 1) {
   console.log("Actualizando contador para postId:", postId, "Delta:", delta);
-  const countSpan = document.querySelector(`.comments-count[data-post-id="${postId}"]`);
+  const countSpan = document.querySelector(
+    `.comments-count[data-post-id="${postId}"]`
+  );
   if (countSpan) {
     const currentCount = parseInt(countSpan.textContent) || 0;
     countSpan.textContent = currentCount + delta;
@@ -590,7 +645,6 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("DOMContentLoaded disparado, configurando listeners");
   setupCommentListeners();
   loadRecentComments();
-
 });
 
 const observer = new MutationObserver((mutations) => {
@@ -642,15 +696,16 @@ function getTimeAgo(date) {
   const commentDate = new Date(date);
   const diffInSeconds = Math.floor((now - commentDate) / 1000);
 
-  if (diffInSeconds < 60) return 'Just now';
+  if (diffInSeconds < 60) return "Just now";
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
-  if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+  if (diffInSeconds < 604800)
+    return `${Math.floor(diffInSeconds / 86400)}d ago`;
   return commentDate.toLocaleDateString();
 }
 function truncateText(text, maxLength) {
   if (text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
+  return text.substring(0, maxLength) + "...";
 }
 
 function injectCommentStyles() {
@@ -840,13 +895,6 @@ function injectCommentStyles() {
         width: 100%;
         min-width: unset;
       }
-    }
-        
-    .RightSidebar {
-      position: sticky;
-      top: 20px;
-      max-height: calc(100vh - 40px);
-      overflow-y: auto;
     }
 
     .RightSidebar h3 {

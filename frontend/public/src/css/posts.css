@@ -7,6 +7,7 @@
     --BorderColor: #E0E0E0;
     --TextColorPrimary: #212121;
     --TextColorSecondary: #757575;
+    --RightSidebarWidth: 350px; 
 }
 
 * {
@@ -83,27 +84,87 @@ body {
     margin-left: 240px;
     display: flex;
     background-color: #FAFAFA;
+    position: relative;
 }
 
 .FeedColumn {
-    flex-grow: 1;
+    width: calc(100% - var(--RightSidebarWidth));
     padding: 30px;
     display: flex;
     flex-direction: column;
     gap: 20px;
+    flex-shrink: 0; 
 }
 
 .RightSidebar {
-    width: 350px;
-    min-width: 320px;
+    width: var(--RightSidebarWidth);
+    min-width: 0;              
     background-color: var(--ColorSoftPink);
     border-left: 1px solid var(--BorderColor);
     padding: 20px;
     height: calc(100vh - 60px);
-    overflow-y: auto;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 15px;
+    flex-shrink: 0;
+    transition: width .28s ease, padding .18s ease, border-left .18s ease;
+    box-sizing: border-box;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.RightSidebarToggleBtn {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--ColorDustyRose);
+    color: var(--ColorWhite);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: right .28s ease, transform .18s ease, background .18s ease;
+}
+
+.RightSidebarToggleBtn:hover {
+    background: #f0eaea;
+    transform: scale(1.07);
+}
+
+.RightSidebar.Collapsed {
+    width: 0;                  
+    padding-left: 0;
+    padding-right: 0;
+    border-left: none;
+}
+
+/* Cuando el sidebar está colapsado, el botón se mueve a la derecha de FeedColumn */
+.RightSidebar.Collapsed ~ .RightSidebarToggleBtn {
+    right: calc(100% - var(--RightSidebarWidth) - 54px);
+}
+
+.RightSidebarInner {
+    transition: opacity .18s ease, transform .18s ease;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.RightSidebar.Collapsed .RightSidebarInner {
+    opacity: 0;
+    transform: translateX(6px);
+    pointer-events: none;
+}
+
+.RightSidebarToggleBtn.collapsed .material-icons {
+    transform: rotate(180deg);
 }
 
 .HeaderLeft,
@@ -232,6 +293,48 @@ body {
 .Navigation .ViewMoreButton span {
     position: relative;
     top: 8px;
+}
+
+.SidebarToggleBtn {
+    position: fixed;        
+    top: 72px;
+    left: 200px;            
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: none;
+    background: var(--ColorDustyRose);
+    color: var(--ColorWhite);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: left .25s ease, transform .18s ease, background .18s ease;
+}
+
+.SidebarToggleBtn.collapsed {
+    left: 10px;
+}
+
+.SidebarToggleBtn:hover {
+    background: var(--ColorWhite);
+    color: var(--TextColorPrimary);
+    border: 2px, solid, var(--ColorDustyRose);
+    transform: scale(1.06);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+}
+
+.SidebarToggleBtn:hover .material-icons {
+  transform: translateX(-1px);
+  transition: transform .2s ease;
+}
+
+
+.LeftSidebar.Collapsed {
+    transform: translateX(-260px);
+    transition: transform .25s ease;
 }
 
 .ActionBar {
