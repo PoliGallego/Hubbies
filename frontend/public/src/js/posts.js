@@ -876,3 +876,17 @@ window.deletePost = deletePost;
 window.openCreatePostModal = openCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
+
+window.addEventListener("scroll", function() {
+  const btn = document.getElementById("ScrollToTopBtn");
+  if (!btn) return;
+  if (window.scrollY > 100) {
+    btn.style.display = "block";
+  } else {
+    btn.style.display = "none";
+  }
+});
+
+document.getElementById("ScrollToTopBtn").addEventListener("click", function() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});

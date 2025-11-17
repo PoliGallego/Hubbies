@@ -16,7 +16,7 @@
 }
 
 div {
-    overflow: visible; 
+    overflow: visible;
 }
 
 .CardImage,
@@ -25,14 +25,18 @@ div {
     overflow: hidden;
 }
 
-p, h1, h2, h3, h4 {
+p,
+h1,
+h2,
+h3,
+h4 {
     cursor: default;
 }
 
 img {
-  -webkit-user-drag: none;
-  user-select: none;
-  pointer-events: auto;
+    -webkit-user-drag: none;
+    user-select: none;
+    pointer-events: auto;
 }
 
 body {
@@ -185,8 +189,13 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 .CategoriesRow {
@@ -206,7 +215,7 @@ body {
 }
 
 .NotFound {
-    color: #999; 
+    color: #999;
     text-align: center;
 }
 
@@ -240,7 +249,7 @@ body {
 .SearchContainer {
     display: flex;
     max-height: 40px;
-    position: relative; 
+    position: relative;
 }
 
 .SearchBar {
@@ -263,6 +272,31 @@ body {
     color: var(--TextColorSecondary);
 }
 
+.ScrollToTopBtn {
+    display: none;
+    position: fixed;
+    bottom: 40px;
+    right: 400px;
+    z-index: 9999;
+    background: var(--ColorDustyRose);
+    color: var(--ColorWhite);
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+.ScrollToTopBtn:hover {
+    transition: all 0.2s ease;
+    background: var(--ColorWhite);
+    color: var(--ColorDustyRose);
+    border: 2px, solid, var(--ColorDustyRose);
+    bottom: 43px;
+    box-shadow: 5px 4px 16px rgba(0, 0, 0, 0.15);
+}
+
 .FilterWrapper {
     position: relative;
 }
@@ -270,8 +304,8 @@ body {
 .FilterDropdown {
     position: absolute;
     right: 0;
-    top: 100%; 
-    margin-top: 8px; 
+    top: 100%;
+    margin-top: 8px;
     background-color: var(--ColorWhite);
     border: 1px solid var(--BorderColor);
     border-radius: 8px;
@@ -377,9 +411,9 @@ body {
 
 .CardImage {
     width: 100%;
-    max-width: 400px; 
+    max-width: 400px;
     height: auto;
-    object-fit:scale-down;
+    object-fit: scale-down;
     border-radius: 8px;
 }
 
@@ -843,6 +877,7 @@ body {
         opacity: 0;
         transform: scale(0.8);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -854,26 +889,26 @@ body {
         width: 95%;
         max-height: 90vh;
     }
-    
+
     .EditableCardHeader {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .EditableTitleInput {
         width: 100%;
     }
-    
+
     .CardControls {
         width: 100%;
         justify-content: space-between;
     }
-    
+
     .EditableFormActions {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .EditableActionButton {
         width: 100%;
         justify-content: center;
@@ -1265,6 +1300,7 @@ body {
         opacity: 0;
         transform: scale(0.8);
     }
+
     to {
         opacity: 1;
         transform: scale(1);
@@ -1276,34 +1312,34 @@ body {
         padding: 25px !important;
         gap: 20px !important;
     }
-    
+
     #MainModal .EditableTitleInput {
         font-size: 1.4em !important;
         padding: 12px 0 !important;
     }
-    
+
     #MainModal .EditableDescriptionInput {
         min-height: 100px !important;
         font-size: 1em !important;
         padding: 12px !important;
     }
-    
+
     #MainModal .CategorySection {
         flex-direction: column !important;
         align-items: flex-start !important;
         gap: 10px !important;
     }
-    
+
     #MainModal .EditableCategorySelect {
         width: 100% !important;
     }
-    
+
     #MainModal .EditableFormActions {
         flex-direction: column !important;
         gap: 15px !important;
         padding: 25px !important;
     }
-    
+
     #MainModal .EditableActionButton {
         width: 100% !important;
         justify-content: center !important;
@@ -1341,186 +1377,186 @@ body {
 
 
 .PostTitleReadOnly {
-  color: var(--TextColorPrimary) !important;
-  font-family: "Inter", sans-serif !important;
-  font-weight: 600 !important;
-  font-size: 1.3em !important;
-  margin: 0 !important;
-  cursor: default !important;
+    color: var(--TextColorPrimary) !important;
+    font-family: "Inter", sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 1.3em !important;
+    margin: 0 !important;
+    cursor: default !important;
 }
 
 .DescriptionReadOnly {
-  color: var(--TextColorSecondary) !important;
-  font-family: "Inter", sans-serif !important;
-  line-height: 1.6 !important;
-  margin: 15px 0 !important;
-  cursor: default !important;
-  background: transparent !important;
-  border: none !important;
-  padding: 0 !important;
+    color: var(--TextColorSecondary) !important;
+    font-family: "Inter", sans-serif !important;
+    line-height: 1.6 !important;
+    margin: 15px 0 !important;
+    cursor: default !important;
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
 }
 
 .PrivacyDisplay {
-  padding: 6px 15px !important;
-  border-radius: 20px !important;
-  font-size: 0.85em !important;
-  font-family: "Inter", sans-serif !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  cursor: default !important;
-  transition: all 0.2s ease !important;
+    padding: 6px 15px !important;
+    border-radius: 20px !important;
+    font-size: 0.85em !important;
+    font-family: "Inter", sans-serif !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    cursor: default !important;
+    transition: all 0.2s ease !important;
 }
 
 .PrivacyPublic {
-  background-color: #e8f5e8 !important;
-  color: #2e7d2e !important;
-  border: 1px solid #a8d5a8 !important;
+    background-color: #e8f5e8 !important;
+    color: #2e7d2e !important;
+    border: 1px solid #a8d5a8 !important;
 }
 
 .PrivacyPrivate {
-  background-color: #ffeaa7 !important;
-  color: #6c5500 !important;
-  border: 1px solid #ddc760 !important;
+    background-color: #ffeaa7 !important;
+    color: #6c5500 !important;
+    border: 1px solid #ddc760 !important;
 }
 
 .TagReadOnly {
-  background-color: var(--TextColorPrimary) !important;
-  color: var(--ColorWhite) !important;
-  padding: 6px 15px !important;
-  border-radius: 20px !important;
-  font-size: 0.85em !important;
-  font-family: "Inter", sans-serif !important;
-  font-weight: 500 !important;
-  cursor: default !important;
-  transition: all 0.2s ease !important;
-  display: inline-block !important;
-  margin: 0 8px 8px 0 !important;
+    background-color: var(--TextColorPrimary) !important;
+    color: var(--ColorWhite) !important;
+    padding: 6px 15px !important;
+    border-radius: 20px !important;
+    font-size: 0.85em !important;
+    font-family: "Inter", sans-serif !important;
+    font-weight: 500 !important;
+    cursor: default !important;
+    transition: all 0.2s ease !important;
+    display: inline-block !important;
+    margin: 0 8px 8px 0 !important;
 }
 
 .TagReadOnly:hover {
-  background-color: #424242 !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 2px 8px rgba(66, 66, 66, 0.3) !important;
+    background-color: #424242 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(66, 66, 66, 0.3) !important;
 }
 
 .CardControls .IconButton {
-  background-color: transparent !important;
-  border: 1px solid var(--BorderColor) !important;
-  border-radius: 50% !important;
-  width: 40px !important;
-  height: 40px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  margin-left: 8px !important;
+    background-color: transparent !important;
+    border: 1px solid var(--BorderColor) !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin-left: 8px !important;
 }
 
 .CardControls .IconButton:hover {
-  background-color: var(--ColorLightGray) !important;
-  border-color: var(--TextColorPrimary) !important;
-  transform: scale(1.05) !important;
+    background-color: var(--ColorLightGray) !important;
+    border-color: var(--TextColorPrimary) !important;
+    transform: scale(1.05) !important;
 }
 
 .CardControls .edit-post-btn:hover {
-  background-color: #e3f2fd !important;
-  border-color: #2196f3 !important;
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
 }
 
 .CardControls .edit-post-btn:hover .material-icons {
-  color: #2196f3 !important;
+    color: #2196f3 !important;
 }
 
 .CardControls .delete-post-btn:hover {
-  background-color: #ffebee !important;
-  border-color: #f44336 !important;
+    background-color: #ffebee !important;
+    border-color: #f44336 !important;
 }
 
 .CardControls .delete-post-btn:hover .material-icons {
-  color: #f44336 !important;
+    color: #f44336 !important;
 }
 
 .CardControls .IconButton .material-icons {
-  color: var(--TextColorSecondary) !important;
-  font-size: 1.2em !important;
-  transition: color 0.2s ease !important;
+    color: var(--TextColorSecondary) !important;
+    font-size: 1.2em !important;
+    transition: color 0.2s ease !important;
 }
 
 .CardHeader {
-  display: flex !important;
-  justify-content: space-between !important;
-  align-items: flex-start !important;
-  margin-bottom: 15px !important;
-  gap: 15px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    margin-bottom: 15px !important;
+    gap: 15px !important;
 }
 
 .CardControls {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  flex-shrink: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-shrink: 0 !important;
 }
 
 @media (max-width: 768px) {
-  .CardHeader {
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    gap: 10px !important;
-  }
-  
-  .CardControls {
-    align-self: flex-end !important;
-    margin-top: 10px !important;
-  }
-  
-  .PrivacyDisplay {
-    font-size: 0.8em !important;
-    padding: 4px 12px !important;
-  }
-  
-  .CardControls .IconButton {
-    width: 35px !important;
-    height: 35px !important;
-  }
+    .CardHeader {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+    }
+
+    .CardControls {
+        align-self: flex-end !important;
+        margin-top: 10px !important;
+    }
+
+    .PrivacyDisplay {
+        font-size: 0.8em !important;
+        padding: 4px 12px !important;
+    }
+
+    .CardControls .IconButton {
+        width: 35px !important;
+        height: 35px !important;
+    }
 }
 
 .Publication:hover .ContentCard {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
-  transform: translateY(-2px) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+    transform: translateY(-2px) !important;
 }
 
 .Publication {
-  transition: all 0.3s ease !important;
+    transition: all 0.3s ease !important;
 }
 
 .ContentCard {
-  transition: all 0.3s ease !important;
+    transition: all 0.3s ease !important;
 }
 
 .TagReadOnly,
 .PrivacyDisplay {
-  user-select: none !important;
+    user-select: none !important;
 }
 
 .CardFooter {
-  margin-top: 20px !important;
-  padding-top: 15px !important;
-  border-top: 1px solid var(--BorderColor) !important;
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
+    margin-top: 20px !important;
+    padding-top: 15px !important;
+    border-top: 1px solid var(--BorderColor) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
 }
 
 .swal2-container {
-  z-index: 10000 !important;
+    z-index: 10000 !important;
 }
 
 .swal2-popup {
-  z-index: 10001 !important;
+    z-index: 10001 !important;
 }
 
 .swal2-backdrop-show {
-  z-index: 9999 !important;
+    z-index: 9999 !important;
 }
