@@ -37,20 +37,6 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 document.addEventListener("click", function (e) {
-
-  const ToggleContainer = document.querySelector(".ToggleContainer");
-  let IsToggledOn = false;
-
-  ToggleContainer.addEventListener("click", () => {
-    IsToggledOn = !IsToggledOn;
-    ToggleContainer.classList.toggle("on");
-    if (IsToggledOn) {
-      //accion
-    } else {
-      //otra accion
-    }
-  });
-  
   if (e.target && e.target.id === "LogoutBtn") {
     Swal.fire({
       title: "Log out?",
