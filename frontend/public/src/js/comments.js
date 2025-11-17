@@ -897,15 +897,6 @@ function injectCommentStyles() {
       }
     }
 
-    .RightSidebar h3 {
-      color: #2D2A2A;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid #E5D6D6;
-    }
-
     .RecentCommentsList {
       display: flex;
       flex-direction: column;

@@ -13,6 +13,11 @@
 
   --border-primary: #e0e0e0;
   --border-secondary: #e2d1d1;
+  --bg-danger: #dc3545;
+  --bg-danger-hover: #c82333;
+  --bg-danger-soft: #fff5f5;
+  --text-danger: #ffffff;
+  --border-danger: #ffe0e0;
 
   --shadow-sm: rgba(0, 0, 0, 0.1);
   --shadow-md: rgba(0, 0, 0, 0.15);

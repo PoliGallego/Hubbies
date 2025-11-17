@@ -20,7 +20,7 @@
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
   --bg-danger: #dc3545;
   --bg-danger-hover: #c82333;
-  --bg-danger-soft: #fff5f5;
+  --bg-card-congif: #fff5f5;
   --text-danger: #ffffff;
   --border-danger: #ffe0e0;
 }
@@ -44,7 +44,7 @@
   --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.8);
   --bg-danger: #b91c1c;
   --bg-danger-hover: #991b1b;
-  --bg-danger-soft: #1f1515;
+  --bg-card-congif: #1f1515;
   --text-danger: #fecaca;
   --border-danger: #5a1a1a;
 }
@@ -203,7 +203,7 @@ body {
   padding: 30px;
   border: 2px solid var(--border-danger);
   border-radius: 12px;
-  background: var(--bg-danger-soft);
+  background: var(--bg-card-congif);
   transition: all 0.3s ease;
 }
 
@@ -294,6 +294,7 @@ body {
   align-items: center;
   backdrop-filter: blur(4px);
   animation: fadeIn 0.3s ease;
+  z-index: 9000;
 }
 
 #EditProfileModal .ModalContent {

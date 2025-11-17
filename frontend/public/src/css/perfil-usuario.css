@@ -343,7 +343,7 @@ body {
 .box-title {
   font-weight: 700;
   font-size: 17px;
-  color: #1f1f1f;
+  color: var(--text-primary);
   margin-bottom: 15px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -355,7 +355,7 @@ body {
 }
 
 .recent-posts-list {
-  background-color: #ffffff;
+  background-color: var(--bg-secondary);
   border-radius: 10px;
   padding: 15px;
   border: 1px solid #efdedee6;
@@ -585,6 +585,26 @@ body {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
+}
+
+.comment-post-link {
+  font-size: 12px;
+  color: #c49b9b;
+  font-style: italic;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0e8e8;
+}
+
+.comment-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(196, 155, 155, 0.2);
+  border-color: #c49b9b;
 }
 .comment-card {
   background: var(--bg-secondary);
