@@ -1,6 +1,11 @@
 # Ignorar dependencias
 node_modules/
-.env
+backend/.env
 .idea
 .login_data
 loginData.txt
+Email:hubbies.webmaster@gmail.com
+pass:chocotajada
+Correo: hubbies.webmaster@gmail.com
+
+resend password: Chocotajada1

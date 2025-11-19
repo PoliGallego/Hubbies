@@ -71,7 +71,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <button type="submit" class="SubmitButton">Enter</button>
-        <p class="ForgotPassword"><a href="#">Did you forget your password?</a></p>
+        <p class="ForgotPassword">
+            <a href="/src/html/forgot-password.html">Did you forget your password?</a>
+        </p>
       `;
     }
 
