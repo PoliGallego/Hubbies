@@ -1,11 +1,11 @@
 const { Resend } = require("resend");
 
-const resend = new Resend('re_dcw9788o_NSYZ2LMMgxicPDBykHPLmrGr');
+const resend = new Resend('re_deUEPV4N_7T74W6derPPn1qd5MgTaeeEz');
 
 async function sendEmail(to, subject, html) {
     try {
         const response = await resend.emails.send({
-            from: "Hobbies <onboarding@resend.dev>",
+            from: "Hubbies <noreply@hardesk.fun>",
             to: to,
             subject: subject,
             html: html,

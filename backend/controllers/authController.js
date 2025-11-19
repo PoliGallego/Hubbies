@@ -165,7 +165,7 @@ const requestPasswordReset = async (req, res) => {
           <div class="content">
             <p>Hello ${user.fullName || user.username},</p>
             <p>Your username is: <strong>${user.username}</strong></p>
-            <p>You requested to reset your password for your Hobbies account.</p>
+            <p>You requested to reset your password for your Hubbies account.</p>
             <p>Click the button below to reset your password:</p>
             <a href="${resetUrl}" class="button">Reset Password</a>
             <p>Or copy and paste this link in your browser:</p>
@@ -174,7 +174,7 @@ const requestPasswordReset = async (req, res) => {
             <p>If you didn't request this, please ignore this email and your password will remain unchanged.</p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} Hobbies. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Hubbies. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -184,7 +184,7 @@ const requestPasswordReset = async (req, res) => {
 
         const emailResult = await sendEmail(
             user.email,
-            'Password Reset Request - Hobbies',
+            'Password Reset Request - Hubbies',
             emailHTML
         );
 
@@ -289,7 +289,7 @@ const resetPassword = async (req, res) => {
             <p>You can now log in with your new password.</p>
           </div>
           <div class="footer">
-            <p>© ${new Date().getFullYear()} Hobbies. All rights reserved.</p>
+            <p>© ${new Date().getFullYear()} Hubbies. All rights reserved.</p>
           </div>
         </div>
       </body>
@@ -298,7 +298,7 @@ const resetPassword = async (req, res) => {
 
         await sendEmail(
             user.email,
-            'Password Changed Successfully - Hobbies',
+            'Password Changed Successfully - Hubbies',
             confirmationHTML
         );
 
