@@ -254,7 +254,7 @@ async function loadUserPosts() {
   }
 }
 
-window.renderPosts = function renderPosts(posts) {
+function renderPosts(posts) {
   const feedColumn = document.querySelector('.FeedColumn');
   if (!feedColumn) return;
 
@@ -284,14 +284,14 @@ window.renderPosts = function renderPosts(posts) {
 function createPostHTML(post) {
   const categoryTags = post.categories
     ? post.categories
-        .map(
-          (category) => `
+      .map(
+        (category) => `
     <div class="Tag TagReadOnly">
       ${category.title || category}
     </div>
   `
-        )
-        .join("")
+      )
+      .join("")
     : "";
 
   const imageHTML =
@@ -312,9 +312,8 @@ function createPostHTML(post) {
           <h2 class="PostTitleReadOnly">"${post.title}"</h2>
           <div class="CardControls">
             <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
-            <button class="IconButton delete-post-btn" data-post-id="${
-              post._id
-            }">
+            <button class="IconButton delete-post-btn" data-post-id="${post._id
+    }">
               <span class="material-icons">delete_outline</span>
             </button>
             <button class="IconButton edit-post-btn" data-post-id="${post._id}">
@@ -341,9 +340,8 @@ function createPostHTML(post) {
         <button class="IconButton"><span class="material-icons">share</span></button>
       </div>     
       
-      <div class="CommentsSection" id="comments-section-${
-        post._id
-      }" style="display: none;">
+      <div class="CommentsSection" id="comments-section-${post._id
+    }" style="display: none;">
         <div class="CommentsList" id="comments-list-${post._id}">
         </div>
           <div class="CommentBox">
@@ -621,9 +619,8 @@ async function createPost() {
   const submitBtn = document.querySelector("#MainModal .EditableSubmitButton");
   if (submitBtn) {
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<span class="material-icons">hourglass_empty</span>${
-      isEditMode ? "Saving..." : "Creating..."
-    }`;
+    submitBtn.innerHTML = `<span class="material-icons">hourglass_empty</span>${isEditMode ? "Saving..." : "Creating..."
+      }`;
   }
 
   const formData = new FormData();
@@ -876,8 +873,9 @@ window.deletePost = deletePost;
 window.openCreatePostModal = openCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
+window.renderPosts = renderPosts;
 
-window.addEventListener("scroll", function() {
+window.addEventListener("scroll", function () {
   const btn = document.getElementById("ScrollToTopBtn");
   if (!btn) return;
   if (window.scrollY > 100) {
@@ -887,6 +885,6 @@ window.addEventListener("scroll", function() {
   }
 });
 
-document.getElementById("ScrollToTopBtn").addEventListener("click", function() {
+document.getElementById("ScrollToTopBtn").addEventListener("click", function () {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });

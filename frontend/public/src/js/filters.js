@@ -13,22 +13,7 @@ document.addEventListener("categories:ready", () => {
         return;
       }
 
-      const token = localStorage.getItem("token");
-      if (!token) {
-        window.location.assign("/src/html/index.html");
-        return;
-      }
-
-      const res = await fetch("/api/posts/my-posts", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (!res.ok) throw new Error("Error fetching posts");
-
-      let posts = await res.json();
+      let posts = await fetchPosts();
       let filters = JSON.parse(catList.dataset.filters || "[]");
 
       // --- Añadir o quitar categoría del filtro ---
@@ -43,14 +28,9 @@ document.addEventListener("categories:ready", () => {
 
       // --- Filtrar los posts ---
       if (filters.length > 0) {
-        posts = posts.filter((post) => {
-          return (
-            post.categories &&
-            filters.every((cat) => post.categories.some((c) => c.title === cat))
-          );
-        });
+        posts = filterByCat(posts);
       } else {
-        // ✅ Si se quitaron todos los filtros de categoría, también quitamos el ordenamiento activo
+        // Si se quitaron todos los filtros de categoría, también quitamos el ordenamiento activo
         const dropdown = document.getElementById("FilterDropdown");
         if (dropdown) {
           const checked = dropdown.querySelector(
@@ -58,21 +38,7 @@ document.addEventListener("categories:ready", () => {
           );
           if (checked) {
             checked.checked = false;
-            console.log(
-              "🧹 Filtro de categoría eliminado → limpiando ordenamiento activo."
-            );
-
-            // --- Recargamos todos los posts sin orden ---
-            const token = localStorage.getItem("token");
-            const res = await fetch("/api/posts/my-posts", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-            });
-            if (res.ok) {
-              posts = await res.json();
-            }
+            console.log("Filtro de categoría eliminado → limpiando ordenamiento activo.");
           }
         }
       }
@@ -112,37 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("🔹 Ordenar por:", filterType);
 
         try {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            window.location.href = "/src/html/index.html";
-            return;
-          }
-
-          const res = await fetch("/api/posts/my-posts", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!res.ok) throw new Error("Error fetching posts");
-
-          let posts = await res.json();
-
-          const catList = document.querySelector(".Categories > ul");
-          if (catList && catList.dataset.filters) {
-            const filters = JSON.parse(catList.dataset.filters || "[]");
-            if (filters.length > 0) {
-              posts = posts.filter(
-                (post) =>
-                  post.categories &&
-                  filters.every((cat) =>
-                    post.categories.some((c) => c.title === cat)
-                  )
-              );
-              console.log("Aplicando orden a posts filtrados:", filters);
-            }
-          }
+          let posts = await fetchPosts();
+          posts = filterByCat(posts);
 
           switch (filterType) {
             case "date":
@@ -175,31 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } else {
         try {
-          const token = localStorage.getItem("token");
-          const res = await fetch("/api/posts/my-posts", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!res.ok) throw new Error("Error fetching posts");
-          let posts = await res.json();
-
-          const catList = document.querySelector(".Categories > ul");
-          if (catList && catList.dataset.filters) {
-            const filters = JSON.parse(catList.dataset.filters || "[]");
-            if (filters.length > 0) {
-              posts = posts.filter(
-                (post) =>
-                  post.categories &&
-                  filters.every((cat) =>
-                    post.categories.some((c) => c.title === cat)
-                  )
-              );
-            }
-          }
-
+          let posts = await fetchPosts();
+          posts = filterByCat(posts);
           window.renderPosts(posts);
         } catch (error) {
           console.error("Error al recargar posts:", error);
@@ -208,3 +122,41 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+async function fetchPosts() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/src/html/index.html";
+    return;
+  }
+
+  const res = await fetch("/api/posts/my-posts", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) throw new Error("Error fetching posts");
+
+  return await res.json();
+}
+
+function filterByCat(posts) {
+  const catList = document.querySelector(".Categories > ul");
+  if (catList && catList.dataset.filters) {
+    const filters = JSON.parse(catList.dataset.filters || "[]");
+    if (filters.length > 0) {
+      posts = posts.filter(
+        (post) =>
+          post.categories &&
+          filters.every((cat) =>
+            post.categories.some((c) => c.title === cat)
+          )
+      );
+      console.log("Aplicando orden a posts filtrados:", filters);
+    }
+  }
+
+  return posts;
+}
