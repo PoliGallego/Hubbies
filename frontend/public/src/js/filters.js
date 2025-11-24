@@ -13,7 +13,6 @@ document.addEventListener("categories:ready", () => {
         return;
       }
 
-      let posts = await fetchPosts();
       let filters = JSON.parse(catList.dataset.filters || "[]");
 
       // --- Añadir o quitar categoría del filtro ---
@@ -26,24 +25,19 @@ document.addEventListener("categories:ready", () => {
       }
       catList.dataset.filters = JSON.stringify(filters);
 
-      // --- Filtrar los posts ---
-      if (filters.length > 0) {
-        posts = filterByCat(posts);
-      } else {
-        // Si se quitaron todos los filtros de categoría, también quitamos el ordenamiento activo
+      // Si se quitaron todos los filtros de categoría, también quitamos el ordenamiento activo
+      if (filters.length === 0) {
         const dropdown = document.getElementById("FilterDropdown");
         if (dropdown) {
-          const checked = dropdown.querySelector(
-            "input[type='checkbox']:checked"
-          );
+          const checked = dropdown.querySelector("input[type='checkbox']:checked");
           if (checked) {
             checked.checked = false;
             console.log("Filtro de categoría eliminado → limpiando ordenamiento activo.");
           }
         }
       }
-
-      window.renderPosts(posts);
+      // --- Filtrar los posts ---
+      filterAll();
     });
   }
 });
@@ -51,6 +45,25 @@ document.addEventListener("categories:ready", () => {
 document.addEventListener("DOMContentLoaded", () => {
   const toggleBtn = document.getElementById("FilterToggleBtn");
   const dropdown = document.getElementById("FilterDropdown");
+  const searchBar = document.getElementById("SearchBar");
+  const searchBtn = document.getElementById("SearchBtn");
+
+  searchBtn.addEventListener("click", () => {
+    searchBar.dataset.query = searchBar.value.trim();
+    filterAll();
+  });
+  searchBar.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      searchBar.dataset.query = searchBar.value.trim();
+      filterAll();
+    }
+  });
+
+  searchBar.addEventListener("focusout", () => {
+    if (searchBar.dataset.query !== searchBar.value.trim()) {
+      searchBar.value = searchBar.dataset.query || "";
+    }
+  });
 
   if (!toggleBtn || !dropdown) return;
 
@@ -72,53 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (other !== cb) other.checked = false;
       });
 
-      const filterType = cb.id.replace("filterBy", "").toLowerCase();
-
-      if (cb.checked) {
-        console.log("🔹 Ordenar por:", filterType);
-
-        try {
-          let posts = await fetchPosts();
-          posts = filterByCat(posts);
-
-          switch (filterType) {
-            case "date":
-              posts.sort(
-                (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-              );
-              break;
-
-            case "title":
-              posts.sort((a, b) => a.title.localeCompare(b.title));
-              break;
-
-            case "section":
-              posts.sort((a, b) => {
-                const aCat =
-                  a.categories?.[0]?.title || a.categories?.[0] || "";
-                const bCat =
-                  b.categories?.[0]?.title || b.categories?.[0] || "";
-                return aCat.localeCompare(bCat);
-              });
-              break;
-
-            default:
-              console.warn("Filtro desconocido:", filterType);
-          }
-
-          window.renderPosts(posts);
-        } catch (error) {
-          console.error("Error al aplicar filtro:", error);
-        }
-      } else {
-        try {
-          let posts = await fetchPosts();
-          posts = filterByCat(posts);
-          window.renderPosts(posts);
-        } catch (error) {
-          console.error("Error al recargar posts:", error);
-        }
-      }
+      filterAll();
     });
   });
 });
@@ -159,4 +126,73 @@ function filterByCat(posts) {
   }
 
   return posts;
+}
+
+function orderBy(posts) {
+  let filterType;
+  const dropdown = document.getElementById("FilterDropdown");
+  if (dropdown) {
+    const checked = dropdown.querySelector("input[type='checkbox']:checked");
+    if (checked && checked.checked) {
+      filterType = checked.id.replace("filterBy", "").toLowerCase();
+      console.log("Ordenar por:", filterType);
+    }
+  }
+
+  switch (filterType) {
+    case "date":
+      posts.sort(
+        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      );
+      break;
+
+    case "title":
+      posts.sort((a, b) => a.title.localeCompare(b.title));
+      break;
+
+    case "section":
+      posts.sort((a, b) => {
+        const aCat =
+          a.categories?.[0]?.title || a.categories?.[0] || "";
+        const bCat =
+          b.categories?.[0]?.title || b.categories?.[0] || "";
+        return aCat.localeCompare(bCat);
+      });
+      break;
+
+    case undefined:
+      break;
+
+    default:
+      console.warn("Filtro desconocido:", filterType);
+  }
+
+  return posts;
+}
+
+function search(query, posts) {
+  if (query && query !== "" && posts && posts.size !== 0) {
+    posts = posts.filter((post) => post.title.includes(query));
+    console.log("Query: ", query);
+  }
+
+  return posts;
+}
+
+async function filterAll() {
+  const searchBar = document.getElementById("SearchBar");
+  const query = searchBar.dataset.query || "";
+
+  searchBar.value = query;
+
+  try {
+    let posts = await fetchPosts();
+    posts = search(query, posts);
+    posts = filterByCat(posts);
+    posts = orderBy(posts);
+
+    window.renderPosts(posts);
+  } catch (error) {
+    console.warn("Error en el fetch");
+  }
 }
