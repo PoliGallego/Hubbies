@@ -436,7 +436,6 @@ body {
     color: var(--text-primary);
     border-radius: 8px;
     padding: 8px 12px;
-    padding-right: 35px;
     width: 250px;
     transition: all 0.3s ease;
 }
