@@ -1,0 +1,946 @@
+let MaxZIndex = 10; // contador global
+const boardNewFiles = [];
+
+function openBoardModal() {
+    closeBoardModal();
+    const modal = document.getElementById("BoardModal");
+    modal.classList.add("show");
+    const saveBtn = document.getElementById("SaveBoardBtn");
+    saveBtn.innerHTML = `<span class="material-icons">save</span> Save Board`;
+}
+
+function closeBoardModal() {
+    const modal = document.getElementById("BoardModal");
+    modal.classList.remove("show");
+
+    // ⭐ RESETEAR TODO EL ESTADO DEL MODAL
+
+    // 1. Limpiar el canvas
+    const canvas = document.getElementById("BoardCanvas");
+    canvas.innerHTML = "";
+
+    // 2. Resetear campos del formulario
+    document.getElementById("BoardTitleInput").value = "";
+
+    // 3. Resetear las secciones seleccionadas
+    const select = document.getElementById("BoardSectionsSelect");
+    Array.from(select.options).forEach(opt => opt.selected = false);
+
+    // 4. Resetear el botón de guardar a su estado original
+    const saveBtn = document.getElementById("SaveBoardBtn");
+    saveBtn.innerHTML = `<span class="material-icons">save</span> Save Board`;
+
+    // 5. Limpiar variables globales
+    window.currentBoardId = null;
+    boardNewFiles.length = 0; // Limpiar archivos temporales
+
+    // 6. Resetear estado de edición (si usas isEditing)
+    if (typeof isEditing !== 'undefined') {
+        isEditing = false;
+    }
+}
+
+document.addEventListener("click", (e) => {
+    if (e.target.classList.contains("BoardModalOverlay")) {
+        closeBoardModal();
+    }
+
+    if (e.target.closest(".CloseBoardModalBtn")) {
+        closeBoardModal();
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        const modal = document.getElementById("BoardModal");
+        if (modal?.classList.contains("show")) {
+            closeBoardModal();
+        }
+    }
+});
+
+document.addEventListener("click", (e) => {
+    if (e.target.closest("#AddNoteBtn")) addBoardItem("note");
+    if (e.target.closest("#AddImageBtn")) {
+        document.getElementById("BoardImagePicker").click();
+    }
+    const fullscreenBtn = e.target.closest('.fullscreen-board-btn');
+
+    if (fullscreenBtn) {
+        const boardId = fullscreenBtn.dataset.boardId;
+        openBoardFullscreen(boardId);
+    }
+});
+
+document.getElementById("BoardImagePicker").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // guardamos el File en memoria y obtenemos índice
+    const idx = boardNewFiles.push(file) - 1;
+
+    // leemos dataURL solo para previsualizar
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        addBoardImage(ev.target.result, { newFileIndex: idx });
+    };
+    reader.readAsDataURL(file);
+
+    // limpiar input
+    e.target.value = "";
+});
+
+function addControlHandles(el) {
+    const resize = document.createElement("div");
+    resize.className = "ResizeHandle";
+
+    const rotate = document.createElement("div");
+    rotate.className = "RotateHandle";
+
+    el.appendChild(resize);
+    el.appendChild(rotate);
+
+    enableResize(el, resize);
+    enableRotate(el, rotate);
+}
+
+function addBoardItem(type) {
+    const canvas = document.getElementById("BoardCanvas");
+
+    const item = document.createElement("div");
+    item.classList.add("BoardItem");
+
+    if (type === "note") {
+        item.contentEditable = true;
+        item.textContent = "New Note";
+    }
+
+    if (type === "image") {
+        item.classList.add("ImageItem");
+        item.style.width = "120px";
+        item.style.height = "auto";
+
+        item.innerHTML = `<img src="/assets/default.png" class="BoardImage">`;
+    }
+
+    item.style.left = "60px";
+    item.style.top = "60px";
+    item.style.zIndex = ++MaxZIndex;
+
+    addControlHandles(item);
+    enableDrag(item);
+    enableSelection(item);
+
+    canvas.appendChild(item);
+}
+
+function addBoardImage(src, opts = {}) {
+    const canvas = document.getElementById("BoardCanvas");
+
+    const item = document.createElement("div");
+    item.classList.add("BoardItem", "ImageItem");
+
+    // Establecemos un tamaño inicial
+    item.style.width = "120px";
+    item.style.height = "auto";
+
+    // Si viene newFileIndex -> imagen nueva (no tiene server path aún)
+    if (typeof opts.newFileIndex === "number") {
+        item.dataset.newFileIndex = String(opts.newFileIndex);
+    }
+
+    item.innerHTML = `<img src="${src}" class="BoardImage">`;
+
+    item.style.left = "60px";
+    item.style.top = "60px";
+    item.style.zIndex = ++MaxZIndex;
+
+    addControlHandles(item);
+    enableDrag(item);
+    enableSelection(item);
+
+    canvas.appendChild(item);
+}
+
+function enableDrag(el) {
+    const canvas = document.getElementById("BoardCanvas");
+    let offsetX = 0, offsetY = 0;
+    let dragging = false;
+
+    el.addEventListener("mousedown", (e) => {
+
+        // PERMITIR DRAG SI CLICK ES EN EL EL O EN SUS HIJOS (imagen)
+        if (!el.contains(e.target)) return;
+
+        dragging = true;
+
+        const rect = el.getBoundingClientRect();
+        const canvasRect = canvas.getBoundingClientRect();
+
+        offsetX = e.clientX - rect.left;
+        offsetY = e.clientY - rect.top;
+
+        function move(ev) {
+            if (!dragging) return;
+
+            let x = ev.clientX - canvasRect.left - offsetX;
+            let y = ev.clientY - canvasRect.top - offsetY;
+
+            x = Math.max(0, Math.min(x, canvasRect.width - el.offsetWidth));
+            y = Math.max(0, Math.min(y, canvasRect.height - el.offsetHeight));
+
+            el.style.left = x + "px";
+            el.style.top = y + "px";
+        }
+
+        function stop() {
+            dragging = false;
+            document.removeEventListener("mousemove", move);
+            document.removeEventListener("mouseup", stop);
+        }
+
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", stop);
+    });
+}
+
+function enableSelection(el) {
+    el.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        // remover selección previa
+        document.querySelectorAll(".BoardItem").forEach(n => n.classList.remove("selected"));
+
+        // seleccionar este
+        el.classList.add("selected");
+
+        updateZIndexDisplay(el);
+    });
+}
+
+function enableResize(item, handle) {
+    let startX, startY, startW, startH;
+
+    handle.addEventListener("mousedown", e => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        startX = e.clientX;
+        startY = e.clientY;
+        startW = item.offsetWidth;
+        startH = item.offsetHeight;
+
+        function move(ev) {
+            const newW = startW + (ev.clientX - startX);
+            const newH = startH + (ev.clientY - startY);
+
+            item.style.width = Math.max(40, newW) + "px";
+            item.style.height = Math.max(30, newH) + "px";
+        }
+
+        function stop() {
+            document.removeEventListener("mousemove", move);
+            document.removeEventListener("mouseup", stop);
+        }
+
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", stop);
+    });
+}
+
+function enableRotate(item, handle) {
+    handle.addEventListener("mousedown", e => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        let rect = item.getBoundingClientRect();
+
+        startX = e.clientX;
+        startY = e.clientY;
+
+        const current = item.style.transform.match(/rotate\(([-0-9.]+)deg\)/);
+        startAngle = current ? parseFloat(current[1]) : parseFloat(item.dataset.rotation || 0);
+
+        function move(ev) {
+            rect = item.getBoundingClientRect();
+            const dx = ev.clientX - rect.left - rect.width / 2;
+            const dy = ev.clientY - rect.top - rect.height / 2;
+
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+            item.style.transform = `rotate(${angle}deg)`;
+            item.dataset.rotation = angle;
+        }
+
+        function stop() {
+            document.removeEventListener("mousemove", move);
+            document.removeEventListener("mouseup", stop);
+
+            const finalAngle = item.style.transform.match(/rotate\(([-0-9.]+)deg\)/);
+            if (finalAngle) {
+                item.dataset.rotation = parseFloat(finalAngle[1]);
+            }
+        }
+
+        document.addEventListener("mousemove", move);
+        document.addEventListener("mouseup", stop);
+    });
+}
+
+document.addEventListener("keydown", (e) => {
+    const selected = document.querySelector(".BoardItem.selected");
+    if (!selected) return;
+
+    if (document.activeElement === selected) {
+        return;
+    }
+
+    if (e.key === "Delete" || e.key === "Backspace") {
+        selected.remove();
+    }
+});
+
+document.getElementById("BringForwardBtn").addEventListener("click", () => {
+    const selected = document.querySelector(".BoardItem.selected");
+    if (!selected) return;
+
+    selected.style.zIndex = (parseInt(selected.style.zIndex) || 1) + 1;
+    MaxZIndex = Math.max(MaxZIndex, selected.style.zIndex);
+
+    updateZIndexDisplay(selected);
+});
+
+document.getElementById("SendBackwardBtn").addEventListener("click", () => {
+    const selected = document.querySelector(".BoardItem.selected");
+    if (!selected) return;
+
+    let current = parseInt(selected.style.zIndex) || 1;
+    selected.style.zIndex = Math.max(1, current - 1);
+
+    updateZIndexDisplay(selected);
+});
+
+
+function addBoardItemFromData(item) {
+    const canvas = document.getElementById("BoardCanvas");
+    const el = document.createElement("div");
+    el.className = "BoardItem";
+
+    if (item.type === "note") {
+        el.textContent = item.content;
+        el.contentEditable = true;
+    } else {
+        el.innerHTML = `<img src="${item.content}" width="120">`;
+    }
+
+    el.style.left = item.x;
+    el.style.top = item.y;
+
+    enableDrag(el);
+    canvas.appendChild(el);
+}
+
+function updateZIndexDisplay(item) {
+    const display = document.getElementById("ZIndexValue");
+    display.textContent = item.style.zIndex || "0";
+}
+
+// Función collectBoardData CORREGIDA
+function collectBoardData() {
+    const items = [];
+
+    document.querySelectorAll(".BoardItem").forEach(item => {
+        const isImage = item.classList.contains("ImageItem");
+        const img = item.querySelector("img");
+
+        // ⭐ Extraer rotación del transform en lugar del dataset
+        let rotation = 0;
+        const transformMatch = item.style.transform.match(/rotate\(([-0-9.]+)deg\)/);
+        if (transformMatch) {
+            rotation = parseFloat(transformMatch[1]);
+        } else if (item.dataset.rotation) {
+            rotation = parseFloat(item.dataset.rotation);
+        }
+
+        // Datos comunes para todos los items
+        const baseData = {
+            x: parseInt(item.style.left) || 0,
+            y: parseInt(item.style.top) || 0,
+            width: item.offsetWidth,
+            height: item.offsetHeight,
+            rotation: rotation,
+            zIndex: parseInt(item.style.zIndex || 1)
+        };
+
+        if (isImage) {
+            // si tiene newFileIndex -> placeholder
+            if (item.dataset.newFileIndex !== undefined) {
+                const idx = parseInt(item.dataset.newFileIndex, 10);
+                items.push({
+                    type: "image",
+                    content: `__FILE_${idx}__`, // placeholder
+                    ...baseData
+                });
+            } else {
+                // imagen ya con path en el servidor (serverPath)
+                const serverPath = img?.dataset?.serverPath || img?.src || null;
+                items.push({
+                    type: "image",
+                    content: serverPath,
+                    ...baseData
+                });
+            }
+        } else {
+            // nota
+            items.push({
+                type: "note",
+                content: item.innerText || "",
+                ...baseData
+            });
+        }
+    });
+
+    return items;
+}
+
+function createBoardHTML(board) {
+    const categoryTags = board.categories
+        ?.map(id => `
+        <div class="Tag TagReadOnly">
+            ${window.sectionsMap?.[id] || "Unknown"}
+        </div>
+    `)
+        .join("") || "";
+
+    return `
+    <div class="Publication BoardPublication" data-board-id="${board._id}">
+      <article class="BoardCard">
+        <header class="BoardCardHeader">
+          <h2 class="BoardCardTitle">${board.title || "Untitled Board"}</h2>
+          <div class="BoardCardActions">
+            <span class="PrivacyDisplay ${board.privacy === "public" ? "PrivacyPublic" : "PrivacyPrivate"}">
+              ${board.privacy === "public" ? "Public" : "Private"}
+            </span>
+            <button class="IconButton fullscreen-board-btn" data-board-id="${board._id}" title="Ver en pantalla completa">
+              <span class="material-icons">fullscreen</span>
+            </button>
+            <button class="IconButton edit-board-btn" data-board-id="${board._id}">
+              <span class="material-icons">edit</span>
+            </button>
+            <button class="IconButton delete-board-btn" data-board-id="${board._id}">
+              <span class="material-icons">delete_outline</span>
+            </button>
+          </div>
+        </header>
+
+        <!-- Mini Canvas Preview -->
+        <div class="BoardCardCanvas BoardPreviewCanvas">
+          ${renderBoardPreview(board.items)}
+        </div>
+
+        <footer class="BoardCardFooter">
+          ${categoryTags}
+        </footer>
+      </article>
+    </div>
+  `;
+}
+
+function renderBoardPreview(items = []) {
+    if (!items.length) {
+        return '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);font-size:0.9em;">Empty board</div>';
+    }
+
+    return items.map(item => {
+        const left = item.x || 0;
+        const top = item.y || 0;
+        const width = item.width || 120;
+        const height = item.height || 90;
+        const rotation = item.rotation || 0;
+        const zIndex = item.zIndex || 0;
+
+        const style = `
+            left: ${left}px;
+            top: ${top}px;
+            width: ${width}px;
+            height: ${height}px;
+            transform: rotate(${rotation}deg);
+            z-index: ${zIndex};
+            position: absolute;
+            box-sizing: border-box;
+        `.replace(/\s+/g, ' ').trim();
+
+        if (item.type === "note") {
+            return `
+                <div class="BoardPreviewItem PreviewNote" style="${style}">
+                    ${escapeHtml(item.content || '')}
+                </div>`;
+        }
+
+        if (item.type === "image") {
+            return `
+                <div class="BoardPreviewItem PreviewImg" style="${style}">
+                    <img src="${item.content}" 
+                         style="width:100%;height:100%;object-fit:contain;border-radius:6px;"
+                         alt="Board image" />
+                </div>`;
+        }
+
+        return "";
+    }).join("");
+}
+
+function openBoardFullscreen(boardId) {
+    // Buscar el board en los boards cargados
+    const board = window.userBoards?.find(b => b._id === boardId);
+
+    if (!board) {
+        console.error('Board no encontrado:', boardId);
+        console.log('Boards disponibles:', window.userBoards);
+        return;
+    }
+
+    const modal = document.getElementById('BoardFullscreenModal');
+    const canvas = document.getElementById('BoardFullscreenCanvas');
+    const title = document.getElementById('BoardFullscreenTitle');
+    const categoriesContainer = document.getElementById('BoardFullscreenCategories');
+
+    // Establecer título
+    title.textContent = board.title || 'Untitled Board';
+
+    // Renderizar items en el canvas
+    canvas.innerHTML = renderBoardPreview(board.items);
+
+    // Renderizar categorías
+    const categoryTags = board.categories
+        ?.map(id => `
+            <div class="Tag TagReadOnly">
+                ${window.sectionsMap?.[id] || "Unknown"}
+            </div>
+        `)
+        .join("") || "";
+    categoriesContainer.innerHTML = categoryTags;
+
+    // Mostrar modal
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden'; // Prevenir scroll del body
+}
+
+function closeBoardFullscreen() {
+    const modal = document.getElementById('BoardFullscreenModal');
+    modal.classList.remove('show');
+    document.body.style.overflow = ''; // Restaurar scroll
+}
+
+
+// Función helper para escapar HTML y prevenir XSS
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+}
+
+// Función mejorada para renderizar en el modal de edición
+function renderBoardItemsInCanvas(canvasElement, items = []) {
+    if (!canvasElement) return;
+
+    canvasElement.innerHTML = "";
+
+    items.forEach((item) => {
+        const div = document.createElement("div");
+        div.classList.add("BoardItem", item.type === "note" ? "TextItem" : "ImageItem");
+
+        // Dataset para rotación y zIndex ✔
+        div.dataset.rotation = item.rotation || 0;
+        div.dataset.zIndex = item.zIndex || 1;
+
+        // Posicionamiento
+        div.style.position = "absolute";
+        div.style.left = `${item.x || 0}px`;
+        div.style.top = `${item.y || 0}px`;
+        div.style.width = `${item.width || 120}px`;
+        div.style.height = `${item.height || 90}px`;
+        div.style.zIndex = div.dataset.zIndex;
+        div.style.transform = `rotate(${div.dataset.rotation}deg)`;
+
+        if (item.type === "note") {
+            div.textContent = item.content || "";
+            div.contentEditable = true;
+        }
+        else if (item.type === "image") {
+            const img = document.createElement("img");
+            img.src = item.content.startsWith("/assets/")
+                ? item.content
+                : `/assets/uploads/${item.content}`;
+            img.style.width = "100%";
+            img.style.height = "100%";
+            img.style.objectFit = "cover";
+            img.dataset.serverPath = img.src;
+            div.appendChild(img);
+        }
+
+        // Handles de edición
+        const resizeHandle = document.createElement("div");
+        resizeHandle.classList.add("ResizeHandle");
+        div.appendChild(resizeHandle);
+
+        const rotateHandle = document.createElement("div");
+        rotateHandle.classList.add("RotateHandle");
+        div.appendChild(rotateHandle);
+
+        canvasElement.appendChild(div);
+
+        // 🔥 Reconexión a lógica existente
+        enableDrag(div);
+        enableResize(div, resizeHandle);
+        enableRotate(div, rotateHandle);
+
+        div.addEventListener("mousedown", () => {
+            document.querySelectorAll(".BoardItem").forEach(el => el.classList.remove("selected"));
+            div.classList.add("selected");
+        });
+    });
+}
+
+function setupBoardEventListeners() {
+    document.querySelectorAll(".delete-board-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            const boardId = e.target.closest(".delete-board-btn").dataset.boardId;
+            confirmDeleteBoard(boardId);
+        });
+    });
+
+    document.querySelectorAll(".edit-board-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const boardId = btn.dataset.boardId;
+            openBoardEditor(boardId);
+        });
+    });
+}
+
+function confirmDeleteBoard(boardId) {
+    Swal.fire({
+        icon: "warning",
+        title: "Delete Board?",
+        text: "This action cannot be undone",
+        showCancelButton: true,
+        confirmButtonText: "Yes, delete it!",
+        cancelButtonText: "Cancel",
+    }).then(async (result) => {
+        if (!result.isConfirmed) return;
+
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        try {
+            const res = await fetch(`/api/boards/${boardId}`, {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) throw new Error(data.message);
+
+            // Remover la tarjeta visualmente
+            document.querySelector(`[data-board-id="${boardId}"]`).remove();
+
+            Swal.fire("Deleted!", "The board has been removed.", "success");
+
+        } catch (err) {
+            console.error("Delete board error:", err);
+            Swal.fire("Error", err.message, "error");
+        }
+    });
+}
+
+async function openBoardEditor(boardId) {
+    const token = localStorage.getItem("token");
+
+    try {
+        const res = await fetch(`/api/boards/${boardId}`, {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message);
+
+        const board = data.board;
+
+        // Mostrar modal
+        const modal = document.getElementById("BoardModal");
+        modal.classList.add("show");
+
+        // Establecer que estamos editando
+        window.currentBoardId = board._id;
+
+        // Título del board
+        document.getElementById("BoardTitleInput").value = board.title;
+
+        // Secciones
+        const select = document.getElementById("BoardSectionsSelect");
+        Array.from(select.options).forEach(opt => {
+            opt.selected = board.categories.includes(opt.value);
+        });
+
+        // Canvas limpio
+        const canvas = document.getElementById("BoardCanvas");
+        canvas.innerHTML = "";
+        window.currentBoardId = board._id;
+
+        // 🎨 Renderizar TODOS los items guardados
+        renderBoardItemsInCanvas(canvas, board.items || []);
+
+        // Cambiar a modo edición
+        const saveBtn = document.getElementById("SaveBoardBtn");
+        saveBtn.innerHTML = `<span class="material-icons">update</span> Update Board`;
+
+    } catch (err) {
+        console.error("Open editor error:", err);
+        Swal.fire("Error", err.message, "error");
+    }
+}
+
+document.getElementById("SaveBoardBtn").addEventListener("click", async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Necesitas iniciar sesión");
+        return;
+    }
+
+
+    const title = document.getElementById("BoardTitleInput")?.value || "Untitled board";
+    const description = document.getElementById("BoardDescInput")?.value || "";
+    const privacy = document.getElementById("BoardPrivacySelect")?.value || "private";
+    // si tienes selección de secciones:
+    const categoriesSelect = document.getElementById("BoardSectionsSelect");
+    const selectedSections = Array.from(categoriesSelect.selectedOptions).map(opt => opt.value);
+
+    const items = collectBoardData();
+
+    // === VALIDACIONES DE CANTIDAD DE ITEMS ===
+    if (items.length === 0) {
+        return Swal.fire({
+            icon: "warning",
+            title: "No items in board",
+            text: "You must add at least 1 item to save the board."
+        });
+    }
+
+    if (items.length > 10) {
+        return Swal.fire({
+            icon: "error",
+            title: "Too many items!",
+            text: "You can only have up to 10 items on a board."
+        });
+    }
+
+    // === VALIDACIÓN: al menos una categoría ===
+    if (!selectedSections || selectedSections.length === 0) {
+        return Swal.fire({
+            icon: "warning",
+            title: "Choose a category",
+            text: "Please select at least one category before saving."
+        });
+    }
+
+    const fd = new FormData();
+    fd.append("title", title);
+    fd.append("description", description);
+    fd.append("privacy", privacy);
+    fd.append("categories", JSON.stringify(selectedSections));
+    fd.append("items", JSON.stringify(items));
+
+    const url = window.currentBoardId
+        ? `/api/boards/${window.currentBoardId}`
+        : `/api/boards/save`;
+
+    const method = window.currentBoardId ? "PUT" : "POST";
+
+    // añadir files (si los hay) con nombre 'images' (multer.array('images') en backend)
+    for (let i = 0; i < boardNewFiles.length; i++) {
+        fd.append("images", boardNewFiles[i]);
+    }
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+            body: fd
+        });
+
+        const text = await res.text(); // leer todo, aunque no sea JSON
+
+        const data = JSON.parse(text);
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || "Error saving board");
+        }
+
+
+
+        console.log("Board saved:", data.board);
+        Swal.fire({
+            icon: "success",
+            title: `Sucess!`,
+            text: "Board saved successfully!",
+            confirmButtonText: "Continue!",
+        })
+
+        closeBoardModal();
+
+        const currentView = document.querySelector('input[name="feedView"]:checked')?.value;
+        if (currentView === 'boards') {
+            clearFeed();
+            loadUserBoards();
+        }
+        boardNewFiles.length = 0;
+
+    } catch (err) {
+        console.error("Save board error", err);
+        alert("Error guardando board: " + err.message);
+    }
+});
+
+async function loadSections() {
+    window.sectionsMap = {}; // diccionario global
+    try {
+        const select = document.getElementById("BoardSectionsSelect");
+        select.innerHTML = ""; // limpiar opciones previas
+
+        const token = localStorage.getItem("token");
+        if (!token) throw new Error("No hay token de usuario");
+
+        // Obtener userId desde el token JWT
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const userId = payload.id;
+
+        // Traer secciones del usuario
+        const response = await fetch(`/api/sections/${userId}`, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error HTTP: ${response.status}`);
+        }
+
+        const sections = await response.json();
+
+        // Renderizar en el select
+        sections.forEach(sec => {
+            window.sectionsMap[sec._id] = sec.title;
+            const opt = document.createElement("option");
+            opt.value = sec._id;
+            opt.textContent = sec.title;
+            select.appendChild(opt);
+        });
+
+    } catch (error) {
+        console.error("Error al cargar secciones:", error);
+
+        // En caso de error, dejar el select vacío
+        const select = document.getElementById("BoardSectionsSelect");
+        select.innerHTML = "";
+    }
+}
+
+async function loadUserBoards() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    const res = await fetch("/api/boards/my", {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await res.json();
+    if (!data.success) throw new Error(data.message);
+
+    window.userBoards = data.boards;
+
+    const feedColumn = document.querySelector(".FeedColumn");
+    if (!feedColumn) return;
+
+    clearFeed(); // limpieza correcta del feed
+
+    data.boards.forEach(board => {
+        const boardHTML = createBoardHTML(board);
+        feedColumn.insertAdjacentHTML("beforeend", boardHTML);
+    });
+
+    setupBoardEventListeners();
+
+    console.log("Boards del usuario:", data.boards);
+    return data.boards;
+}
+
+function initFeedTogglePill() {
+    const radioInputs = document.querySelectorAll('input[name="feedView"]');
+
+    radioInputs.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const view = e.target.value;
+
+            // Limpiar feed
+            clearFeed();
+
+            // Cargar contenido
+            if (view === 'posts') {
+                loadUserPosts();
+            } else if (view === 'boards') {
+                loadUserBoards();
+            }
+        });
+    });
+}
+
+
+function clearFeed() {
+    const feedColumn = document.querySelector(".FeedColumn");
+    if (!feedColumn) return;
+    feedColumn.querySelectorAll(".Publication").forEach(el => el.remove());
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    loadSections();
+    initFeedTogglePill();
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const modal = document.getElementById('BoardFullscreenModal');
+    const closeBtn = document.querySelector('.CloseFullscreenBtn');
+    const overlay = document.querySelector('.BoardFullscreenOverlay');
+
+    closeBtn?.addEventListener('click', closeBoardFullscreen);
+    overlay?.addEventListener('click', closeBoardFullscreen);
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal?.classList.contains('show')) {
+            closeBoardFullscreen();
+        }
+    });
+});
+
+document.getElementById("OpenBoardCreatorBtn").addEventListener("click", () => {
+    loadSections();
+    openBoardModal();
+});
+
+

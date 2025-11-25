@@ -7,7 +7,7 @@
     --BorderColor: #E0E0E0;
     --TextColorPrimary: #212121;
     --TextColorSecondary: #757575;
-    --RightSidebarWidth: 350px; 
+    --RightSidebarWidth: 350px;
 
     /* Modern theme variables */
     --bg-primary: #f5f5f5;
@@ -148,12 +148,12 @@ body {
     display: flex;
     flex-direction: column;
     gap: 20px;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 
 .RightSidebar {
     width: var(--RightSidebarWidth);
-    min-width: 0;              
+    min-width: 0;
     background-color: var(--bg-accent);
     border-left: 1px solid var(--border-primary);
     padding: 20px;
@@ -204,14 +204,14 @@ body {
 }
 
 .RightSidebar.Collapsed {
-    width: 0;                  
+    width: 0;
     padding-left: 0;
     padding-right: 0;
     border-left: none;
 }
 
 /* Cuando el sidebar está colapsado, el botón se mueve a la derecha de FeedColumn */
-.RightSidebar.Collapsed ~ .RightSidebarToggleBtn {
+.RightSidebar.Collapsed~.RightSidebarToggleBtn {
     right: calc(100% - var(--RightSidebarWidth) - 54px);
 }
 
@@ -365,9 +365,9 @@ body {
 }
 
 .SidebarToggleBtn {
-    position: fixed;        
+    position: fixed;
     top: 72px;
-    left: 200px;            
+    left: 200px;
     width: 34px;
     height: 34px;
     border-radius: 50%;
@@ -392,7 +392,7 @@ body {
     color: var(--TextColorPrimary);
     border: 2px, solid, var(--ColorDustyRose);
     transform: scale(1.06);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 .SidebarToggleBtn:hover .material-icons {
@@ -478,8 +478,8 @@ body {
 .FilterDropdown {
     position: absolute;
     right: 0;
-    top: 100%; 
-    margin-top: 8px; 
+    top: 100%;
+    margin-top: 8px;
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-primary);
     border-radius: 8px;
@@ -591,6 +591,702 @@ body {
     cursor: default;
     color: var(--text-secondary);
     transition: color 0.3s ease;
+}
+
+#BoardModal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.2s ease;
+    z-index: 9999;
+}
+
+#BoardModal.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.BoardModalOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.BoardModalContent {
+    position: relative;
+    width: 95%;
+    max-width: 1200px;
+    height: 90vh;
+    background: var(--ColorWhite);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    z-index: 3001;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.BoardModalHeader {
+    background: var(--ColorLightCoral);
+    height: 70px;
+    padding: 22px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--BorderColor);
+}
+
+.CloseBoardModalBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.BoardModalBody {
+    display: flex;
+    padding: 20px;
+    gap: 20px;
+    height: calc(100% - 70px);
+}
+
+.BoardCanvas {
+    flex-grow: 1;
+    position: relative;
+    background: var(--ColorSoftPink);
+    border: 1px solid var(--BorderColor);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.BoardCanvasWrapper {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+
+.LayerControls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: var(--ColorSoftPink);
+    border: 1px solid var(--BorderColor);
+    border-radius: 8px;
+}
+
+.BoardTools {
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.BoardTools button,
+.LayerControls button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    background: var(--ColorDustyRose);
+    color: var(--TextColorPrimary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.BoardTitleInput {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--BorderColor);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--TextColorPrimary);
+    background: var(--ColorWhite);
+    outline: none;
+    box-sizing: border-box;
+}
+
+.BoardTitleInput:focus {
+    border-color: var(--ColorLightCoral);
+    box-shadow: 0 0 4px rgba(255, 82, 82, 0.5);
+}
+
+.BoardSections {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.BoardSections label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+#BoardSectionsSelect {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    font-size: 14px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    outline: none;
+    box-sizing: border-box;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+#BoardSectionsSelect:focus {
+    border-color: var(--ColorLightCoral);
+    box-shadow: 0 0 4px rgba(255, 82, 82, 0.5);
+}
+
+.LayerControls .ZIndexDisplay {
+    padding: 10px 14px;
+    background: var(--ColorDustyRose);
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.IconButton span {
+    font-size: 20px;
+}
+
+
+.PrimaryBtn {
+    background: #d78686 !important;
+    color: white !important;
+}
+
+.BoardItem {
+    position: absolute;
+    background: var(--text-primary);
+    padding: 12px;
+    border-radius: 6px;
+    min-width: 120px;
+    min-height: 60px;
+    cursor: grab;
+    color: var(--bg-primary);
+    user-select: none;
+    border: 1px solid var(--BorderColor);
+}
+
+.BoardItem:active {
+    cursor: grabbing;
+}
+
+.BoardItem.selected {
+    outline: 2px solid #ff5252;
+}
+
+.TextItem {
+    background: var(--text-primary);
+    color: var(--ColorWhite);
+    padding: 8px;
+    border-radius: 6px;
+    font-size: 14px;
+    user-select: none;
+}
+
+.ImageItem {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.ImageItem img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+}
+
+.ResizeHandle {
+    width: 12px;
+    height: 12px;
+    background: white;
+    border: 2px solid #ff7c7c;
+    position: absolute;
+    bottom: -6px;
+    right: -6px;
+    border-radius: 50%;
+    cursor: se-resize;
+    z-index: 10;
+    display: none;
+}
+
+.RotateHandle {
+    width: 14px;
+    height: 14px;
+    background: #ff7c7c;
+    position: absolute;
+    top: -28px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    cursor: grab;
+    z-index: 10;
+    display: none;
+}
+
+.selected .ResizeHandle,
+.selected .RotateHandle {
+    display: block;
+}
+
+.FeedToggleWrapper {
+    margin-right: 15px;
+}
+
+.FeedTogglePill {
+    position: relative;
+    display: inline-flex;
+    background: var(--bg-accent);
+    border-radius: 50px;
+    padding: 6px;
+    box-shadow: inset 0 2px 4px var(--shadow-sm);
+    border: 1px solid var(--border-primary);
+}
+
+.FeedTogglePill input[type="radio"] {
+    display: none;
+}
+
+.FeedTogglePill label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 24px;
+    font-size: 0.9em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-secondary);
+    z-index: 2;
+    user-select: none;
+    white-space: nowrap;
+}
+
+.FeedTogglePill label .material-icons {
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.FeedTogglePill input[type="radio"]:checked+label {
+    color: white;
+}
+
+.FeedTogglePill input[type="radio"]:checked+label .material-icons {
+    transform: rotate(360deg) scale(1.1);
+}
+
+.FeedTogglePill label:hover {
+    color: var(--text-primary);
+}
+
+.PillSlider {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    height: calc(100% - 12px);
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-hover) 100%);
+    border-radius: 50px;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+/* Posiciones del slider */
+.FeedTogglePill input[type="radio"]:nth-of-type(1):checked~.PillSlider {
+    width: calc(50% - 4px);
+    left: 6px;
+}
+
+.FeedTogglePill input[type="radio"]:nth-of-type(2):checked~.PillSlider {
+    width: calc(50% - 4px);
+    left: calc(50% - 2px);
+}
+
+/* Efecto hover en el slider */
+.FeedTogglePill:hover .PillSlider {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Animación de click */
+@keyframes clickBounce {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(0.96);
+    }
+}
+
+.FeedTogglePill label:active {
+    animation: clickBounce 0.2s ease;
+}
+
+/* Dark mode */
+[data-theme="dark"] .FeedTogglePill {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .PillSlider {
+    background: linear-gradient(135deg, var(--accent-primary) 0%, #c89968 100%);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .FeedTogglePill label {
+        padding: 8px 18px;
+        font-size: 0.85em;
+        gap: 4px;
+    }
+
+    .FeedTogglePill label .material-icons {
+        font-size: 16px;
+    }
+}
+
+/* Accesibilidad */
+.FeedTogglePill input[type="radio"]:focus-visible+label {
+    outline: 2px solid var(--accent-primary);
+    outline-offset: 2px;
+    border-radius: 50px;
+}
+
+/* Board Preview Canvas - EXACTAMENTE igual que el modal */
+.BoardPreviewCanvas {
+    background: var(--ColorSoftPink);
+    border-radius: 10px;
+    border: 1px solid var(--BorderColor);
+    position: relative;
+    width: 100%;
+    min-height: 500px;
+    /* Misma altura mínima que .BoardCanvas */
+    overflow: auto;
+    /* Mismo overflow que .BoardCanvas */
+}
+
+.BoardPreviewItem {
+    position: absolute;
+    border-radius: 6px;
+    pointer-events: none;
+    /* No interactivo en preview */
+    transition: none;
+    /* Sin transiciones en preview */
+}
+
+.PreviewNote {
+    background: var(--text-primary);
+    padding: 12px;
+    border-radius: 6px;
+    min-width: 120px;
+    min-height: 60px;
+    color: var(--bg-primary);
+    font-size: 14px;
+    line-height: 1.4;
+    word-wrap: break-word;
+    border: 1px solid var(--BorderColor);
+    user-select: none;
+    box-sizing: border-box;
+}
+
+.PreviewImg {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    border-radius: 6px;
+    overflow: hidden;
+    min-width: 120px;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.PreviewImg img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    /* Cambié de cover a contain para que se vea completa */
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Card para boards */
+.BoardCard {
+    background: var(--ColorWhite);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--BorderColor);
+    transition: all 0.3s ease;
+}
+
+.BoardCard:hover {
+    box-shadow: 0 4px 12px var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.BoardCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.BoardCardTitle {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.BoardCardActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.BoardCardCanvas {
+    margin: 12px 0;
+}
+
+.BoardCardFooter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}
+
+/* ========== MODAL DE VISTA COMPLETA ========== */
+
+.BoardFullscreenModal {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 10000;
+}
+
+.BoardFullscreenModal.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.BoardFullscreenOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+}
+
+.BoardFullscreenContent {
+    position: relative;
+    width: 95%;
+    max-width: 1200px;
+    /* Mismo max-width que el modal de creación */
+    height: 90vh;
+    background: var(--ColorWhite);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10001;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.BoardFullscreenHeader {
+    background: var(--ColorLightCoral);
+    height: 70px;
+    padding: 22px 24px;
+    /* Mismo padding que BoardModalHeader */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--BorderColor);
+    flex-shrink: 0;
+}
+
+.BoardFullscreenTitle {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--TextColorPrimary);
+    margin: 0;
+}
+
+.CloseFullscreenBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.CloseFullscreenBtn:hover {
+    background: var(--ColorDustyRose);
+    transform: scale(1.1);
+}
+
+.CloseFullscreenBtn .material-icons {
+    font-size: 28px;
+    color: var(--TextColorPrimary);
+}
+
+.BoardFullscreenBody {
+    flex: 1;
+    padding: 20px;
+    /* Mismo padding que BoardModalBody */
+    overflow: auto;
+    display: flex;
+}
+
+.BoardFullscreenCanvas {
+    background: var(--ColorSoftPink);
+    border-radius: 10px;
+    border: 1px solid var(--BorderColor);
+    position: relative;
+    flex-grow: 1;
+    /* Ocupar todo el espacio disponible */
+    min-height: 500px;
+    /* Mismo min-height que .BoardCanvas */
+    overflow: auto;
+    /* Mismo overflow que .BoardCanvas */
+    box-shadow: 0 2px 10px var(--shadow-sm);
+}
+
+.BoardFullscreenFooter {
+    background: var(--ColorLightGray);
+    padding: 20px 24px;
+    /* Mismo padding horizontal que el header */
+    border-top: 1px solid var(--BorderColor);
+    flex-shrink: 0;
+}
+
+.BoardFullscreenCategories {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    /* Alineado a la izquierda */
+}
+
+/* Botón de fullscreen en la card */
+.fullscreen-board-btn {
+    transition: all 0.2s ease;
+}
+
+.fullscreen-board-btn:hover {
+    background: var(--ColorDustyRose);
+    transform: scale(1.1);
+}
+
+.fullscreen-board-btn:hover .material-icons {
+    color: var(--accent-primary);
+}
+
+/* Responsive para el modal fullscreen */
+@media (max-width: 768px) {
+    .BoardFullscreenContent {
+        width: 100%;
+        max-width: 100%;
+        height: 100vh;
+        border-radius: 0;
+    }
+
+    .BoardFullscreenHeader {
+        height: 60px;
+        padding: 15px 20px;
+    }
+
+    .BoardFullscreenTitle {
+        font-size: 1.2em;
+    }
+
+    .BoardFullscreenBody {
+        padding: 15px;
+    }
+
+    .BoardFullscreenCanvas {
+        min-height: 400px;
+    }
+
+    .BoardFullscreenFooter {
+        padding: 15px 20px;
+    }
+}
+
+/* Mejora visual cuando el modal está abierto */
+body.modal-open {
+    overflow: hidden;
+}
+
+/* Scroll personalizado para el canvas */
+.BoardFullscreenCanvas::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.BoardFullscreenCanvas::-webkit-scrollbar-track {
+    background: var(--ColorLightGray);
+    border-radius: 6px;
+}
+
+.BoardFullscreenCanvas::-webkit-scrollbar-thumb {
+    background: var(--ColorDustyRose);
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.BoardFullscreenCanvas::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Dark mode support */
+[data-theme="dark"] .BoardFullscreenContent {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="dark"] .BoardFullscreenOverlay {
+    background: rgba(0, 0, 0, 0.85);
 }
 
 .CardImage {
@@ -798,6 +1494,7 @@ body {
         max-height: 0;
         padding: 0 15px;
     }
+
     to {
         opacity: 1;
         max-height: 1000px;

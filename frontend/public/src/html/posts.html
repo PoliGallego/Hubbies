@@ -17,6 +17,7 @@
     <script src="/src/js/script.js"></script>
     <script src="/src/js/comments.js"></script>
     <script src="/src/js/posts.js" defer></script>
+    <script src="/src/js/board.js" defer></script>
     <script src="/src/js/components.js" defer></script>
     <script src="/src/js/filters.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -35,7 +36,27 @@
                         <button id="CreatePostBtn" class="IconButton" onclick="openCreatePostModal()">
                             <span class="material-icons">add</span>
                         </button>
-                        <button class="IconButton"><span class="material-icons">mail_outline</span></button>
+                        <button id="OpenBoardCreatorBtn" class="IconButton">
+                            <span class="material-icons">dashboard</span>
+                        </button>
+                    </div>
+
+                    <div class="FeedToggleWrapper">
+                        <div class="FeedTogglePill">
+                            <input type="radio" id="viewPosts" name="feedView" value="posts" checked>
+                            <label for="viewPosts">
+                                <span class="material-icons">article</span>
+                                Posts
+                            </label>
+
+                            <input type="radio" id="viewBoards" name="feedView" value="boards">
+                            <label for="viewBoards">
+                                <span class="material-icons">dashboard</span>
+                                Boards
+                            </label>
+
+                            <div class="PillSlider"></div>
+                        </div>
                     </div>
 
                     <div class="SearchContainer">
@@ -141,6 +162,90 @@
             </div>
         </div>
     </div>
+
+    <div id="BoardModal" class="BoardModal hidden">
+        <div class="BoardModalOverlay"></div>
+        <div class="BoardModalContent">
+            <header class="BoardModalHeader">
+                <h2 class="BoardModalTitle">New Interactive Board</h2>
+                <button class="CloseBoardModalBtn IconButton">
+                    <span class="material-icons">close</span>
+                </button>
+            </header>
+
+            <div class="BoardModalBody">
+                <div id="BoardCanvas" class="BoardCanvas"></div>
+
+                <div class="BoardTools">
+                    <!-- Nuevo campo: Título del board -->
+                    <input type="text" id="BoardTitleInput" class="BoardTitleInput" placeholder="Board Title">
+
+                    <!-- Nuevo campo: Secciones -->
+                    <div class="BoardSections">
+                        <label for="BoardSectionsSelect">Secciones:</label>
+                        <select id="BoardSectionsSelect" multiple>
+                            <!-- Opciones se cargarán dinámicamente -->
+                        </select>
+                    </div>
+
+                    <!-- Botones existentes -->
+                    <button id="AddNoteBtn" class="IconButton">
+                        <span class="material-icons">sticky_note_2</span> Add Note
+                    </button>
+
+                    <button id="AddImageBtn" class="IconButton">
+                        <span class="material-icons">image</span> Add Image
+                        <input type="file" id="BoardImagePicker" accept="image/*" style="display:none">
+                    </button>
+
+                    <button id="SaveBoardBtn" class="PrimaryBtn IconButton">
+                        <span class="material-icons">save</span> Save Board
+                    </button>
+                </div>
+            </div>
+
+            <div id="LayerControls" class="LayerControls">
+                <button id="BringForwardBtn" class="IconButton">
+                    <span class="material-icons">north</span>
+                    Bring Forward
+                </button>
+
+                <button id="SendBackwardBtn" class="IconButton">
+                    <span class="material-icons">south</span>
+                    Send Backward
+                </button>
+
+                <div id="ZIndexDisplay" class="ZIndexDisplay">
+                    Layer: <span id="ZIndexValue">0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="BoardFullscreenModal" class="BoardFullscreenModal">
+        <div class="BoardFullscreenOverlay"></div>
+        <div class="BoardFullscreenContent">
+            <header class="BoardFullscreenHeader">
+                <h2 id="BoardFullscreenTitle" class="BoardFullscreenTitle">Board Title</h2>
+                <button class="CloseFullscreenBtn IconButton">
+                    <span class="material-icons">close</span>
+                </button>
+            </header>
+
+            <div class="BoardFullscreenBody">
+                <div id="BoardFullscreenCanvas" class="BoardFullscreenCanvas">
+                    <!-- Items se renderizan aquí -->
+                </div>
+            </div>
+
+            <footer class="BoardFullscreenFooter">
+                <div id="BoardFullscreenCategories" class="BoardFullscreenCategories">
+                    <!-- Tags se renderizan aquí -->
+                </div>
+            </footer>
+        </div>
+    </div>
+
     <button id="ScrollToTopBtn" class="ScrollToTopBtn">
         <span class="material-icons" style="font-size:28px;">arrow_upward</span>
     </button>
