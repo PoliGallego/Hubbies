@@ -36,6 +36,15 @@ const PostSchema = new Mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    shareToken: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    isShared: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

@@ -1,4 +1,4 @@
-const Comment = require('../models/Comment');
+const Comment = require('../models/comment');
 
 exports.createComment = async (req, res) => {
     try {
@@ -13,7 +13,7 @@ exports.createComment = async (req, res) => {
 
         await newComment.save();
 
-        await newComment.populate('userId', 'name email');
+        await newComment.populate('userId', 'username fullName email avatar');
 
         res.status(201).json({
             success: true,
@@ -32,7 +32,7 @@ exports.getCommentsByPost = async (req, res) => {
         const { postId } = req.params;
 
         const comments = await Comment.find({ postId })
-            .populate('userId', 'name email avatar') // Trae datos del usuario
+            .populate('userId', 'username fullName email avatar') // Trae datos del usuario
             .sort({ createdAt: -1 }); // Más recientes primero
 
         res.status(200).json({

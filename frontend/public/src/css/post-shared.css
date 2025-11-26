@@ -1,0 +1,421 @@
+/* Shared Post Specific Styles */
+
+.SharedPostContainer {
+    padding: 20px 0;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.SharedCard {
+    background: var(--bg-secondary);
+    border: none;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 2px 10px var(--shadow-sm);
+    transition: all 0.3s ease;
+}
+
+.PostTitle {
+    font-size: 2rem;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.PostDate {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.PostDescription {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+    margin: 20px 0;
+    white-space: pre-wrap;
+}
+
+.PostImageContainer {
+    margin: 20px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-primary);
+}
+
+.PostImage {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.Categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 30px;
+    padding-top: 0;
+    border-top: none;
+}
+
+.CategoryTag {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: white;
+    font-weight: 500;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.CategoryTag:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ErrorContainer {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    box-shadow: 0 2px 10px var(--shadow-sm);
+    border: 1px solid var(--border-primary);
+}
+
+.ErrorMessage {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    margin-top: 15px;
+}
+
+.LoadingSpinner {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+    font-size: 40px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Owner Actions Styling */
+.OwnerActionsBar {
+    margin-top: 30px;
+    padding-top: 0;
+    border-top: none;
+    display: flex;
+    gap: 12px;
+}
+
+.ViewMyPostsBtn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+    color: white;
+    padding: 12px 20px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+}
+
+.ViewMyPostsBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, var(--accent-hover), var(--accent-primary));
+}
+
+.ViewMyPostsBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ViewMyPostsBtn .material-icons {
+    font-size: 20px;
+}
+
+/* Comments Section Styling */
+.CommentsSection {
+    margin-top: 30px;
+    padding: 0;
+    background: transparent;
+    border-radius: 0;
+    border: none;
+}
+
+.CommentsHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.CommentsHeader .material-icons {
+    color: var(--accent-primary);
+    font-size: 24px;
+}
+
+.CommentsHeader span {
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.CommentsList {
+    max-height: 450px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 8px;
+}
+
+.CommentsList::-webkit-scrollbar {
+    width: 8px;
+}
+
+.CommentsList::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+}
+
+.CommentsList::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.CommentsList::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+
+.CommentItem {
+    padding: 16px 0;
+    margin-bottom: 16px;
+    border-radius: 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border-primary);
+    transition: all 0.2s ease;
+}
+
+.CommentItem:hover {
+    padding-left: 8px;
+    border-left: 3px solid var(--accent-primary);
+}
+
+.CommentItem:last-child {
+    margin-bottom: 0;
+    border-bottom: none;
+}
+
+.CommentHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.CommentAuthor {
+    font-weight: 600;
+    color: var(--accent-primary);
+    font-size: 0.95rem;
+}
+
+.CommentTime {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-left: 10px;
+}
+
+.CommentContent {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.delete-comment-btn {
+    padding: 6px;
+    background: none;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.delete-comment-btn:hover {
+    background: #ffebee;
+    color: #d32f2f;
+    transform: scale(1.1);
+}
+
+.delete-comment-btn .material-icons {
+    font-size: 18px;
+}
+
+/* Comment Input Box */
+.CommentBox {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: transparent;
+    padding: 20px 0;
+    border-radius: 0;
+    border: none;
+    border-top: 1px solid var(--border-primary);
+    margin-top: 20px;
+}
+
+.CommentInput {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 50px;
+    max-height: 120px;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.CommentInput:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(139, 90, 60, 0.1);
+}
+
+.CommentInput::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.SendCommentBtn {
+    padding: 12px 20px;
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.SendCommentBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.SendCommentBtn:active {
+    transform: translateY(0);
+}
+
+.SendCommentBtn .material-icons {
+    font-size: 18px;
+}
+
+/* Empty State */
+.EmptyComments {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-secondary);
+}
+
+.EmptyComments .material-icons {
+    font-size: 48px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+/* Guest CTA Styling */
+.GuestCTA {
+    margin-top: 40px;
+    padding: 30px 0;
+    border-top: 1px solid var(--border-primary);
+    text-align: center;
+    background: transparent;
+    border-radius: 0;
+}
+
+.GuestCTA p {
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    font-size: 1.05rem;
+}
+
+.GuestCTA .PrimaryBtn {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
+    color: white;
+    padding: 14px 32px;
+    border-radius: 10px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.GuestCTA .PrimaryBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .SharedCard {
+        padding: 20px;
+        border-radius: 12px;
+    }
+
+    .PostTitle {
+        font-size: 1.5rem;
+    }
+
+    .CommentBox {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .SendCommentBtn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .ViewMyPostsBtn {
+        width: 100%;
+        justify-content: center;
+    }
+}
