@@ -5,17 +5,24 @@ const {
   getUserPosts,
   getPublicPosts,
   updatePost,
-  deletePost
+  deletePost,
+  sharePost,
+  unsharePost,
+  getSharedPost
 } = require("../controllers/postsController");
 const upload = require("../config/multer");
+const { authMiddleware } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.get("/verify", verifyPostToken);
-router.post("/", upload.single("image"), createPost);
-router.get("/my-posts", getUserPosts);
+router.get("/verify", authMiddleware, verifyPostToken);
+router.post("/", authMiddleware, upload.single("image"), createPost);
+router.get("/my-posts", authMiddleware, getUserPosts);
 router.get("/public", getPublicPosts);
-router.put("/:id", upload.single("image"), updatePost);
-router.delete("/:id", deletePost);
+router.put("/:id", authMiddleware, upload.single("image"), updatePost);
+router.delete("/:id", authMiddleware, deletePost);
+router.post("/:id/share", authMiddleware, sharePost);
+router.post("/:id/unshare", authMiddleware, unsharePost);
+router.get("/shared/:token", getSharedPost);
 
 module.exports = router;

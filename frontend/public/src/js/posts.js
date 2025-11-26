@@ -3,6 +3,7 @@ let isCreatingPost = false;
 let isEditMode = false;
 let editingPostId = null;
 let originalPostData = null;
+let currentSharePostId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   const token = localStorage.getItem("token");
@@ -312,8 +313,7 @@ function createPostHTML(post) {
           <h2 class="PostTitleReadOnly">"${post.title}"</h2>
           <div class="CardControls">
             <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
-            <button class="IconButton delete-post-btn" data-post-id="${post._id
-    }">
+            <button class="IconButton delete-post-btn" data-post-id="${post._id}">
               <span class="material-icons">delete_outline</span>
             </button>
             <button class="IconButton edit-post-btn" data-post-id="${post._id}">
@@ -337,11 +337,10 @@ function createPostHTML(post) {
             ${post.comments?.length || 0}
           </span>
         </div>
-        <button class="IconButton"><span class="material-icons">share</span></button>
+        <button class="IconButton share-post-btn" data-post-id="${post._id}"><span class="material-icons">share</span></button>
       </div>     
       
-      <div class="CommentsSection" id="comments-section-${post._id
-    }" style="display: none;">
+      <div class="CommentsSection" id="comments-section-${post._id}" style="display: none;">
         <div class="CommentsList" id="comments-list-${post._id}">
         </div>
           <div class="CommentBox">
@@ -355,8 +354,6 @@ function createPostHTML(post) {
             </button>
           </div>
         </div>
-      
-      
     </div>
   `;
 }
@@ -373,6 +370,13 @@ function setupPostEventListeners() {
     btn.addEventListener("click", (e) => {
       const postId = e.target.closest(".edit-post-btn").dataset.postId;
       enableEditMode(postId);
+    });
+  });
+
+  document.querySelectorAll(".share-post-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const postId = e.target.closest(".share-post-btn").dataset.postId;
+      openShareModal(postId);
     });
   });
 }
@@ -862,6 +866,79 @@ function setupModalCloseListeners() {
   }
 }
 
+async function openShareModal(postId) {
+  currentSharePostId = postId;
+  const modal = document.getElementById("ShareModal");
+  const linkInput = document.getElementById("shareLinkInput");
+  const revokeBtn = document.getElementById("revokeLinkBtn");
+
+  try {
+    const response = await fetch(`/api/posts/${postId}/share`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      const shareUrl = `${window.location.origin}/src/html/post-shared.html?token=${data.shareToken}`;
+      linkInput.value = shareUrl;
+      modal.style.display = "flex";
+      revokeBtn.style.display = "flex";
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (error) {
+    console.error("Error generating link:", error);
+    Swal.fire("Error", "Could not generate link", "error");
+  }
+}
+
+function closeShareModal() {
+  document.getElementById("ShareModal").style.display = "none";
+  currentSharePostId = null;
+}
+
+function copyShareLink() {
+  const linkInput = document.getElementById("shareLinkInput");
+  linkInput.select();
+  document.execCommand("copy");
+
+  Swal.fire({
+    icon: 'success',
+    title: 'Link copied!',
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 2000
+  });
+}
+
+async function revokeShareLink() {
+  if (!currentSharePostId) return;
+
+  try {
+    const response = await fetch(`/api/posts/${currentSharePostId}/unshare`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      closeShareModal();
+      Swal.fire("Success", "Link disabled", "success");
+    } else {
+      Swal.fire("Error", data.message, "error");
+    }
+  } catch (error) {
+    console.error("Error revoking link:", error);
+    Swal.fire("Error", "Could not disable link", "error");
+  }
+}
+
 window.addSectionToPost = addSectionToPost;
 window.removeSelectedSection = removeSelectedSection;
 window.handleImageUpload = handleImageUpload;
@@ -874,6 +951,10 @@ window.openCreatePostModal = openCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
 window.renderPosts = renderPosts;
+window.openShareModal = openShareModal;
+window.closeShareModal = closeShareModal;
+window.copyShareLink = copyShareLink;
+window.revokeShareLink = revokeShareLink;
 
 window.addEventListener("scroll", function () {
   const btn = document.getElementById("ScrollToTopBtn");
