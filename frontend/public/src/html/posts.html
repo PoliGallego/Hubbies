@@ -43,7 +43,13 @@
 
                     <div class="FeedToggleWrapper">
                         <div class="FeedTogglePill">
-                            <input type="radio" id="viewPosts" name="feedView" value="posts" checked>
+                            <input type="radio" id="viewAll" name="feedView" value="all" checked>
+                            <label for="viewAll">
+                                <span class="material-icons">layers</span>
+                                All
+                            </label>
+
+                            <input type="radio" id="viewPosts" name="feedView" value="posts">
                             <label for="viewPosts">
                                 <span class="material-icons">article</span>
                                 Posts
@@ -58,7 +64,6 @@
                             <div class="PillSlider"></div>
                         </div>
                     </div>
-
                     <div class="SearchContainer">
                         <div class="SearchBar">
                             <input type="search" id="SearchBar" placeholder="Find by title">
@@ -77,9 +82,6 @@
                             </div>
                         </div>
                     </div>
-
-
-
                 </div>
             </div>
 

@@ -490,6 +490,30 @@ function renderBoardPreview(items = []) {
     }).join("");
 }
 
+function renderBoards(boards) {
+    const feedColumn = document.querySelector(".FeedColumn");
+    if (!feedColumn) return;
+
+    const existingBoards = feedColumn.querySelectorAll(".BoardPublication");
+    existingBoards.forEach(b => b.remove());
+
+    if (!boards || boards.length === 0) {
+        const msg = document.createElement("p");
+        msg.style.textAlign = "center";
+        msg.style.marginTop = "20px";
+        msg.style.color = "#888";
+        msg.textContent = "No boards found.";
+        feedColumn.appendChild(msg);
+        return;
+    }
+
+    boards.forEach(board => {
+        feedColumn.insertAdjacentHTML("beforeend", createBoardHTML(board));
+    });
+
+    setupBoardEventListeners();
+}
+
 function openBoardFullscreen(boardId) {
     // Buscar el board en los boards cargados
     const board = window.userBoards?.find(b => b._id === boardId);
@@ -789,8 +813,6 @@ document.getElementById("SaveBoardBtn").addEventListener("click", async () => {
             throw new Error(data.message || "Error saving board");
         }
 
-
-
         console.log("Board saved:", data.board);
         Swal.fire({
             icon: "success",
@@ -801,11 +823,7 @@ document.getElementById("SaveBoardBtn").addEventListener("click", async () => {
 
         closeBoardModal();
 
-        const currentView = document.querySelector('input[name="feedView"]:checked')?.value;
-        if (currentView === 'boards') {
-            clearFeed();
-            loadUserBoards();
-        }
+        refreshFeedAfterUpdate();
         boardNewFiles.length = 0;
 
     } catch (err) {
@@ -813,6 +831,20 @@ document.getElementById("SaveBoardBtn").addEventListener("click", async () => {
         alert("Error guardando board: " + err.message);
     }
 });
+
+function refreshFeedAfterUpdate() {
+    const currentView = document.querySelector('input[name="feedView"]:checked')?.value;
+
+    clearFeed();
+
+    if (currentView === 'posts') {
+        loadUserPosts();
+    } else if (currentView === 'boards') {
+        loadUserBoards();
+    } else if (currentView === 'all') {
+        loadUserFeedAll();
+    }
+}
 
 async function loadSections() {
     window.sectionsMap = {}; // diccionario global
@@ -872,23 +904,24 @@ async function loadUserBoards() {
 
     const data = await res.json();
     if (!data.success) throw new Error(data.message);
+    const filteredBoards = filterBoardsByCat(data.boards);
 
-    window.userBoards = data.boards;
+    window.userBoards = filteredBoards;
 
     const feedColumn = document.querySelector(".FeedColumn");
     if (!feedColumn) return;
 
     clearFeed(); // limpieza correcta del feed
 
-    data.boards.forEach(board => {
+    filteredBoards.forEach(board => {
         const boardHTML = createBoardHTML(board);
         feedColumn.insertAdjacentHTML("beforeend", boardHTML);
     });
 
     setupBoardEventListeners();
-
-    console.log("Boards del usuario:", data.boards);
-    return data.boards;
+    window.renderNavBoards(filteredBoards);
+    console.log("Boards filtrados del usuario:", filteredBoards);
+    return filteredBoards;
 }
 
 function initFeedTogglePill() {
@@ -898,19 +931,97 @@ function initFeedTogglePill() {
         radio.addEventListener('change', (e) => {
             const view = e.target.value;
 
-            // Limpiar feed
-            clearFeed();
-
-            // Cargar contenido
             if (view === 'posts') {
                 loadUserPosts();
             } else if (view === 'boards') {
                 loadUserBoards();
+            } else if (view === 'all') {
+                loadUserFeedAll();
             }
         });
     });
 }
 
+// ⭐ FUNCIÓN MODIFICADA: Cargar feed completo con filtros
+async function loadUserFeedAll() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+        // Pedimos posts y boards al mismo tiempo
+        const [postsRes, boardsRes] = await Promise.all([
+            fetch("/api/posts/my-posts", {
+                headers: { Authorization: `Bearer ${token}` }
+            }),
+            fetch("/api/boards/my", {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+        ]);
+
+        const posts = await postsRes.json();
+        const boardsData = await boardsRes.json();
+
+        const boards = boardsData.success ? boardsData.boards : [];
+
+        // ⭐ APLICAR FILTROS DE CATEGORÍAS
+        const filteredPosts = filterPostsByCat(posts);
+        const filteredBoards = filterBoardsByCat(boards);
+
+        window.userPosts = filteredPosts;
+        window.userBoards = filteredBoards;
+
+        window.renderNavFeedAll(filteredPosts, filteredBoards);
+
+        // Normalizamos estructura para mezclarlos correctamente
+        const unifiedItems = combineAndSortAll(filteredPosts, filteredBoards);
+
+        renderUnifiedFeed(unifiedItems);
+
+        console.log("Feed All filtrado cargado:", {
+            posts: filteredPosts.length,
+            boards: filteredBoards.length,
+            total: unifiedItems.length
+        });
+
+    } catch (error) {
+        console.error("Error al cargar feed completo:", error);
+    }
+}
+
+function combineAndSortAll(posts, boards) {
+    const mapped = [
+        ...posts.map(p => ({
+            type: "post",
+            date: new Date(p.updatedAt || p.createdAt),
+            data: p
+        })),
+        ...boards.map(b => ({
+            type: "board",
+            date: new Date(b.updatedAt || b.createdAt),
+            data: b
+        }))
+    ];
+
+    return mapped.sort((a, b) => b.date - a.date);
+}
+
+
+function renderUnifiedFeed(items) {
+    clearFeed();
+    const feed = document.querySelector(".FeedColumn");
+    if (!feed) return;
+
+    items.forEach(item => {
+        if (item.type === "post") {
+            feed.insertAdjacentHTML("beforeend", createPostHTML(item.data));
+        } else {
+            feed.insertAdjacentHTML("beforeend", createBoardHTML(item.data));
+        }
+    });
+
+    setupPostEventListeners();
+    setupBoardEventListeners();
+}
 
 function clearFeed() {
     const feedColumn = document.querySelector(".FeedColumn");
@@ -918,12 +1029,12 @@ function clearFeed() {
     feedColumn.querySelectorAll(".Publication").forEach(el => el.remove());
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async () => {
+    // Inicializaciones base
     loadSections();
     initFeedTogglePill();
-});
 
-document.addEventListener('DOMContentLoaded', () => {
+    // Config modal fullscreen boards
     const modal = document.getElementById('BoardFullscreenModal');
     const closeBtn = document.querySelector('.CloseFullscreenBtn');
     const overlay = document.querySelector('.BoardFullscreenOverlay');
@@ -936,7 +1047,151 @@ document.addEventListener('DOMContentLoaded', () => {
             closeBoardFullscreen();
         }
     });
+
+    // Detectar si venimos desde perfil con ?id
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+
+    if (postId) {
+        // Forzar vista posts
+        const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
+        if (postsToggle) postsToggle.checked = true;
+
+        // Cargar posts
+        await loadUserPosts();
+
+        // Buscar post en DOM
+        setTimeout(() => {
+            const postEl = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+            if (postEl) {
+                postEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                toggleCommentBox(postId);
+            } else {
+                console.warn("Post no encontrado después de cargar:", postId);
+            }
+        }, 350);
+    }
+    else {
+        // Cargar vista por defecto si NO hay id
+        const defaultView = document.querySelector('input[name="feedView"]:checked')?.value;
+        if (defaultView === "all") loadUserFeedAll();
+        else if (defaultView === "boards") loadUserBoards();
+        else loadUserPosts();
+    }
 });
+
+window.renderNavBoards = function (boards) {
+    const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
+    const list = document.querySelector(".Navigation > ul");
+    const noMsg = document.querySelector(".Navigation .NotFound");
+    let expanded = false;
+
+    if (!list) return;
+
+    list.innerHTML = ``;
+
+    if (!boards || boards.length === 0) {
+        noMsg.style.display = "block";
+        return;
+    }
+
+    noMsg.style.display = "none";
+
+    boards.forEach((board, i) => {
+        const li = document.createElement("li");
+        li.innerHTML = `
+      <div class="NavigationRow">
+        <a href="/src/html/boards.html" board-id="${board._id}">
+          ${board.title || "Untitled Board"}
+        </a>
+      </div>
+    `;
+
+        if (i > 7) li.classList.add("ExtraItem");
+
+        list.appendChild(li);
+    });
+
+    const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+    if (!viewMoreBtn) return;
+
+    viewMoreBtn.style.display = extraItems.length ? "block" : "none";
+
+    viewMoreBtn.onclick = () => {
+        expanded = !expanded;
+        extraItems.forEach(item =>
+            item.classList.toggle("ExtraItem", !expanded)
+        );
+
+        viewMoreBtn.querySelector("span").textContent =
+            expanded ? "expand_less" : "expand_more";
+        viewMoreBtn.childNodes[0].textContent = expanded
+            ? "View less"
+            : "View more";
+    };
+};
+
+
+window.renderNavFeedAll = function (posts, boards) {
+    const list = document.querySelector(".Navigation > ul");
+    const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
+    const noMsg = document.querySelector(".Navigation .NotFound");
+    let expanded = false;
+
+    if (!list) return;
+    list.innerHTML = ``;
+
+    // Mezcla y ordena por fecha reciente
+    const combined = [
+        ...posts.map(p => ({ ...p, type: "post" })),
+        ...boards.map(b => ({ ...b, type: "board" }))
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    if (!combined.length) {
+        noMsg.style.display = "block";
+        return;
+    }
+
+    noMsg.style.display = "none";
+
+    combined.forEach((item, i) => {
+        const li = document.createElement("li");
+        const typeAttr = item.type === "post" ? "post-id" : "board-id";
+
+        li.innerHTML = `
+            <div class="NavigationRow">
+                <a href="#" ${typeAttr}="${item._id}">
+                    ${item.title || "Untitled"}
+                </a>
+            </div>
+        `;
+
+        if (i > 7) li.classList.add("ExtraItem");
+
+        list.appendChild(li);
+    });
+
+    const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+
+    if (viewMoreBtn) {
+        viewMoreBtn.style.display = extraItems.length ? "block" : "none";
+
+        viewMoreBtn.onclick = () => {
+            expanded = !expanded;
+            extraItems.forEach(el =>
+                el.classList.toggle("ExtraItem", !expanded)
+            );
+
+            viewMoreBtn.querySelector("span").textContent =
+                expanded ? "expand_less" : "expand_more";
+            viewMoreBtn.childNodes[0].textContent =
+                expanded ? "View less" : "View more";
+        };
+    }
+
+    // Asegura que los clics funcionen para scroll a posts/boards
+    navEventListener();
+};
 
 document.getElementById("OpenBoardCreatorBtn").addEventListener("click", () => {
     loadSections();

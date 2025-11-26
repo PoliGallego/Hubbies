@@ -36,7 +36,9 @@ document.addEventListener("categories:ready", () => {
           }
         }
       }
-      // --- Filtrar los posts ---
+
+      // ⭐ APLICAR FILTRO SEGÚN LA VISTA ACTUAL
+      applyCurrentViewWithFilters();
       filterAll();
     });
   }
@@ -109,7 +111,44 @@ async function fetchPosts() {
   return await res.json();
 }
 
-function filterByCat(posts) {
+async function fetchBoards() {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    window.location.href = "/src/html/index.html";
+    return;
+  }
+
+  const res = await fetch("/api/boards/my", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) throw new Error("Error fetching boards");
+
+  const data = await res.json();
+  console.log("fetchBoards response:", res);
+  console.log("Boards recibidos:", data);
+  return data.success ? data.boards : [];
+
+
+}
+
+// ⭐ NUEVA FUNCIÓN: Aplicar la vista actual con filtros
+function applyCurrentViewWithFilters() {
+  const currentView = document.querySelector('input[name="feedView"]:checked')?.value || 'all';
+
+  if (currentView === 'posts') {
+    loadUserPosts();
+  } else if (currentView === 'boards') {
+    loadUserBoards();
+  } else if (currentView === 'all') {
+    loadUserFeedAll();
+  }
+}
+
+function filterPostsByCat(posts) {
   const catList = document.querySelector(".Categories > ul");
   if (catList && catList.dataset.filters) {
     const filters = JSON.parse(catList.dataset.filters || "[]");
@@ -121,78 +160,159 @@ function filterByCat(posts) {
             post.categories.some((c) => c.title === cat)
           )
       );
-      console.log("Aplicando orden a posts filtrados:", filters);
+      console.log("Posts filtrados por categorías:", filters);
     }
   }
-
   return posts;
 }
 
-function orderBy(posts) {
-  let filterType;
-  const dropdown = document.getElementById("FilterDropdown");
-  if (dropdown) {
-    const checked = dropdown.querySelector("input[type='checkbox']:checked");
-    if (checked && checked.checked) {
-      filterType = checked.id.replace("filterBy", "").toLowerCase();
-      console.log("Ordenar por:", filterType);
+function filterBoardsByCat(boards) {
+  const catList = document.querySelector(".Categories > ul");
+  if (catList && catList.dataset.filters) {
+    const filters = JSON.parse(catList.dataset.filters || "[]");
+    if (filters.length > 0) {
+      boards = boards.filter(
+        (board) =>
+          board.categories &&
+          board.categories.length > 0 &&
+          filters.every((catTitle) => {
+            // Convertir IDs de categorías del board a títulos usando sectionsMap
+            const boardCategoryTitles = board.categories.map(
+              (catId) => window.sectionsMap?.[catId] || ""
+            );
+            return boardCategoryTitles.includes(catTitle);
+          })
+      );
+      console.log("Boards filtrados por categorías:", filters);
     }
   }
+  return boards;
+}
+
+function orderBy(items, type) {
+  const dropdown = document.getElementById("FilterDropdown");
+  const checked = dropdown?.querySelector("input:checked");
+  const filterType = checked?.id?.replace("filterBy", "").toLowerCase();
+
+  if (!items || !Array.isArray(items)) return items;
+
+  // Función para obtener el título de la categoría
+  const getCategoryTitle = (obj) => {
+    if (!obj.categories || obj.categories.length === 0) return "";
+    if (type === "post") {
+      return obj.categories[0]?.title || "";
+    }
+    if (type === "board") {
+      return window.sectionsMap?.[obj.categories[0]] || "";
+    }
+    return "";
+  };
 
   switch (filterType) {
     case "date":
-      posts.sort(
-        (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+      return items.sort(
+        (a, b) =>
+          new Date(a.updatedAt || a.createdAt) -
+          new Date(b.updatedAt || b.createdAt)
       );
-      break;
-
     case "title":
-      posts.sort((a, b) => a.title.localeCompare(b.title));
-      break;
-
+      return items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
     case "section":
-      posts.sort((a, b) => {
-        const aCat =
-          a.categories?.[0]?.title || a.categories?.[0] || "";
-        const bCat =
-          b.categories?.[0]?.title || b.categories?.[0] || "";
-        return aCat.localeCompare(bCat);
-      });
-      break;
-
-    case undefined:
-      break;
-
+      return items.sort((a, b) =>
+        getCategoryTitle(a).localeCompare(getCategoryTitle(b))
+      );
     default:
-      console.warn("Filtro desconocido:", filterType);
+      return items;
   }
-
-  return posts;
 }
 
-function search(query, posts) {
-  if (query && query !== "" && posts && posts.size !== 0) {
-    posts = posts.filter((post) => post.title.includes(query));
-    console.log("Query: ", query);
-  }
+function search(query, items, type) {
+  if (!query) return items;
+  if (!items) return [];
 
-  return posts;
+  return items.filter(item => {
+    if (type === "post") return item.title?.toLowerCase().includes(query.toLowerCase());
+    if (type === "board") return item.title?.toLowerCase().includes(query.toLowerCase());
+    return false;
+  });
 }
 
 async function filterAll() {
   const searchBar = document.getElementById("SearchBar");
   const query = searchBar.dataset.query || "";
-
   searchBar.value = query;
 
-  try {
-    let posts = await fetchPosts();
-    posts = search(query, posts);
-    posts = filterByCat(posts);
-    posts = orderBy(posts);
+  const currentView = document.querySelector('input[name="feedView"]:checked')?.value || "all";
 
-    window.renderPosts(posts);
-  } catch (error) {
-    console.warn("Error en el fetch");
+  try {
+    if (currentView === "posts") {
+      let posts = await fetchPosts();
+      posts = search(query, posts, "post");
+      posts = filterPostsByCat(posts);
+      posts = orderBy(posts, "post");
+
+      window.renderPosts(posts);
+    }
+
+    else if (currentView === "boards") {
+      let boards = await fetchBoards();
+      boards = search(query, boards, "board");
+      boards = filterBoardsByCat(boards);
+      boards = orderBy(boards, "board");
+
+      renderBoards(boards);
+    }
+
+    else { // VISTA "ALL"
+      let [posts, boards] = await Promise.all([fetchPosts(), fetchBoards()]);
+
+      posts = search(query, posts, "post");
+      posts = filterPostsByCat(posts);
+      posts = orderBy(posts, "post");
+
+      boards = search(query, boards, "board");
+      boards = filterBoardsByCat(boards);
+      boards = orderBy(boards, "board");
+
+      const dropdown = document.getElementById("FilterDropdown");
+      const checked = dropdown?.querySelector("input:checked");
+      const filterType = checked?.id?.replace("filterBy", "").toLowerCase();
+
+      let unifiedFeed = [];
+
+      if (filterType === "date") {
+        // MÁS ANTIGUO → MÁS RECIENTE
+        unifiedFeed = [
+          ...posts.map(p => ({ type: "post", data: p, date: new Date(p.updatedAt || p.createdAt) })),
+          ...boards.map(b => ({ type: "board", data: b, date: new Date(b.updatedAt || b.createdAt) }))
+        ].sort((a, b) => a.date - b.date); // <-- Cambio aquí, ascendente
+      } else if (filterType === "title") {
+        unifiedFeed = [
+          ...posts.map(p => ({ type: "post", data: p, title: p.title })),
+          ...boards.map(b => ({ type: "board", data: b, title: b.title }))
+        ].sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+      } else if (filterType === "section") {
+        const getCategoryTitle = obj =>
+          obj.type === "post"
+            ? obj.data.categories?.[0]?.title || ""
+            : window.sectionsMap?.[obj.data.categories?.[0]] || "";
+
+        unifiedFeed = [
+          ...posts.map(p => ({ type: "post", data: p })),
+          ...boards.map(b => ({ type: "board", data: b }))
+        ].sort((a, b) => getCategoryTitle(a).localeCompare(getCategoryTitle(b)));
+      } else {
+        // Default: posts primero, boards después
+        unifiedFeed = [
+          ...posts.map(p => ({ type: "post", data: p, date: new Date(p.updatedAt || p.createdAt) })),
+          ...boards.map(b => ({ type: "board", data: b, date: new Date(b.updatedAt || b.createdAt) }))
+        ];
+      }
+
+      renderUnifiedFeed(unifiedFeed);
+    }
+
+  } catch (err) {
+    console.error("Error al filtrar:", err);
   }
 }

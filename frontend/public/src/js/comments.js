@@ -5,14 +5,14 @@ function defineCreatePostHTML() {
     console.log("Generando HTML para post (comments.js):", post._id);
     const categoryTags = post.categories
       ? post.categories
-          .map(
-            (category) => `
+        .map(
+          (category) => `
       <div class="Tag TagReadOnly">
         ${category.title || category}
       </div>
     `
-          )
-          .join("")
+        )
+        .join("")
       : "";
 
     const imageHTML =
@@ -33,14 +33,12 @@ function defineCreatePostHTML() {
             <h2 class="PostTitleReadOnly">"${post.title}"</h2>
             <div class="CardControls">
               <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
-              <button class="IconButton delete-post-btn" data-post-id="${
-                post._id
-              }">
+              <button class="IconButton delete-post-btn" data-post-id="${post._id
+      }">
                 <span class="material-icons">delete_outline</span>
               </button>
-              <button class="IconButton edit-post-btn" data-post-id="${
-                post._id
-              }">
+              <button class="IconButton edit-post-btn" data-post-id="${post._id
+      }">
                 <span class="material-icons">edit</span>
               </button>
             </div>
@@ -59,9 +57,8 @@ function defineCreatePostHTML() {
           <button class="IconButton"><span class="material-icons">share</span></button>
         </div>
         
-        <div class="CommentsSection" id="comments-section-${
-          post._id
-        }" style="display: none;">
+        <div class="CommentsSection" id="comments-section-${post._id
+      }" style="display: none;">
           <div class="CommentsList" id="comments-list-${post._id}">
             <!-- Comentarios se cargarán aquí -->
           </div>
@@ -187,17 +184,15 @@ function renderComments(postId, comments, currentUser) {
       (comment) => `
     <div class="CommentItem" data-comment-id="${comment._id}">
       <div class="CommentHeader">
-        <span class="CommentAuthor">${
-          comment.userId?._id === currentUser.id
-            ? currentUser.name
-            : comment.userName
+        <span class="CommentAuthor">${comment.userId?._id === currentUser.id
+          ? currentUser.name
+          : comment.userName
         }</span>
         <span class="CommentTime">${new Date(
           comment.createdAt
         ).toLocaleString()}</span>
-        ${
-          comment.userId?._id === currentUser.id
-            ? `
+        ${comment.userId?._id === currentUser.id
+          ? `
           <div class="CommentControls">
             <button class="IconButton edit-comment-btn" data-comment-id="${comment._id}">
               <span class="material-icons">edit</span>
@@ -207,7 +202,7 @@ function renderComments(postId, comments, currentUser) {
             </button>
           </div>
         `
-            : ""
+          : ""
         }
       </div>
       <p class="CommentContent">${comment.content}</p>
@@ -476,10 +471,10 @@ async function loadRecentComments() {
         .then((data) =>
           data.success
             ? data.comments.map((c) => ({
-                ...c,
-                postTitle: post.title,
-                postId: post._id,
-              }))
+              ...c,
+              postTitle: post.title,
+              postId: post._id,
+            }))
             : []
         )
         .catch(() => [])
@@ -557,7 +552,7 @@ function renderRecentComments(comments) {
         "rightSidebarCollapsed",
         nowCollapsed ? "true" : "false"
       );
-    } catch (err) {}
+    } catch (err) { }
   });
 
   if (comments.length === 0) {
@@ -569,21 +564,18 @@ function renderRecentComments(comments) {
   }
 
   const commentsHTML = comments
-    .map(
-      (comment) => `
+    .map((comment) => `
     <div class="RecentCommentItem" data-post-id="${comment.postId}">
       <div class="RecentCommentHeader">
         <span class="RecentCommentAuthor">${comment.userName}</span>
         <span class="RecentCommentTime">${getTimeAgo(comment.createdAt)}</span>
       </div>
       <p class="RecentCommentContent">${truncateText(comment.content, 60)}</p>
-      <a href="?id=${comment.postId}" class="RecentCommentLink">
+      <span class="RecentCommentLink" data-open-post-id="${comment.postId}" style="cursor:pointer">
         on "${truncateText(comment.postTitle, 30)}"
-      </a>
+      </span>
     </div>
-  `
-    )
-    .join("");
+  `).join("");
 
   sidebar.innerHTML = `
     <h3>Recent Comments</h3>
@@ -591,6 +583,46 @@ function renderRecentComments(comments) {
       ${commentsHTML}
     </div>
   `;
+
+  const recentList = document.querySelector(".RecentCommentsList");
+  if (recentList) {
+    // remover posible handler previo para evitar duplicados
+    recentList.removeEventListener("click", handleRecentCommentClick);
+    recentList.addEventListener("click", handleRecentCommentClick);
+  }
+
+  async function handleRecentCommentClick(e) {
+    const el = e.target.closest("[data-open-post-id]");
+    if (!el) return;
+    const postId = el.dataset.openPostId;
+    if (!postId) return;
+
+    let postEl = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+    if (postEl) {
+      postEl.scrollIntoView({ behavior: "smooth", block: "center" });
+      toggleCommentBox(postId);
+      return;
+    }
+
+    const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
+    if (postsToggle) postsToggle.checked = true;
+
+
+    await loadUserPosts();
+
+    setTimeout(() => {
+      postEl = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+      if (postEl) {
+        postEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        toggleCommentBox(postId);
+      } else {
+        console.warn("Post no encontrado después de cargar posts:", postId);
+        const params = new URLSearchParams(window.location.search);
+        params.set("id", postId);
+        history.replaceState(null, "", window.location.pathname + "?" + params.toString());
+      }
+    }, 250);
+  }
 }
 
 function updateCommentCount(postId, delta = 1) {

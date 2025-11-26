@@ -110,32 +110,40 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function navEventListener() {
   const navList = document.querySelector(".Navigation > ul");
-  if (navList) {
-    navList.addEventListener("click", (e) => {
-      const a = e.target.closest("a");
-      if (!a) return;
-      e.preventDefault();
+  if (!navList) return;
 
-      const postId = a.getAttribute("post-id") || a.dataset.postId;
-      if (!window.location.pathname.includes("posts.html")) {
-        window.location.assign("/src/html/posts.html");
-        return;
+  navList.addEventListener("click", (e) => {
+    const a = e.target.closest("a");
+    if (!a) return;
+
+    e.preventDefault();
+
+    const postId = a.getAttribute("post-id");
+    const boardId = a.getAttribute("board-id");
+
+    // === 📌 Scroll para POSTS ===
+    if (postId) {
+      const post = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+      if (post) {
+        window.scrollTo({
+          top: post.getBoundingClientRect().top + window.scrollY - 100,
+          behavior: "smooth",
+        });
       }
+      return;
+    }
 
-      if (postId) {
-        const post = document.querySelector(
-          `.Publication[data-post-id="${postId}"]`
-        );
-
-        if (post) {
-          window.scrollTo({
-            top: post.getBoundingClientRect().top + window.scrollY - 100,
-            behavior: "smooth",
-          });
-        }
+    // === 📌 Scroll para BOARDS ===
+    if (boardId) {
+      const board = document.querySelector(`.Publication[data-board-id="${boardId}"]`);
+      if (board) {
+        window.scrollTo({
+          top: board.getBoundingClientRect().top + window.scrollY - 100,
+          behavior: "smooth",
+        });
       }
-    });
-  }
+    }
+  });
 }
 
 function createSectionCard(section) {

@@ -4,7 +4,6 @@ const jwt = require("jsonwebtoken");
 
 module.exports = {
     verifyBoardToken: (req, res, next) => {
-        console.log("verifyBoardToken llamado en:", req.method, req.path);
         const authHeader = req.headers.authorization;
         if (!authHeader) {
             return res.status(401).json({ success: false, message: "Missing auth token" });
@@ -166,14 +165,6 @@ module.exports = {
         try {
             const boardId = req.params.id;
             const userId = req.user?.id;
-
-            console.log("=== UPDATE BOARD DEBUG ===");
-            console.log("Board ID:", boardId);
-            console.log("User ID:", userId);
-            console.log("Body:", req.body);
-            console.log("Files:", req.files);
-            console.log("========================");
-
             const { title, description, items = "[]", categories = "[]", privacy = "private" } = req.body;
 
             // Parse items y categories
@@ -188,30 +179,6 @@ module.exports = {
             }
             parsedCategories = parsedCategories.filter(c => c && c.length);
 
-            // Procesar nuevas imágenes
-            const newImages = [];
-            if (req.files && req.files.length > 0) {
-                req.files.forEach(file => {
-                    newImages.push(`/assets/uploads/${file.filename}`); // ✅ ruta completa
-                });
-            }
-
-            // Reemplazar placeholders en items
-            let fileCounter = 0;
-            parsedItems = parsedItems.map(item => {
-                if (item.type === "image" && typeof item.content === "string" && item.content.startsWith("__FILE_")) {
-                    const m = item.content.match(/__FILE_(\d+)__/);
-                    if (m) {
-                        const idx = parseInt(m[1], 10);
-                        item.content = newImages[idx] || item.content;
-                    } else {
-                        item.content = newImages[fileCounter] || item.content;
-                        fileCounter++;
-                    }
-                }
-                return item;
-            });
-
             // Buscar board actual
             const currentBoard = await Board.findOne({ _id: boardId, idUser: String(userId) });
             if (!currentBoard) {
@@ -221,8 +188,48 @@ module.exports = {
                 });
             }
 
-            // Combinar imágenes existentes con nuevas
-            const allImages = [...(currentBoard.images || []), ...newImages];
+            // Procesar nuevas imágenes
+            const newImages = [];
+            if (req.files && req.files.length > 0) {
+                req.files.forEach(file => {
+                    newImages.push(`/assets/uploads/${file.filename}`);
+                });
+            }
+
+            // Reemplazar placeholders en items y normalizar rutas
+            let fileCounter = 0;
+            parsedItems = parsedItems.map(item => {
+                if (item.type === "image" && typeof item.content === "string") {
+                    // Reemplazar placeholders de nuevas imágenes
+                    if (item.content.startsWith("__FILE_")) {
+                        const m = item.content.match(/__FILE_(\d+)__/);
+                        if (m) {
+                            const idx = parseInt(m[1], 10);
+                            item.content = newImages[idx] || item.content;
+                        } else {
+                            item.content = newImages[fileCounter] || item.content;
+                            fileCounter++;
+                        }
+                    }
+
+                    // ⚡ Normalizar URL con host completo
+                    if (item.content.startsWith("http://localhost:5000")) {
+                        item.content = item.content.replace("http://localhost:5000", "");
+                    }
+
+                    // ⚡ Normalizar filenames puros
+                    if (!item.content.startsWith("/")) {
+                        item.content = `/assets/uploads/${item.content}`;
+                    }
+                }
+                return item;
+            });
+
+            // Normalizar imágenes existentes en board.images y combinar con nuevas
+            const existingImages = (currentBoard.images || []).map(img =>
+                img.startsWith("/assets/") || img.startsWith("http") ? img : `/assets/uploads/${img}`
+            );
+            const allImages = [...new Set([...existingImages, ...newImages])];
 
             // Actualizar board
             const updatedBoard = await Board.findOneAndUpdate(
@@ -251,6 +258,6 @@ module.exports = {
                 error: err.message
             });
         }
-    }
+    },
 
 };

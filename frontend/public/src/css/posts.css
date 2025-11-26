@@ -915,13 +915,18 @@ body {
 
 /* Posiciones del slider */
 .FeedTogglePill input[type="radio"]:nth-of-type(1):checked~.PillSlider {
-    width: calc(50% - 4px);
+    width: calc(33.33% - 4px);
     left: 6px;
 }
 
 .FeedTogglePill input[type="radio"]:nth-of-type(2):checked~.PillSlider {
-    width: calc(50% - 4px);
-    left: calc(50% - 2px);
+    width: calc(33.33% - 4px);
+    left: calc(33.33% + 2px);
+}
+
+.FeedTogglePill input[type="radio"]:nth-of-type(3):checked~.PillSlider {
+    width: calc(33.33% - 4px);
+    left: calc(66.66% - 2px);
 }
 
 /* Efecto hover en el slider */

@@ -24,7 +24,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const welcome = document.getElementById("welcomeUser");
       if (welcome) welcome.textContent = `Welcome ${data.user}`;
 
-      loadUserPosts();
       loadUserSections();
       setupModalEventListeners();
     })
@@ -222,7 +221,10 @@ async function loadUserPosts() {
     const posts = await response.json();
     console.log("Posts recibidos:", posts);
 
-    renderPosts(posts);
+    const filteredPosts = filterPostsByCat(posts);
+    window._userPosts = filteredPosts || [];
+
+    renderPosts(filteredPosts);
 
     const params = new URLSearchParams(window.location.search);
     const targetId = params.get("id");
@@ -735,10 +737,7 @@ async function createPost() {
       }
 
       closeCreatePostModal();
-
-      setTimeout(() => {
-        loadUserPosts();
-      }, 500);
+      refreshFeedAfterUpdate();
     } else {
       throw new Error(
         data.message || `Error ${isEditMode ? "updating" : "creating"} post`
@@ -819,7 +818,7 @@ async function deletePost(postId) {
         Swal.fire("Deleted!", "Post deleted successfully", "success");
       }
 
-      loadUserPosts();
+      refreshFeedAfterUpdate();
     }
   } catch (error) {
     console.error("Error al eliminar post:", error);
