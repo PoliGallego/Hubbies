@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Post - Hubbies</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <link rel="stylesheet" href="/src/css/posts.css">
+    <link rel="stylesheet" href="/src/css/post-shared.css">
+    <link rel="stylesheet" href="/src/css/modals.css">
+
+    <script src="/src/js/script.js"></script>
+    <script src="/src/js/modals.js"></script>
+    <script src="/src/js/components.js" defer></script>
+    <script src="/src/js/post-shared.js" defer></script>
+</head>
+
+<body>
+    <div id="navbar"></div>
+
+    <div class="AppContainer" style="justify-content: center;">
+        <main class="MainContentArea" style="margin-left: 0; max-width: 800px; width: 100%;">
+            <div id="SharedPostContainer" class="SharedPostContainer">
+                <div class="LoadingSpinner">
+                    <span class="material-icons spin">refresh</span>
+                    <p>Loading post...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <footer class="Footer" style="text-align: center; padding: 20px; color: var(--text-secondary);">
+        <p>&copy;2024 - Hubbies</p>
+    </footer>
+</body>
+
+</html>

@@ -879,19 +879,27 @@ async function openShareModal(postId) {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    const data = await response.json();
 
-    if (data.success) {
-      const shareUrl = `${window.location.origin}/src/html/post-shared.html?token=${data.shareToken}`;
-      linkInput.value = shareUrl;
-      modal.style.display = "flex";
-      revokeBtn.style.display = "flex";
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      const data = await response.json();
+
+      if (data.success) {
+        const shareUrl = `${window.location.origin}/src/html/post-shared.html?token=${data.shareToken}`;
+        linkInput.value = shareUrl;
+        modal.style.display = "flex";
+        revokeBtn.style.display = "flex";
+      } else {
+        Swal.fire("Error", data.message, "error");
+      }
     } else {
-      Swal.fire("Error", data.message, "error");
+      const text = await response.text();
+      console.error("Non-JSON response:", text);
+      Swal.fire("Error", `Server error (${response.status}): Check console for details`, "error");
     }
   } catch (error) {
     console.error("Error generating link:", error);
-    Swal.fire("Error", "Could not generate link", "error");
+    Swal.fire("Error", "Could not generate link: " + error.message, "error");
   }
 }
 

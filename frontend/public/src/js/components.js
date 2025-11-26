@@ -1,5 +1,13 @@
 const token = localStorage.getItem("token");
-const payload = JSON.parse(atob(token.split(".")[1]));
+let payload = null;
+
+if (token) {
+  try {
+    payload = JSON.parse(atob(token.split(".")[1]));
+  } catch (err) {
+    console.error("Error parsing token:", err);
+  }
+}
 
 // Theme Management Functions
 function applyInitialTheme() {
