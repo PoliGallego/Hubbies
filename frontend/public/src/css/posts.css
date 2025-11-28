@@ -194,13 +194,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 500;
     transition: right .28s ease, transform .18s ease, background .18s ease;
 }
 
 .RightSidebarToggleBtn:hover {
-    background: #f0eaea;
-    transform: scale(1.07);
+    background: var(--ColorWhite);
+    color: var(--TextColorPrimary);
+    border: 2px, solid, var(--ColorDustyRose);
+    transform: scale(1.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 .RightSidebar.Collapsed {
@@ -453,8 +456,8 @@ body {
     bottom: 40px;
     right: 400px;
     z-index: 9999;
-    background: var(--accent-primary);
-    color: white;
+    background: var(--ColorDustyRose);
+    color: var(--ColorWhite);
     border: none;
     border-radius: 50%;
     width: 48px;
@@ -465,9 +468,11 @@ body {
 }
 
 .ScrollToTopBtn:hover {
-    background: var(--accent-hover);
-    transform: translateY(-3px);
-    box-shadow: 0 4px 16px var(--shadow-md);
+    background: var(--ColorWhite);
+    color: var(--TextColorPrimary);
+    border: 2px, solid, var(--ColorDustyRose);
+    transform: scale(1.06);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
 }
 
 .FilterWrapper {
@@ -723,32 +728,225 @@ body {
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 
 .BoardSections label {
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
+    margin-bottom: 4px;
 }
 
-#BoardSectionsSelect {
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border-primary);
-    font-size: 14px;
-    background: var(--bg-primary);
-    color: var(--text-primary);
-    outline: none;
-    box-sizing: border-box;
-    max-height: 120px;
+.SectionsChipsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    background: var(--ColorWhite);
+    min-height: 80px;
+    max-height: 140px;
     overflow-y: auto;
+    transition: all 0.3s ease;
 }
 
-#BoardSectionsSelect:focus {
+.SectionsChipsContainer:focus-within {
     border-color: var(--ColorLightCoral);
-    box-shadow: 0 0 4px rgba(255, 82, 82, 0.5);
+    box-shadow: 0 0 4px rgba(239, 222, 222, 0.5);
+}
+
+.SectionChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: var(--ColorLightGray);
+    border: 2px solid var(--BorderColor);
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--TextColorSecondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.SectionChip:hover {
+    background: var(--ColorSoftPink);
+    border-color: var(--ColorDustyRose);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.SectionChip.selected {
+    background: var(--ColorLightCoral);
+    border-color: var(--ColorLightCoral);
+    color: var(--text-primary);
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(139, 90, 60, 0.2);
+}
+
+.SectionChip.selected .material-icons {
+    display: inline-block;
+}
+
+.SectionChip .material-icons {
+    font-size: 16px;
+    display: none;
+}
+
+/* Scroll personalizado para chips */
+.SectionsChipsContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.SectionsChipsContainer::-webkit-scrollbar-track {
+    background: var(--ColorLightGray);
+    border-radius: 3px;
+}
+
+.SectionsChipsContainer::-webkit-scrollbar-thumb {
+    background: var(--ColorDustyRose);
+    border-radius: 3px;
+}
+
+.SectionsChipsContainer::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+.BoardPrivacy {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.BoardPrivacy label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.BoardPrivacy {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.BoardPrivacy>label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.PrivacyToggle {
+    position: relative;
+    display: flex;
+    background: var(--ColorWhite);
+    border: 1px solid var(--BorderColor);
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+}
+
+.PrivacyToggle input[type="radio"] {
+    display: none;
+}
+
+.PrivacyLabel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--TextColorSecondary);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 2;
+    border-radius: 8px;
+    user-select: none;
+}
+
+.PrivacyLabel .material-icons {
+    font-size: 18px;
+    transition: transform 0.3s ease;
+}
+
+.PrivacyToggle input[type="radio"]:checked+.PrivacyLabel {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.PrivacyToggle input[type="radio"]:checked+.PrivacyLabel .material-icons {
+    transform: scale(1.1);
+}
+
+.PrivacySlider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    height: calc(100% - 8px);
+    width: calc(50% - 6px);
+    background: linear-gradient(135deg, var(--ColorDustyRose) 0%, var(--bg-accent) 100%);
+    border-radius: 8px;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 2px 8px rgba(139, 90, 60, 0.3);
+    z-index: 1;
+}
+
+.PrivacyToggle input[type="radio"]:nth-of-type(1):checked~.PrivacySlider {
+    left: 4px;
+}
+
+.PrivacyToggle input[type="radio"]:nth-of-type(2):checked~.PrivacySlider {
+    left: calc(50% + 2px);
+}
+
+/* Hover effect */
+.PrivacyLabel:hover {
+    color: var(--accent-primary);
+}
+
+.PrivacyToggle input[type="radio"]:checked+.PrivacyLabel:hover {
+    color: var(--text-primary);
+}
+
+/* ========== ANIMACIONES ========== */
+@keyframes chipSelect {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.SectionChip.selected {
+    animation: chipSelect 0.3s ease;
+}
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .SectionsChipsContainer {
+        max-height: 100px;
+    }
+
+    .SectionChip {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .PrivacyLabel {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
 }
 
 .LayerControls .ZIndexDisplay {
@@ -1105,8 +1303,8 @@ body {
 .BoardFullscreenOverlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.7);
+    will-change: opacity;
 }
 
 .BoardFullscreenContent {
@@ -1420,6 +1618,49 @@ body.modal-open {
     justify-content: center;
     transition: all 0.3s ease;
 }
+
+.board-icon-btn {
+    background-color: transparent !important;
+    border: 1px solid var(--BorderColor) !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin-left: 8px !important;
+}
+
+/* HOVER por cada botón */
+.delete-board-btn:hover {
+    background-color: #ffebee !important;
+    border-color: #f44336 !important;
+}
+
+.delete-board-btn:hover .material-icons {
+    color: #f44336 !important;
+}
+
+.edit-board-btn:hover {
+    background-color: #e3f2fd !important;
+    border-color: #2196f3 !important;
+}
+
+.edit-board-btn:hover .material-icons {
+    color: #2196f3 !important;
+}
+
+.fullscreen-board-btn:hover {
+    background-color: #e7f5ea !important;
+    border-color: #4caf50 !important;
+}
+
+.fullscreen-board-btn:hover .material-icons {
+    color: #4caf50 !important;
+}
+
 
 .IconButton:hover {
     background-color: var(--bg-soft);

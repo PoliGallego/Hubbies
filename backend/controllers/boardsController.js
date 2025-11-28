@@ -30,16 +30,31 @@ module.exports = {
     saveBoard: async (req, res) => {
         try {
             const tokenUserId = req.user?.id || req.body.idUser || req.body.userId;
-            if (!tokenUserId) return res.status(400).json({ success: false, message: "UserId missing" });
+            if (!tokenUserId)
+                return res.status(400).json({ success: false, message: "UserId missing" });
 
-            const { title = "Untitled board", description = "", items = "[]", categories = "[]", privacy = "private" } = req.body;
+            const {
+                title = "Untitled board",
+                items = "[]",
+                categories = "[]",
+                privacy = "private",
+                shareToken = null,
+                isShared = false,
+                comments = []
+            } = req.body;
 
+            // Parse items
             let parsedItems;
-            try { parsedItems = JSON.parse(items); } catch (e) { parsedItems = []; }
+            try { parsedItems = JSON.parse(items); }
+            catch { parsedItems = []; }
 
+            // Parse categories
             let parsedCategories;
-            try { parsedCategories = JSON.parse(categories); } catch (e) {
-                parsedCategories = typeof categories === "string" && categories.length ? categories.split(",") : [];
+            try { parsedCategories = JSON.parse(categories); }
+            catch {
+                parsedCategories = typeof categories === "string" && categories.length
+                    ? categories.split(",")
+                    : [];
             }
 
             parsedCategories = parsedCategories.filter(c => c && c.length);
@@ -50,9 +65,9 @@ module.exports = {
             let fileCounter = 0;
             parsedItems = parsedItems.map(it => {
                 if (it.type === "image" && typeof it.content === "string" && it.content.startsWith("__FILE_")) {
-                    const m = it.content.match(/__FILE_(\d+)__/);
-                    if (m) {
-                        const idx = parseInt(m[1], 10);
+                    const match = it.content.match(/__FILE_(\d+)__/);
+                    if (match) {
+                        const idx = parseInt(match[1], 10);
                         it.content = imagePaths[idx] || null;
                     } else {
                         it.content = imagePaths[fileCounter] || null;
@@ -62,19 +77,24 @@ module.exports = {
                 return it;
             });
 
-            const board = new Board({
+            const boardData = {
                 idUser: String(tokenUserId),
                 title,
-                description,
                 items: parsedItems,
                 images: imagePaths,
                 categories: parsedCategories,
-                privacy
-            });
+                privacy,
+                isShared,
+                comments
+            };
 
+            if (shareToken) boardData.shareToken = shareToken;
+
+            const board = new Board(boardData);
             await board.save();
 
             res.json({ success: true, board });
+
         } catch (err) {
             console.error("saveBoard error:", err);
             res.status(500).json({ success: false, message: "Error saving board", error: err.message });

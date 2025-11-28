@@ -819,6 +819,7 @@ async function deletePost(postId) {
       }
 
       refreshFeedAfterUpdate();
+      loadRecentComments();
     }
   } catch (error) {
     console.error("Error al eliminar post:", error);

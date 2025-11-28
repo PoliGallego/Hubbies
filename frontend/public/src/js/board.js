@@ -406,11 +406,13 @@ function collectBoardData() {
 function createBoardHTML(board) {
     const categoryTags = board.categories
         ?.map(id => `
-        <div class="Tag TagReadOnly">
-            ${window.sectionsMap?.[id] || "Unknown"}
-        </div>
-    `)
+            <div class="Tag TagReadOnly">
+                ${window.sectionsMap?.[id] || "Unknown"}
+            </div>
+        `)
         .join("") || "";
+
+    const commentsCount = board.comments?.length || 0;
 
     return `
     <div class="Publication BoardPublication" data-board-id="${board._id}">
@@ -421,12 +423,15 @@ function createBoardHTML(board) {
             <span class="PrivacyDisplay ${board.privacy === "public" ? "PrivacyPublic" : "PrivacyPrivate"}">
               ${board.privacy === "public" ? "Public" : "Private"}
             </span>
-            <button class="IconButton fullscreen-board-btn" data-board-id="${board._id}" title="Ver en pantalla completa">
+
+            <button class="IconButton fullscreen-board-btn" data-board-id="${board._id}">
               <span class="material-icons">fullscreen</span>
             </button>
+
             <button class="IconButton edit-board-btn" data-board-id="${board._id}">
               <span class="material-icons">edit</span>
             </button>
+
             <button class="IconButton delete-board-btn" data-board-id="${board._id}">
               <span class="material-icons">delete_outline</span>
             </button>
@@ -442,6 +447,34 @@ function createBoardHTML(board) {
           ${categoryTags}
         </footer>
       </article>
+
+      <!-- Bottom bar igual a la de los posts 👇 -->
+      <div class="BottomBar">
+        <div style="display: flex; align-items: center; gap: 4px;">
+          <button class="CommentsButton board-comments-btn" data-board-id="${board._id}">
+            <span class="material-icons">message</span>
+          </button>
+          <span class="comments-count" data-board-id="${board._id}">
+            ${commentsCount}
+          </span>
+        </div>
+        <button class="IconButton share-board-btn" data-board-id="${board._id}">
+          <span class="material-icons">share</span>
+        </button>
+      </div>
+      
+      <!-- Comments section -->
+      <div class="CommentsSection board-comments-section" id="board-comments-section-${board._id}" style="display: none;">
+        <div class="CommentsList" id="board-comments-list-${board._id}"></div>
+        
+        <div class="CommentBox">
+          <textarea class="CommentInput board-comment-input" placeholder="Write a comment..." data-board-id="${board._id}"></textarea>
+          <button class="SendCommentBtn send-board-comment-btn" data-board-id="${board._id}">
+            <span class="material-icons">send</span>
+          </button>
+        </div>
+      </div>
+      
     </div>
   `;
 }
@@ -670,6 +703,7 @@ function confirmDeleteBoard(boardId) {
             });
 
             const data = await res.json();
+            loadRecentComments();
 
             if (!res.ok || !data.success) throw new Error(data.message);
 
@@ -712,10 +746,8 @@ async function openBoardEditor(boardId) {
         document.getElementById("BoardTitleInput").value = board.title;
 
         // Secciones
-        const select = document.getElementById("BoardSectionsSelect");
-        Array.from(select.options).forEach(opt => {
-            opt.selected = board.categories.includes(opt.value);
-        });
+        preselectSections(board.categories || []);
+
 
         // Canvas limpio
         const canvas = document.getElementById("BoardCanvas");
@@ -744,11 +776,9 @@ document.getElementById("SaveBoardBtn").addEventListener("click", async () => {
 
 
     const title = document.getElementById("BoardTitleInput")?.value || "Untitled board";
-    const description = document.getElementById("BoardDescInput")?.value || "";
-    const privacy = document.getElementById("BoardPrivacySelect")?.value || "private";
+    const privacy = document.querySelector("input[name='boardPrivacy']:checked")?.value || "private";
     // si tienes selección de secciones:
-    const categoriesSelect = document.getElementById("BoardSectionsSelect");
-    const selectedSections = Array.from(categoriesSelect.selectedOptions).map(opt => opt.value);
+    const selectedSections = getSelectedSections();
 
     const items = collectBoardData();
 
@@ -774,13 +804,12 @@ document.getElementById("SaveBoardBtn").addEventListener("click", async () => {
         return Swal.fire({
             icon: "warning",
             title: "Choose a category",
-            text: "Please select at least one category before saving."
+            text: "Please select at least one section before saving."
         });
     }
 
     const fd = new FormData();
     fd.append("title", title);
-    fd.append("description", description);
     fd.append("privacy", privacy);
     fd.append("categories", JSON.stringify(selectedSections));
     fd.append("items", JSON.stringify(items));
@@ -850,7 +879,9 @@ async function loadSections() {
     window.sectionsMap = {}; // diccionario global
     try {
         const select = document.getElementById("BoardSectionsSelect");
+        const chipsContainer = document.getElementById("BoardSectionsChips");
         select.innerHTML = ""; // limpiar opciones previas
+        chipsContainer.innerHTML = "";
 
         const token = localStorage.getItem("token");
         if (!token) throw new Error("No hay token de usuario");
@@ -876,10 +907,34 @@ async function loadSections() {
         // Renderizar en el select
         sections.forEach(sec => {
             window.sectionsMap[sec._id] = sec.title;
+
+            // Opción en el select oculto (para compatibilidad)
             const opt = document.createElement("option");
             opt.value = sec._id;
             opt.textContent = sec.title;
             select.appendChild(opt);
+
+            // ⭐ Crear chip visual
+            const chip = document.createElement("div");
+            chip.className = "SectionChip";
+            chip.dataset.sectionId = sec._id;
+            chip.innerHTML = `
+                <span class="material-icons">check_circle</span>
+                ${sec.title}
+            `;
+
+            // ⭐ Click para seleccionar/deseleccionar
+            chip.addEventListener("click", () => {
+                chip.classList.toggle("selected");
+
+                // Sincronizar con el select oculto
+                const option = select.querySelector(`option[value="${sec._id}"]`);
+                if (option) {
+                    option.selected = chip.classList.contains("selected");
+                }
+            });
+
+            chipsContainer.appendChild(chip);
         });
 
     } catch (error) {
@@ -889,6 +944,34 @@ async function loadSections() {
         const select = document.getElementById("BoardSectionsSelect");
         select.innerHTML = "";
     }
+}
+
+function getSelectedSections() {
+    const chips = document.querySelectorAll(".SectionChip.selected");
+    return Array.from(chips).map(chip => chip.dataset.sectionId);
+}
+
+function preselectSections(sectionIds) {
+    const chips = document.querySelectorAll(".SectionChip");
+    chips.forEach(chip => {
+        if (sectionIds.includes(chip.dataset.sectionId)) {
+            chip.classList.add("selected");
+
+            // Sincronizar con select oculto
+            const select = document.getElementById("BoardSectionsSelect");
+            const option = select.querySelector(`option[value="${chip.dataset.sectionId}"]`);
+            if (option) option.selected = true;
+        }
+    });
+}
+
+function clearSectionSelection() {
+    document.querySelectorAll(".SectionChip").forEach(chip => {
+        chip.classList.remove("selected");
+    });
+
+    const select = document.getElementById("BoardSectionsSelect");
+    Array.from(select.options).forEach(opt => opt.selected = false);
 }
 
 async function loadUserBoards() {
@@ -921,6 +1004,7 @@ async function loadUserBoards() {
     setupBoardEventListeners();
     window.renderNavBoards(filteredBoards);
     console.log("Boards filtrados del usuario:", filteredBoards);
+    updateAllBoardCommentCounts(filteredBoards);
     return filteredBoards;
 }
 
@@ -976,6 +1060,8 @@ async function loadUserFeedAll() {
         const unifiedItems = combineAndSortAll(filteredPosts, filteredBoards);
 
         renderUnifiedFeed(unifiedItems);
+        updateAllPostCommentCounts(filteredPosts);
+        updateAllBoardCommentCounts(filteredBoards);
 
         console.log("Feed All filtrado cargado:", {
             posts: filteredPosts.length,
@@ -1030,55 +1116,140 @@ function clearFeed() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    // Inicializaciones base
     loadSections();
     initFeedTogglePill();
 
-    // Config modal fullscreen boards
     const modal = document.getElementById('BoardFullscreenModal');
     const closeBtn = document.querySelector('.CloseFullscreenBtn');
     const overlay = document.querySelector('.BoardFullscreenOverlay');
 
     closeBtn?.addEventListener('click', closeBoardFullscreen);
     overlay?.addEventListener('click', closeBoardFullscreen);
-
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modal?.classList.contains('show')) {
-            closeBoardFullscreen();
-        }
+        if (e.key === 'Escape' && modal?.classList.contains('show')) closeBoardFullscreen();
     });
 
-    // Detectar si venimos desde perfil con ?id
     const params = new URLSearchParams(window.location.search);
     const postId = params.get("id");
+    const boardId = params.get("board");
 
-    if (postId) {
-        // Forzar vista posts
+    if (boardId) {
+        const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
+        if (boardsToggle) {
+            boardsToggle.checked = true;
+            // disparar cambio para que los listeners internos actualicen la vista
+            boardsToggle.dispatchEvent(new Event('change'));
+        }
+
+        // Cargar boards
+        await loadUserBoards();
+
+        // Esperar al render completo
+        setTimeout(() => {
+            const boardEl = document.querySelector(`.Publication.BoardPublication[data-board-id="${boardId}"]`);
+            if (boardEl) {
+                boardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+
+                // Abrir comentario tras un pequeño delay
+                setTimeout(() => {
+                    toggleBoardCommentBox(boardId);
+                }, 100); // 100ms suele ser suficiente
+            } else {
+                console.warn("Board no encontrado:", boardId);
+            }
+        }, 50); // espera mínima para asegurar renderizado
+    }
+    else if (postId) {
         const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
-        if (postsToggle) postsToggle.checked = true;
+        if (postsToggle) {
+            postsToggle.checked = true;
+            postsToggle.dispatchEvent(new Event('change'));
+        }
 
-        // Cargar posts
         await loadUserPosts();
 
-        // Buscar post en DOM
         setTimeout(() => {
             const postEl = document.querySelector(`.Publication[data-post-id="${postId}"]`);
             if (postEl) {
                 postEl.scrollIntoView({ behavior: "smooth", block: "center" });
-                toggleCommentBox(postId);
+                setTimeout(() => togglePostCommentBox(postId), 100);
             } else {
-                console.warn("Post no encontrado después de cargar:", postId);
+                console.warn("Post no encontrado:", postId);
             }
-        }, 350);
+        }, 50);
     }
     else {
-        // Cargar vista por defecto si NO hay id
-        const defaultView = document.querySelector('input[name="feedView"]:checked')?.value;
-        if (defaultView === "all") loadUserFeedAll();
-        else if (defaultView === "boards") loadUserBoards();
-        else loadUserPosts();
+        const def = document.querySelector('input[name="feedView"]:checked')?.value;
+        if (def === "boards") await loadUserBoards();
+        else if (def === "all") await loadUserFeedAll();
+        else await loadUserPosts();
     }
+
+    await handlePendingNavigation();
 });
+
+async function handlePendingNavigation() {
+    const pendingNav = localStorage.getItem("pendingNavigation");
+
+    if (!pendingNav) return;
+
+    try {
+        const navData = JSON.parse(pendingNav);
+        localStorage.removeItem("pendingNavigation");
+
+        const { type, id, scrollTo, openComments } = navData;
+
+        if (type === "post") {
+            // Cambiar a vista de posts
+            const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
+            if (postsToggle) postsToggle.checked = true;
+
+            // Cargar posts
+            await loadUserPosts();
+
+            // Esperar un momento para que se renderice
+            setTimeout(() => {
+                const postEl = document.querySelector(`.Publication[data-post-id="${id}"]`);
+                if (postEl) {
+                    if (scrollTo) {
+                        postEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                    if (openComments) {
+                        toggleCommentBox(id);
+                    }
+                } else {
+                    console.warn("Post no encontrado:", id);
+                }
+            }, 300);
+        }
+        else if (type === "board") {
+            // Cambiar a vista de boards
+            const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
+            if (boardsToggle) boardsToggle.checked = true;
+
+            // Cargar boards
+            await loadUserBoards();
+
+            // Esperar un momento para que se renderice
+            setTimeout(() => {
+                const boardEl = document.querySelector(`.Publication[data-board-id="${id}"]`);
+                if (boardEl) {
+                    if (scrollTo) {
+                        boardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }
+                    if (openComments) {
+                        setTimeout(() => toggleBoardCommentBox(id), 200);
+                    }
+                } else {
+                    console.warn("Board no encontrado:", id);
+                }
+            }, 600);
+        }
+    } catch (error) {
+        console.error("Error manejando navegación pendiente:", error);
+        localStorage.removeItem("pendingNavigation");
+    }
+}
 
 window.renderNavBoards = function (boards) {
     const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");

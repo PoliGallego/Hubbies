@@ -11,4 +11,9 @@ router.put('/comments/:commentId', authMiddleware, commentController.updateComme
 
 router.delete('/comments/:commentId', authMiddleware, commentController.deleteComment);
 
+router.post('/boards/:boardId/comments', authMiddleware, commentController.createCommentForBoard);
+
+router.get('/boards/:boardId/comments', commentController.getCommentsByBoard);
+
+
 module.exports = router;

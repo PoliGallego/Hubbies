@@ -15,12 +15,26 @@ const BoardSchema = new mongoose.Schema(
     {
         idUser: { type: String, required: true },
         title: { type: String, default: "Untitled board" },
-        description: { type: String, default: "" },
         items: [BoardItemSchema],
-        images: [String], // paths saved by multer
+        images: [String],
         categories: [String],
         privacy: { type: String, enum: ["public", "private"], default: "private" },
-        active: { type: Boolean, default: true }
+        active: { type: Boolean, default: true },
+        shareToken: {
+            type: String,
+            unique: true,
+            sparse: true,
+        },
+        isShared: {
+            type: Boolean,
+            default: false,
+        },
+        comments: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Comment",
+            },
+        ],
     },
     { timestamps: true }
 );

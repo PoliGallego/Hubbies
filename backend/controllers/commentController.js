@@ -106,3 +106,53 @@ exports.deleteComment = async (req, res) => {
         });
     }
 };
+
+exports.createCommentForBoard = async (req, res) => {
+    try {
+        const { boardId } = req.params;
+        const { content } = req.body;
+        const userId = req.user.id;
+
+        const newComment = new Comment({
+            boardId,
+            userId,
+            content
+        });
+
+        await newComment.save();
+        await newComment.populate('userId', 'username fullName email avatar');
+
+        res.status(201).json({
+            success: true,
+            comment: newComment
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};
+
+exports.getCommentsByBoard = async (req, res) => {
+    try {
+        const { boardId } = req.params;
+
+        const comments = await Comment.find({ boardId })
+            .populate('userId', 'username fullName email avatar')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json({
+            success: true,
+            count: comments.length,
+            comments
+        });
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        });
+    }
+};

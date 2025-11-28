@@ -165,7 +165,7 @@
         </div>
     </div>
 
-    <div id="BoardModal" class="BoardModal hidden">
+    <div id="BoardModal" class="BoardModal">
         <div class="BoardModalOverlay"></div>
         <div class="BoardModalContent">
             <header class="BoardModalHeader">
@@ -179,15 +179,38 @@
                 <div id="BoardCanvas" class="BoardCanvas"></div>
 
                 <div class="BoardTools">
-                    <!-- Nuevo campo: Título del board -->
+                    <!-- Título del board -->
                     <input type="text" id="BoardTitleInput" class="BoardTitleInput" placeholder="Board Title">
 
-                    <!-- Nuevo campo: Secciones -->
+                    <!-- ⭐ SELECTOR DE SECCIONES MEJORADO -->
                     <div class="BoardSections">
-                        <label for="BoardSectionsSelect">Secciones:</label>
-                        <select id="BoardSectionsSelect" multiple>
-                            <!-- Opciones se cargarán dinámicamente -->
+                        <label>Sections:</label>
+                        <div id="BoardSectionsChips" class="SectionsChipsContainer">
+                            <!-- Los chips se generan dinámicamente aquí -->
+                        </div>
+                        <!-- Select oculto para mantener compatibilidad -->
+                        <select id="BoardSectionsSelect" multiple style="display: none;">
                         </select>
+                    </div>
+
+                    <!-- ⭐ SELECTOR DE PRIVACIDAD MEJORADO -->
+                    <div class="BoardPrivacy">
+                        <label>Privacy:</label>
+                        <div class="PrivacyToggle">
+                            <input type="radio" id="privacyPrivate" name="boardPrivacy" value="private" checked>
+                            <label for="privacyPrivate" class="PrivacyLabel">
+                                <span class="material-icons">lock</span>
+                                Private
+                            </label>
+
+                            <input type="radio" id="privacyPublic" name="boardPrivacy" value="public">
+                            <label for="privacyPublic" class="PrivacyLabel">
+                                <span class="material-icons">public</span>
+                                Public
+                            </label>
+
+                            <div class="PrivacySlider"></div>
+                        </div>
                     </div>
 
                     <!-- Botones existentes -->
