@@ -410,8 +410,22 @@ window.renderNavPosts = function (posts) {
 
 function innitNavBar() {
   const homeBtn = document.getElementById("HomeBtn");
-  if (homeBtn && window.location.pathname.includes("posts.html")) {
-    homeBtn.style.display = "none";
+
+  if (homeBtn) {
+    if (window.location.pathname.includes("posts.html")) {
+      // Desactivar en posts.html
+      homeBtn.classList.add("disabled");
+      homeBtn.onclick = null;
+      homeBtn.style.cursor = "default";
+      
+    } else {
+      // Activar en otras páginas
+      homeBtn.classList.remove("disabled");
+      homeBtn.onclick = function () {
+        window.location.href = '/src/html/posts.html';
+      };
+      homeBtn.style.cursor = "pointer";
+    }
   }
 
   const optionsBtnImg = document.querySelector("#OptionsBtn .UserAvatar");

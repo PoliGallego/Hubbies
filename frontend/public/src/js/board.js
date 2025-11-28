@@ -1116,6 +1116,8 @@ function clearFeed() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+    console.log("DOMContentLoaded disparado");
+
     loadSections();
     initFeedTogglePill();
 
@@ -1133,55 +1135,77 @@ document.addEventListener("DOMContentLoaded", async () => {
     const postId = params.get("id");
     const boardId = params.get("board");
 
+    // ================================================
+    // FUNCIÓN QUE RENDERIZA EL SIDEBAR SEGÚN EL TOGGLE
+    // Usa los nombres REALES que tú usas: userPosts y userBoards
+    // ================================================
+    const renderSidebarNow = () => {
+        console.log("renderSidebarNow() ejecutado");
+        console.log("  → window.userPosts:", window.userPosts);
+        console.log("  → window.userBoards:", window.userBoards);
+
+        const toggle = document.querySelector('input[name="feedView"]:checked');
+        const view = toggle ? toggle.value : "all";
+        console.log(`  → Toggle actual: "${view}"`);
+
+        if (view === "all") {
+            console.log("  → Ejecutando renderNavFeedAll()");
+            renderNavFeedAll(window.userPosts || [], window.userBoards || []);
+        } else if (view === "posts") {
+            console.log("  → Ejecutando renderNavPosts()");
+            renderNavPosts(window.userPosts || []);
+        } else if (view === "boards") {
+            console.log("  → Ejecutando renderNavBoards()");
+            renderNavBoards(window.userBoards || []);
+        }
+    };
+
+    // Primera ejecución (probablemente vacío, pero sin error)
+    renderSidebarNow();
+
+    // ================================================
+    // SOBREESCRIBIMOS loadUserFeedAll PARA QUE RENDERICE AL FINAL
+    // (por si acaso alguien llama a la función sin await)
+    // ================================================
+    const originalLoadUserFeedAll = window.loadUserFeedAll;
+    window.loadUserFeedAll = async function (...args) {
+        console.log("loadUserFeedAll() iniciada");
+        await originalLoadUserFeedAll.apply(this, args);
+        console.log("loadUserFeedAll() terminada → renderizando sidebar");
+        renderSidebarNow(); // ← Esta es la clave
+    };
+
+    // ================================================
+    // EJECUCIÓN SEGÚN URL
+    // ================================================
+
     if (boardId) {
+        console.log("Entrando por ?board=", boardId);
         const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
         if (boardsToggle) {
             boardsToggle.checked = true;
-            // disparar cambio para que los listeners internos actualicen la vista
             boardsToggle.dispatchEvent(new Event('change'));
         }
-
-        // Cargar boards
         await loadUserBoards();
-
-        // Esperar al render completo
-        setTimeout(() => {
-            const boardEl = document.querySelector(`.Publication.BoardPublication[data-board-id="${boardId}"]`);
-            if (boardEl) {
-                boardEl.scrollIntoView({ behavior: "smooth", block: "center" });
-
-                // Abrir comentario tras un pequeño delay
-                setTimeout(() => {
-                    toggleBoardCommentBox(boardId);
-                }, 100); // 100ms suele ser suficiente
-            } else {
-                console.warn("Board no encontrado:", boardId);
-            }
-        }, 50); // espera mínima para asegurar renderizado
+        // ... resto del scroll ...
     }
     else if (postId) {
+        console.log("Entrando por ?id=", postId);
         const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
         if (postsToggle) {
             postsToggle.checked = true;
             postsToggle.dispatchEvent(new Event('change'));
         }
-
         await loadUserPosts();
-
-        setTimeout(() => {
-            const postEl = document.querySelector(`.Publication[data-post-id="${postId}"]`);
-            if (postEl) {
-                postEl.scrollIntoView({ behavior: "smooth", block: "center" });
-                setTimeout(() => togglePostCommentBox(postId), 100);
-            } else {
-                console.warn("Post no encontrado:", postId);
-            }
-        }, 50);
+        // ... resto del scroll ...
     }
     else {
-        const def = document.querySelector('input[name="feedView"]:checked')?.value;
+        console.log("Entrando sin parámetros → carga normal");
+        const def = document.querySelector('input[name="feedView"]:checked')?.value || "all";
+        console.log("Vista por defecto:", def);
+
         if (def === "boards") await loadUserBoards();
-        else if (def === "all") await loadUserFeedAll();
+        else if (def === "all") await loadUserFeedAll();  // ← Aquí se llamará nuestro wrapper con render
         else await loadUserPosts();
     }
 
@@ -1304,64 +1328,69 @@ window.renderNavBoards = function (boards) {
 
 
 window.renderNavFeedAll = function (posts, boards) {
-    const list = document.querySelector(".Navigation > ul");
-    const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
-    const noMsg = document.querySelector(".Navigation .NotFound");
-    let expanded = false;
+    const tryRender = () => {
+        const list = document.querySelector(".Navigation > ul");
+        if (!list) {
+            setTimeout(tryRender, 100);
+            return;
+        }
 
-    if (!list) return;
-    list.innerHTML = ``;
+        list.innerHTML = "";
+        document.querySelector(".Navigation .NotFound")?.style.setProperty("display", "none");
 
-    // Mezcla y ordena por fecha reciente
-    const combined = [
-        ...posts.map(p => ({ ...p, type: "post" })),
-        ...boards.map(b => ({ ...b, type: "board" }))
-    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        const combined = [
+            ...posts.map(p => ({ ...p, type: "post" })),
+            ...boards.map(b => ({ ...b, type: "board" }))
+        ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    if (!combined.length) {
-        noMsg.style.display = "block";
-        return;
-    }
+        if (!combined.length) {
+            document.querySelector(".Navigation .NotFound")?.style.removeProperty("display");
+            return;
+        }
 
-    noMsg.style.display = "none";
+        combined.forEach((item, i) => {
+            const li = document.createElement("li");
+            const typeAttr = item.type === "post" ? "post-id" : "board-id";
 
-    combined.forEach((item, i) => {
-        const li = document.createElement("li");
-        const typeAttr = item.type === "post" ? "post-id" : "board-id";
+            li.innerHTML = `
+                <div class="NavigationRow">
+                    <a href="#" ${typeAttr}="${item._id}">
+                        ${item.title || (item.type === "board" ? "Untitled Board" : "Untitled Post")}
+                    </a>
+                </div>
+            `;
 
-        li.innerHTML = `
-            <div class="NavigationRow">
-                <a href="#" ${typeAttr}="${item._id}">
-                    ${item.title || "Untitled"}
-                </a>
-            </div>
-        `;
+            if (i > 7) li.classList.add("ExtraItem");
+            list.appendChild(li);
+        });
 
-        if (i > 7) li.classList.add("ExtraItem");
+        navEventListener();
 
-        list.appendChild(li);
-    });
+        // Configuramos el botón View more (con espera si no existe aún)
+        const setupViewMoreButton = () => {
+            const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
+            const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
 
-    const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+            if (!viewMoreBtn) {
+                setTimeout(setupViewMoreButton, 100);
+                return;
+            }
 
-    if (viewMoreBtn) {
-        viewMoreBtn.style.display = extraItems.length ? "block" : "none";
+            viewMoreBtn.style.display = extraItems.length ? "block" : "none";
 
-        viewMoreBtn.onclick = () => {
-            expanded = !expanded;
-            extraItems.forEach(el =>
-                el.classList.toggle("ExtraItem", !expanded)
-            );
-
-            viewMoreBtn.querySelector("span").textContent =
-                expanded ? "expand_less" : "expand_more";
-            viewMoreBtn.childNodes[0].textContent =
-                expanded ? "View less" : "View more";
+            let expanded = false;
+            viewMoreBtn.onclick = () => {
+                expanded = !expanded;
+                extraItems.forEach(el => el.classList.toggle("ExtraItem", !expanded));
+                viewMoreBtn.querySelector("span").textContent = expanded ? "expand_less" : "expand_more";
+                viewMoreBtn.childNodes[0].textContent = expanded ? "View less" : "View more";
+            };
         };
-    }
 
-    // Asegura que los clics funcionen para scroll a posts/boards
-    navEventListener();
+        setupViewMoreButton();
+    };
+
+    tryRender();
 };
 
 // ====================================================

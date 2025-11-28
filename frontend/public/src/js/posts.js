@@ -879,10 +879,6 @@ window.openCreatePostModal = openCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
 window.renderPosts = renderPosts;
-window.openShareModal = openShareModal;
-window.closeShareModal = closeShareModal;
-window.copyShareLink = copyShareLink;
-window.revokeShareLink = revokeShareLink;
 
 window.addEventListener("scroll", function () {
   const btn = document.getElementById("ScrollToTopBtn");
