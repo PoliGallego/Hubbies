@@ -8,4 +8,7 @@ router.get("/my",controller.verifyBoardToken, controller.getUserBoards);
 router.delete("/:id", controller.verifyBoardToken, controller.deleteBoard);
 router.get("/:id", controller.verifyBoardToken, controller.getBoardById);
 router.put("/:id",controller.verifyBoardToken,upload.array("images"),  controller.updateBoard);
+router.post("/:id/share", controller.verifyBoardToken, controller.shareBoard);
+router.post("/:id/unshare", controller.verifyBoardToken, controller.unshareBoard);
+router.get("/shared/:token", controller.getSharedBoard);
 module.exports = router;

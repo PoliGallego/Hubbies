@@ -1364,6 +1364,117 @@ window.renderNavFeedAll = function (posts, boards) {
     navEventListener();
 };
 
+// ====================================================
+// SISTEMA DE COMPARTIR BOARD - VERSIÓN SEPARADA Y 100% FUNCIONAL
+// ====================================================
+
+const feedColumn = document.querySelector(".FeedColumn");
+
+feedColumn.addEventListener("click", (e) => {
+    const shareBtn = e.target.closest(".share-board-btn");
+    if (!shareBtn) return;
+
+    const boardId = shareBtn.dataset.boardId;
+    openShareBoardModal(boardId);
+});
+
+// ====== VARIABLES GLOBALES (una sola para todo) ======
+let currentShareItem = { id: null, type: null }; // 'post' o 'board'
+
+// ====== ABRIR MODAL PARA POST (tu función original, solo cambia la variable) ======
+async function openShareModal(postId) {
+    currentShareItem = { id: postId, type: 'post' };
+    await openShareModalUniversal();
+}
+
+// ====== ABRIR MODAL PARA BOARD ======
+async function openShareBoardModal(boardId) {
+    currentShareItem = { id: boardId, type: 'board' };
+    await openShareModalUniversal();
+}
+
+// ====== LÓGICA COMÚN (una sola función para los dos) ======
+async function openShareModalUniversal() {
+    const modal = document.getElementById("ShareModal");
+    const linkInput = document.getElementById("shareLinkInput");
+    const revokeBtn = document.getElementById("revokeLinkBtn");
+    const titleEl = document.getElementById("shareModalTitle");
+    const descEl = document.getElementById("shareModalDescription");
+
+    // Cambia textos según sea post o board
+    if (currentShareItem.type === 'board') {
+        titleEl.textContent = "Share Board";
+        descEl.textContent = "Anyone with this link can view this board.";
+    } else {
+        titleEl.textContent = "Share Post";
+        descEl.textContent = "Anyone with this link can view this post.";
+    }
+
+    try {
+        const endpoint = currentShareItem.type === 'board'
+            ? `/api/boards/${currentShareItem.id}/share`
+            : `/api/posts/${currentShareItem.id}/share`;
+
+        const response = await fetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+
+        if (!response.ok) throw new Error("Server error");
+
+        const data = await response.json();
+        if (!data.success) throw new Error(data.message);
+
+        const baseUrl = `${window.location.origin}/src/html/post-shared.html`;
+        const shareUrl = currentShareItem.type === 'board'
+            ? `${baseUrl}?token=${data.shareToken}&type=board`
+            : `${baseUrl}?token=${data.shareToken}`;
+
+        linkInput.value = shareUrl;
+        modal.style.display = "flex";
+        revokeBtn.style.display = "flex";
+
+    } catch (error) {
+        console.error("Error generating share link:", error);
+        Swal.fire("Error", "Could not generate link", "error");
+    }
+}
+
+// ====== DESHABILITAR LINK (una sola función para ambos) ======
+async function revokeShareLink() {
+    if (!currentShareItem.id) return;
+
+    const endpoint = currentShareItem.type === 'board'
+        ? `/api/boards/${currentShareItem.id}/unshare`
+        : `/api/posts/${currentShareItem.id}/unshare`;
+
+    try {
+        const res = await fetch(endpoint, { method: "POST", headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+        const data = await res.json();
+
+        if (data.success) {
+            closeShareModal();
+            Swal.fire({ icon: "success", title: "Link disabled", toast: true, position: "top-end", timer: 2000 });
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (err) {
+        Swal.fire("Error", "Could not disable link", "error");
+    }
+}
+
+// ====== CERRAR MODAL (universal) ======
+function closeShareModal() {
+    document.getElementById("ShareModal").style.display = "none";
+    document.getElementById("revokeLinkBtn").style.display = "none";
+    currentShareItem = { id: null, type: null };
+}
+
+// ====== COPIAR LINK (ya la tenías) ======
+function copyShareLink() {
+    const input = document.getElementById("shareLinkInput");
+    input.select();
+    document.execCommand("copy");
+    Swal.fire({ icon: 'success', title: 'Copied!', toast: true, position: 'top-end', timer: 1500 });
+}
+
 document.getElementById("OpenBoardCreatorBtn").addEventListener("click", () => {
     loadSections();
     openBoardModal();

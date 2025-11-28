@@ -3,7 +3,7 @@
 .SharedPostContainer {
     padding: 20px 0;
     width: 100%;
-    max-width: 800px;
+    max-width: 1200px !important;
     margin: 0 auto;
 }
 
@@ -274,6 +274,403 @@
 
 .delete-comment-btn .material-icons {
     font-size: 18px;
+}
+
+/* ========== CSS PARA SHARED BOARD (post-shared.css) ========== */
+
+/* Container principal del board compartido */
+.SharedBoardPublication {
+    max-width: 1200px !important;
+    width: 100%;
+    margin: 0 auto;
+}
+
+.SharedBoardPublication .BoardCard {
+    background: var(--ColorWhite);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border-primary);
+    box-shadow: 0 4px 12px var(--shadow-md);
+    max-width: 1200px;
+    /* límite visual */
+    width: 100%;
+    /* ocupa el contenedor pero no 500% */
+    margin: 0 auto;
+    transition: all 0.3s ease;
+}
+
+.SharedBoardPublication .BoardCard:hover {
+    box-shadow: 0 6px 16px var(--shadow-lg);
+    transform: translateY(-2px);
+}
+
+/* Header del board */
+.SharedBoardPublication .BoardCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.SharedBoardPublication .BoardCardTitle {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+    flex: 1;
+}
+
+.SharedBoardPublication .BoardMeta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    width: 100%;
+}
+
+.SharedBoardPublication .PostDate {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.SharedBoardPublication .BoardCardActions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* ============ CANVAS GRANDE EN SHARED - VERSIÓN FINAL ============ */
+.SharedBoardPublication .BoardPreviewCanvas {
+    background: var(--ColorSoftPink);
+    border-radius: 16px;
+    border: 1px solid var(--border-primary);
+    width: 100%;
+    min-height: 620px;
+    max-height: 85vh;
+    /* No sobrepase mucho la pantalla */
+    margin: 24px 0;
+    overflow: hidden;
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.1);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.SharedBoardPublication .BoardPreviewInner {
+    position: relative;
+    width: var(--board-original-width, 1200px) !important;
+    height: var(--board-original-height, 700px) !important;
+    max-width: none !important;
+    transform-origin: center center;
+    /* Esto es lo mágico: el inner crece al tamaño real y se escala con object-fit en el padre */
+}
+
+/* El contenedor que envuelve al inner y hace el zoom */
+.SharedBoardPublication .BoardPreviewWrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* Escala perfecta tipo imagen */
+.SharedBoardPublication .BoardPreviewWrapper>.BoardPreviewInner {
+    width: var(--board-original-width, 1200px);
+    height: var(--board-original-height, 700px);
+    object-fit: contain;
+    /* ¡Esto es lo que lo hace grande y bonito! */
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Items: pointer-events none para no interferir */
+.SharedBoardPublication .BoardPreviewItem {
+    position: absolute;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+/* Asegura que imágenes y notas escalen correctamente */
+.SharedBoardPublication .PreviewNote {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+    padding: 12px;
+    border-radius: 6px;
+    min-width: 120px;
+    min-height: 60px;
+    font-size: 1rem;
+    /* Tamaño base legible */
+}
+
+.SharedBoardPublication .PreviewImg img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 6px;
+}
+
+/* Footer con tags */
+.SharedBoardPublication .BoardCardFooter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-secondary);
+}
+
+.SharedBoardPublication .Tag {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    background: var(--ColorLightCoral);
+    color: var(--TextColorPrimary);
+    border: 1px solid var(--BorderColor);
+}
+
+.SharedBoardPublication .TagReadOnly {
+    cursor: default;
+}
+
+/* Summary de comentarios */
+.SharedBoardPublication .BoardCommentsSummary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    background: var(--bg-accent);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.95em;
+}
+
+.SharedBoardPublication .CommentAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--text-primary);
+    color: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+
+.SharedBoardPublication .BoardCommentsSummary .material-icons {
+    font-size: 20px;
+    color: var(--accent-primary);
+}
+
+/* Sección de comentarios */
+.SharedBoardPublication .CommentsSection {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 2px solid var(--border-primary);
+}
+
+.SharedBoardPublication .CommentsList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Botón de fullscreen */
+.SharedBoardPublication .fullscreen-board-btn {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-primary);
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.SharedBoardPublication .fullscreen-board-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.SharedBoardPublication .fullscreen-board-btn .material-icons {
+    font-size: 24px;
+}
+
+/* Scroll personalizado para el canvas */
+.SharedBoardPublication .BoardPreviewCanvas::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.SharedBoardPublication .BoardPreviewCanvas::-webkit-scrollbar-track {
+    background: var(--ColorLightGray);
+    border-radius: 5px;
+}
+
+.SharedBoardPublication .BoardPreviewCanvas::-webkit-scrollbar-thumb {
+    background: var(--ColorDustyRose);
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+.SharedBoardPublication .BoardPreviewCanvas::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .SharedBoardPublication .BoardCard {
+        padding: 16px;
+        border-radius: 8px;
+    }
+
+    .SharedBoardPublication .BoardCardTitle {
+        font-size: 1.2em;
+    }
+
+    .SharedBoardPublication .BoardPreviewCanvas {
+        min-height: 350px;
+    }
+
+    .SharedBoardPublication .BoardCardHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Dark mode support */
+[data-theme="dark"] .SharedBoardPublication .BoardCard {
+    background: var(--bg-secondary);
+    border-color: var(--border-primary);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .SharedBoardPublication .BoardPreviewCanvas {
+    background: var(--bg-accent);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.CommentItem {
+    position: relative;
+    padding: 16px;
+    border-bottom: 1px solid var(--border-primary);
+}
+
+.CommentHeader {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    justify-content: space-between;
+}
+
+.delete-comment-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.CommentItem:hover .delete-comment-btn {
+    opacity: 1;
+}
+
+.delete-comment-btn:hover {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.delete-comment-btn .material-icons {
+    font-size: 18px;
+}
+
+/* Modal Fullscreen para board compartido */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+}
+
+.fullscreen-board-modal {
+    width: 95vw;
+    height: 95vh;
+    max-width: 1600px;
+    max-height: 1000px;
+    background: #111;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    background: #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+.modal-title {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: #aaa;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.close-modal-btn:hover {
+    background: #333;
+    color: white;
+}
+
+.modal-footer {
+    background: #1a1a1a;
+    border-top: 1px solid #333;
 }
 
 /* Comment Input Box */

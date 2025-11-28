@@ -1,6 +1,11 @@
 const Board = require("../models/boards");
 const JWT_SECRET = "secretKey";
 const jwt = require("jsonwebtoken");
+const Comment = require("../models/comment");
+const Section = require("../models/section");
+const fs = require('fs');
+const path = require('path');
+const crypto = require('crypto');
 
 module.exports = {
     verifyBoardToken: (req, res, next) => {
@@ -280,4 +285,69 @@ module.exports = {
         }
     },
 
+};
+
+module.exports.shareBoard = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const board = await Board.findOne({ _id: id, idUser: String(userId) });
+        if (!board) return res.status(404).json({ success: false, message: "Board not found" });
+
+        if (!board.shareToken) board.shareToken = crypto.randomBytes(16).toString("hex");
+        board.isShared = true;
+        await board.save();
+
+        res.json({ success: true, shareToken: board.shareToken });
+    } catch (error) {
+        console.error("Error sharing board:", error);
+        res.status(500).json({ success: false, message: "Error sharing board" });
+    }
+};
+
+module.exports.unshareBoard = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id;
+
+        const board = await Board.findOne({ _id: id, idUser: String(userId) });
+        if (!board) return res.status(404).json({ success: false, message: "Board not found" });
+
+        board.isShared = false;
+        await board.save();
+
+        res.json({ success: true, message: "Link disabled" });
+    } catch (error) {
+        console.error("Error unsharing board:", error);
+        res.status(500).json({ success: false, message: "Error unsharing board" });
+    }
+};
+
+module.exports.getSharedBoard = async (req, res) => {
+    try {
+        const { token } = req.params;
+
+        const board = await Board.findOne({ shareToken: token, isShared: true, active: true });
+        if (!board) return res.status(404).json({ success: false, message: "Board not found or link disabled" });
+
+        const sectionsInfo = await Section.find({
+            _id: { $in: board.categories },
+            active: true
+        }).select("title");
+
+        // Contar comentarios por board
+        const commentCount = await Comment.countDocuments({ boardId: board._id });
+
+        const boardData = {
+            ...board.toObject(),
+            categories: sectionsInfo,
+            commentCount
+        };
+
+        res.json({ success: true, board: boardData });
+    } catch (error) {
+        console.error("Error getting shared board:", error);
+        res.status(500).json({ success: false, message: "Error loading shared board" });
+    }
 };

@@ -278,24 +278,26 @@
     <div id="ShareModal" class="ModalOverlay" style="display: none;">
         <div class="ModalContent" style="max-width: 500px;">
             <div class="ModalHeader">
-                <h2 class="ModalTitle">Share Post</h2>
-                <button class="CloseButton" onclick="closeShareModal()">&times;</button>
+                <h2 class="ModalTitle" id="shareModalTitle">Share Post</h2>
+                <button class="CloseButton" onclick="closeShareModal()">×</button> <!-- ← Universal -->
             </div>
             <div class="ModalBody">
-                <p style="margin-bottom: 15px; color: #666;">Anyone with this link can view this post.</p>
+                <p id="shareModalDescription" style="margin-bottom: 15px; color: #666;">
+                    Anyone with this link can view this post.
+                </p>
 
                 <div class="ShareLinkContainer" style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <input type="text" id="shareLinkInput" readonly
                         style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5;">
-                    <button class="PrimaryBtn" onclick="copyShareLink()" title="Copy Link"
-                        style="padding: 0 15px; display: flex; align-items: center; justify-content: center;">
+                    <button class="PrimaryBtn" onclick="copyShareLink()" title="Copy Link">
                         <span class="material-icons">content_copy</span>
                     </button>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end;">
                     <button id="revokeLinkBtn" class="EditableActionButton"
-                        style="background-color: #ffebee; color: #d32f2f; border: none;" onclick="revokeShareLink()">
+                        style="background-color: #ffebee; color: #d32f2f; border: none; display: none;"
+                        onclick="revokeShareLink()">
                         <span class="material-icons">link_off</span>
                         Disable Link
                     </button>
@@ -303,6 +305,7 @@
             </div>
         </div>
     </div>
+
 </body>
 
 </html>
