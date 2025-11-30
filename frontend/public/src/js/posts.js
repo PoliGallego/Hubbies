@@ -270,6 +270,15 @@ function renderPosts(posts) {
     return;
   }
 
+  const datalist = document.getElementById('SearchList');
+  datalist.innerHTML = '';
+
+  posts.forEach(post => {
+    const option = document.createElement('option');
+    option.value = post.title;
+    datalist.appendChild(option);
+  });
+
   posts.forEach((post) => {
     const postHTML = createPostHTML(post);
     feedColumn.insertAdjacentHTML("beforeend", postHTML);

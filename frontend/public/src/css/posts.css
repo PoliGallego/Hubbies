@@ -492,7 +492,7 @@ body {
     display: none;
     flex-direction: column;
     gap: 8px;
-    z-index: 1500;
+    z-index: 800;
     animation: fadeIn 0.2s ease;
     min-width: 180px;
     white-space: nowrap;

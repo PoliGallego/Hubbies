@@ -67,6 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  searchBar.addEventListener("input", () => {
+    if (searchBar.value.trim() === "") {
+      searchBar.setAttribute("list", "");
+    } else {
+      searchBar.setAttribute("list", "SearchList");
+    }
+  });
+
   if (!toggleBtn || !dropdown) return;
 
   toggleBtn.addEventListener("click", (e) => {
