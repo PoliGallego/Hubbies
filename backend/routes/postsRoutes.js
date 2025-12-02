@@ -8,7 +8,8 @@ const {
   deletePost,
   sharePost,
   unsharePost,
-  getSharedPost
+  getSharedPost,
+  togglePinPost
 } = require("../controllers/postsController");
 const upload = require("../config/multer");
 const { authMiddleware } = require("../middleware/authMiddleware");
@@ -23,6 +24,7 @@ router.put("/:id", authMiddleware, upload.single("image"), updatePost);
 router.delete("/:id", authMiddleware, deletePost);
 router.post("/:id/share", authMiddleware, sharePost);
 router.post("/:id/unshare", authMiddleware, unsharePost);
+router.post("/:id/pin", authMiddleware, togglePinPost);
 router.get("/shared/:token", getSharedPost);
 
 module.exports = router;

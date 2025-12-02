@@ -3,7 +3,6 @@ let isCreatingPost = false;
 let isEditMode = false;
 let editingPostId = null;
 let originalPostData = null;
-let currentSharePostId = null;
 
 document.addEventListener("DOMContentLoaded", function () {
   const token = localStorage.getItem("token");
@@ -24,6 +23,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const welcome = document.getElementById("welcomeUser");
       if (welcome) welcome.textContent = `Welcome ${data.user}`;
 
+      loadUserPosts();
       loadUserSections();
       setupModalEventListeners();
     })
@@ -221,10 +221,7 @@ async function loadUserPosts() {
     const posts = await response.json();
     console.log("Posts recibidos:", posts);
 
-    const filteredPosts = filterPostsByCat(posts);
-    window._userPosts = filteredPosts || [];
-
-    renderPosts(filteredPosts);
+    renderPosts(posts);
 
     const params = new URLSearchParams(window.location.search);
     const targetId = params.get("id");
@@ -269,15 +266,6 @@ function renderPosts(posts) {
     window.renderNavPosts([]);
     return;
   }
-
-  const datalist = document.getElementById('SearchList');
-  datalist.innerHTML = '';
-
-  posts.forEach(post => {
-    const option = document.createElement('option');
-    option.value = post.title;
-    datalist.appendChild(option);
-  });
 
   posts.forEach((post) => {
     const postHTML = createPostHTML(post);
@@ -324,6 +312,11 @@ function createPostHTML(post) {
           <h2 class="PostTitleReadOnly">"${post.title}"</h2>
           <div class="CardControls">
             <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
+            <button class="IconButton pin-post-btn ${post.pinned ? 'pinned' : ''}" 
+                    data-post-id="${post._id}" 
+                    title="${post.pinned ? 'Unpin post' : 'Pin post'}">
+              <span class="material-icons">push_pin</span>
+            </button>
             <button class="IconButton delete-post-btn" data-post-id="${post._id}">
               <span class="material-icons">delete_outline</span>
             </button>
@@ -348,10 +341,13 @@ function createPostHTML(post) {
             ${post.comments?.length || 0}
           </span>
         </div>
-        <button class="IconButton share-post-btn" data-post-id="${post._id}"><span class="material-icons">share</span></button>
+        <button class="IconButton share-post-btn" data-post-id="${post._id}">
+          <span class="material-icons">share</span>
+        </button>
       </div>     
       
-      <div class="CommentsSection" id="comments-section-${post._id}" style="display: none;">
+      <div class="CommentsSection" id="comments-section-${post._id
+    }" style="display: none;">
         <div class="CommentsList" id="comments-list-${post._id}">
         </div>
           <div class="CommentBox">
@@ -365,6 +361,8 @@ function createPostHTML(post) {
             </button>
           </div>
         </div>
+      
+      
     </div>
   `;
 }
@@ -388,6 +386,13 @@ function setupPostEventListeners() {
     btn.addEventListener("click", (e) => {
       const postId = e.target.closest(".share-post-btn").dataset.postId;
       openShareModal(postId);
+    });
+  });
+
+  document.querySelectorAll(".pin-post-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const postId = e.target.closest(".pin-post-btn").dataset.postId;
+      togglePinPost(postId);
     });
   });
 }
@@ -746,7 +751,10 @@ async function createPost() {
       }
 
       closeCreatePostModal();
-      refreshFeedAfterUpdate();
+
+      setTimeout(() => {
+        loadUserPosts();
+      }, 500);
     } else {
       throw new Error(
         data.message || `Error ${isEditMode ? "updating" : "creating"} post`
@@ -827,8 +835,7 @@ async function deletePost(postId) {
         Swal.fire("Deleted!", "Post deleted successfully", "success");
       }
 
-      refreshFeedAfterUpdate();
-      loadRecentComments();
+      loadUserPosts();
     }
   } catch (error) {
     console.error("Error al eliminar post:", error);
@@ -875,12 +882,201 @@ function setupModalCloseListeners() {
   }
 }
 
+// ============ SHARE POST FUNCTIONS ============
+let currentSharingPostId = null;
+
+async function openShareModal(postId) {
+  currentSharingPostId = postId;
+  const modal = document.getElementById("ShareModal");
+  const shareLinkInput = document.getElementById("shareLinkInput");
+  
+  if (!modal || !shareLinkInput) {
+    console.error("Share modal elements not found");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/posts/${postId}/share`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success && data.shareToken) {
+      const shareUrl = `${window.location.origin}/frontend/public/src/html/post-shared.html?token=${data.shareToken}`;
+      shareLinkInput.value = shareUrl;
+      modal.style.display = "flex";
+    } else {
+      throw new Error(data.message || "Error generating share link");
+    }
+  } catch (error) {
+    console.error("Error sharing post:", error);
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Error", "Could not generate share link", "error");
+    } else {
+      alert("Could not generate share link");
+    }
+  }
+}
+
+function closeShareModal() {
+  const modal = document.getElementById("ShareModal");
+  if (modal) {
+    modal.style.display = "none";
+  }
+  currentSharingPostId = null;
+}
+
+async function copyShareLink() {
+  const shareLinkInput = document.getElementById("shareLinkInput");
+  
+  if (!shareLinkInput) return;
+
+  try {
+    await navigator.clipboard.writeText(shareLinkInput.value);
+    
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: "success",
+        title: "Link Copied!",
+        text: "Share link copied to clipboard",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      alert("Link copied to clipboard!");
+    }
+  } catch (error) {
+    console.error("Error copying to clipboard:", error);
+    
+    // Fallback method
+    shareLinkInput.select();
+    document.execCommand("copy");
+    
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: "success",
+        title: "Link Copied!",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } else {
+      alert("Link copied!");
+    }
+  }
+}
+
+async function revokeShareLink() {
+  if (!currentSharingPostId) return;
+
+  try {
+    if (typeof Swal !== "undefined") {
+      const result = await Swal.fire({
+        title: "Disable Share Link?",
+        text: "The current link will stop working immediately",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Yes, disable it",
+        cancelButtonText: "Cancel",
+      });
+
+      if (!result.isConfirmed) return;
+    } else {
+      if (!confirm("Are you sure you want to disable the share link?")) {
+        return;
+      }
+    }
+
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/posts/${currentSharingPostId}/unshare`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      closeShareModal();
+      
+      if (typeof Swal !== "undefined") {
+        Swal.fire("Disabled!", "Share link has been disabled", "success");
+      } else {
+        alert("Share link disabled successfully");
+      }
+    } else {
+      throw new Error(data.message || "Error disabling share link");
+    }
+  } catch (error) {
+    console.error("Error revoking share link:", error);
+    if (typeof Swal !== "undefined") {
+      Swal.fire("Error", "Could not disable share link", "error");
+    } else {
+      alert("Could not disable share link");
+    }
+  }
+}
+
+// Close modal when clicking outside
+document.addEventListener("click", function (e) {
+  const modal = document.getElementById("ShareModal");
+  if (modal && e.target === modal) {
+    closeShareModal();
+  }
+});
+
+// Close modal with Escape key
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Escape") {
+    closeShareModal();
+  }
+});
 
 window.addSectionToPost = addSectionToPost;
 window.removeSelectedSection = removeSelectedSection;
 window.handleImageUpload = handleImageUpload;
 window.removeImage = removeImage;
 window.triggerImageUpload = triggerImageUpload;
+async function togglePinPost(postId) {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await fetch(`/api/posts/${postId}/pin`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Reload posts to reflect the new order
+      loadUserPosts();
+    } else {
+      throw new Error(data.message || "Error updating post");
+    }
+  } catch (error) {
+    console.error("Error toggling pin:", error);
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Could not update the post",
+      });
+    }
+  }
+}
+
 window.enableEditMode = enableEditMode;
 window.confirmDeletePost = confirmDeletePost;
 window.deletePost = deletePost;
@@ -888,6 +1084,11 @@ window.openCreatePostModal = openCreatePostModal;
 window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
 window.renderPosts = renderPosts;
+window.openShareModal = openShareModal;
+window.closeShareModal = closeShareModal;
+window.copyShareLink = copyShareLink;
+window.revokeShareLink = revokeShareLink;
+window.togglePinPost = togglePinPost;
 
 window.addEventListener("scroll", function () {
   const btn = document.getElementById("ScrollToTopBtn");

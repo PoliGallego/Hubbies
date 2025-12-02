@@ -45,6 +45,14 @@ const PostSchema = new Mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    pinned: {
+      type: Boolean,
+      default: false,
+    },
+    pinnedAt: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
