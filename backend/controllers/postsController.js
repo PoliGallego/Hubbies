@@ -142,7 +142,7 @@ const getUserPosts = async (req, res) => {
     const posts = await Post.find({
       idUser: userId,
       active: true
-    }).sort({ createdAt: -1 });
+    }).sort({ pinned: -1, pinnedAt: -1, createdAt: -1 });
 
     const postsWithSections = await Promise.all(
       posts.map(async (post) => {
@@ -412,6 +412,33 @@ const getSharedPost = async (req, res) => {
   }
 };
 
+const togglePinPost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const post = await Post.findOne({ _id: id, idUser: userId });
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    // Toggle pinned state
+    post.pinned = !post.pinned;
+    post.pinnedAt = post.pinned ? new Date() : null;
+    await post.save();
+
+    res.json({ 
+      success: true, 
+      pinned: post.pinned,
+      message: post.pinned ? "Post pinned successfully" : "Post unpinned successfully"
+    });
+  } catch (error) {
+    console.error("Error toggling pin post:", error);
+    res.status(500).json({ success: false, message: "Error updating post" });
+  }
+};
+
 module.exports = {
   verifyPostToken,
   createPost,
@@ -421,5 +448,6 @@ module.exports = {
   deletePost,
   sharePost,
   unsharePost,
-  getSharedPost
+  getSharedPost,
+  togglePinPost
 };
