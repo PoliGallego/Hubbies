@@ -214,8 +214,12 @@ async function loadMostRecentBoard() {
       return;
     }
 
+    const sortedByDate = boards.sort((a, b) =>
+      new Date(b.originalCreatedAt || b.createdAt) - new Date(a.originalCreatedAt || a.createdAt)
+    );
+
     // Mostrar el más reciente
-    const mostRecent = boards[0];
+    const mostRecent = sortedByDate[0];
     latestBoardCard.innerHTML = `
       <div class="most-recent-board-card" data-id="${mostRecent._id}">
         <h3>${mostRecent.title}</h3>
@@ -247,7 +251,7 @@ async function loadMostRecentBoard() {
         if (boardsLoaded) return;
 
         // Tomar los siguientes 5 boards
-        const lastFive = boards.slice(1, 6);
+        const lastFive = sortedByDate.slice(1, 6);
         recentBoardsList.innerHTML =
           lastFive.length === 0
             ? `<p class="loading-text">No more boards.</p>`
@@ -320,7 +324,11 @@ async function loadMostRecentPost() {
       return;
     }
 
-    const mostRecent = posts[0];
+    const sortedByDate = posts.sort((a, b) =>
+      new Date(b.originalCreatedAt || b.createdAt) - new Date(a.originalCreatedAt || a.createdAt)
+    );
+
+    const mostRecent = sortedByDate[0];
     const categories =
       mostRecent.categories && mostRecent.categories.length > 0
         ? mostRecent.categories

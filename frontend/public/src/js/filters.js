@@ -400,6 +400,9 @@ async function filterAll() {
 
       fillSearchSuggestions(posts, boards);
       renderUnifiedFeed(unifiedFeed);
+
+      await updateAllPostCommentCounts(posts);
+      await updateAllBoardCommentCounts(boards);
     }
   } catch (err) {
     console.error("Error al filtrar:", err);

@@ -1076,9 +1076,6 @@ async function loadUserFeedAll() {
         // Normalizamos estructura para mezclarlos correctamente
         const unifiedItems = combineAndSortAll(filteredPosts, filteredBoards);
 
-        renderUnifiedFeed(unifiedItems);
-        updateAllPostCommentCounts(filteredPosts);
-        updateAllBoardCommentCounts(filteredBoards);
         filterAll();
 
         console.log("Feed All filtrado cargado:", {
@@ -1155,7 +1152,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // ================================================
     // FUNCIÓN QUE RENDERIZA EL SIDEBAR SEGÚN EL TOGGLE
-    // Usa los nombres REALES que tú usas: userPosts y userBoards
     // ================================================
     const renderSidebarNow = () => {
         console.log("renderSidebarNow() ejecutado");
@@ -1178,25 +1174,34 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Primera ejecución (probablemente vacío, pero sin error)
+    // Primera ejecución
     renderSidebarNow();
 
     // ================================================
     // SOBREESCRIBIMOS loadUserFeedAll PARA QUE RENDERICE AL FINAL
-    // (por si acaso alguien llama a la función sin await)
     // ================================================
     const originalLoadUserFeedAll = window.loadUserFeedAll;
     window.loadUserFeedAll = async function (...args) {
         console.log("loadUserFeedAll() iniciada");
         await originalLoadUserFeedAll.apply(this, args);
         console.log("loadUserFeedAll() terminada → renderizando sidebar");
-        renderSidebarNow(); // ← Esta es la clave
+        renderSidebarNow();
     };
 
     // ================================================
-    // EJECUCIÓN SEGÚN URL
+    // ⭐ PRIMERO: Verificar si hay navegación pendiente
     // ================================================
+    const pendingNav = localStorage.getItem("pendingNavigation");
 
+    if (pendingNav) {
+        console.log("📍 Hay navegación pendiente, manejándola primero");
+        await handlePendingNavigation();
+        return; // ⭐ Salir aquí para no cargar la vista por defecto
+    }
+
+    // ================================================
+    // ⭐ SEGUNDO: Si NO hay navegación pendiente, proceder normalmente
+    // ================================================
     if (boardId) {
         console.log("Entrando por ?board=", boardId);
         const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
@@ -1205,7 +1210,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             boardsToggle.dispatchEvent(new Event('change'));
         }
         await loadUserBoards();
-        // ... resto del scroll ...
+
+        setTimeout(() => {
+            const boardEl = document.querySelector(`.Publication[data-board-id="${boardId}"]`);
+            if (boardEl) {
+                boardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 500);
     }
     else if (postId) {
         console.log("Entrando por ?id=", postId);
@@ -1215,7 +1226,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             postsToggle.dispatchEvent(new Event('change'));
         }
         await loadUserPosts();
-        // ... resto del scroll ...
+
+        setTimeout(() => {
+            const postEl = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+            if (postEl) {
+                postEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+        }, 500);
     }
     else {
         console.log("Entrando sin parámetros → carga normal");
@@ -1223,11 +1240,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.log("Vista por defecto:", def);
 
         if (def === "boards") await loadUserBoards();
-        else if (def === "all") await loadUserFeedAll();  // ← Aquí se llamará nuestro wrapper con render
+        else if (def === "all") await loadUserFeedAll();
         else await loadUserPosts();
     }
-
-    await handlePendingNavigation();
 });
 
 async function handlePendingNavigation() {
