@@ -1081,3 +1081,22 @@ body {
 .password-toggle:hover {
   color: var(--accent-primary);
 }
+
+/* Edit mode button styling */
+.IconButton.active {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.CategoriesRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.CategoriesRow > div {
+    display: flex;
+    gap: 5px;
+}
+

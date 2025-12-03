@@ -4,27 +4,46 @@
     </button>
 
     <nav class="Navigation">
-        <h3>Navigation</h3>
-        <p class="NotFound">No posts</p>
-        <ul></ul>
-        <button class="ViewMoreButton">
-            View more
-            <span class="material-icons">expand_more</span>
-        </button>
+        <div class="SectionHeader">
+            <h3>Navigation</h3>
+            <button class="IconButton CollapseBtn" id="CollapseNavigationBtn" title="Collapse/Expand">
+                <span class="material-icons">expand_less</span>
+            </button>
+        </div>
+        <div class="SectionContent" id="NavigationContent">
+            <p class="NotFound">No posts</p>
+            <ul></ul>
+            <button class="ViewMoreButton">
+                View more
+                <span class="material-icons">expand_more</span>
+            </button>
+        </div>
     </nav>
 
     <div class="Categories">
-        <span>
+        <span class="CategoriesRow">
             <h3>Categories</h3>
-            <button class="IconButton" id="AddCategory">
-                <span class="material-icons">add</span>
+            <button class="IconButton CollapseBtn" id="CollapseCategoriesBtn" title="Collapse/Expand">
+                <span class="material-icons">expand_less</span>
             </button>
         </span>
-        <p class="NotFound">No categories</p>
-        <ul></ul>
-        <button class="ViewMoreButton">
-            View more
-            <span class="material-icons">expand_more</span>
-        </button>
+        <div class="SectionContent" id="CategoriesContent">
+            <div class="CategoryActions">
+                <button class="IconButton" id="EditCategoriesBtn" title="Edit categories">
+                    <span class="material-icons">edit</span>
+                    <span class="ButtonLabel">Edit</span>
+                </button>
+                <button class="IconButton" id="AddCategory" title="Add category">
+                    <span class="material-icons">add</span>
+                    <span class="ButtonLabel">Add</span>
+                </button>
+            </div>
+            <p class="NotFound">No categories</p>
+            <ul></ul>
+            <button class="ViewMoreButton">
+                View more
+                <span class="material-icons">expand_more</span>
+            </button>
+        </div>
     </div>
 </aside>

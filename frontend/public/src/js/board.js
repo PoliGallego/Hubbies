@@ -1277,7 +1277,7 @@ async function handlePendingNavigation() {
 
 window.renderNavBoards = function (boards) {
     const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
-    const list = document.querySelector(".Navigation > ul");
+    const list = document.querySelector(".Navigation .SectionContent > ul");
     const noMsg = document.querySelector(".Navigation .NotFound");
     let expanded = false;
 
@@ -1329,7 +1329,7 @@ window.renderNavBoards = function (boards) {
 
 window.renderNavFeedAll = function (posts, boards) {
     const tryRender = () => {
-        const list = document.querySelector(".Navigation > ul");
+        const list = document.querySelector(".Navigation .SectionContent > ul");
         if (!list) {
             setTimeout(tryRender, 100);
             return;

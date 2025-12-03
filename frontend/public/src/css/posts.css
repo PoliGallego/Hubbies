@@ -2893,9 +2893,11 @@ body.modal-open {
     0% {
         transform: rotate(0deg) scale(1);
     }
+
     50% {
         transform: rotate(25deg) scale(1.2);
     }
+
     100% {
         transform: rotate(45deg) scale(1);
     }
@@ -2905,9 +2907,11 @@ body.modal-open {
     0% {
         transform: scale(1);
     }
+
     50% {
         transform: scale(1.3);
     }
+
     100% {
         transform: scale(1);
     }
@@ -3055,3 +3059,643 @@ RECENT COMMENTS STYLES
     color: var(--accent-hover) !important;
     text-decoration: underline !important;
 }
+
+/* Categories Row - Fix button alignment */
+.Categories span.CategoriesRow {
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.Categories span.CategoriesRow>div {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+
+/* Collapsible Sections */
+.SectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.SectionContent {
+    max-height: 1000px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 1;
+}
+
+.SectionContent.collapsed {
+    max-height: 0;
+    opacity: 0;
+}
+
+.CollapseBtn {
+    transition: transform 0.3s ease;
+}
+
+.CollapseBtn:hover {
+    transform: scale(1.1);
+}
+
+
+/* Navigation Section Header - align collapse button */
+.Navigation .SectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+
+/* Fix Navigation header alignment */
+.Navigation .SectionHeader h3,
+.Categories .CategoriesRow h3 {
+    margin-bottom: 0;
+}
+
+
+/* Override default SectionHeader for Navigation to ensure proper alignment */
+.Navigation .SectionHeader {
+    padding: 0 !important;
+    width: 100%;
+}
+
+.Navigation .SectionHeader h3 {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.Navigation .SectionHeader .CollapseBtn {
+    margin: 0 !important;
+    padding: 8px !important;
+}
+
+
+/* Fix Navigation button position - bring it closer to title */
+.Navigation .SectionHeader {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 10px !important;
+    margin-bottom: 15px !important;
+}
+
+
+/* Fix Categories buttons vertical alignment */
+.Categories span button {
+    position: static !important;
+    top: auto !important;
+}
+
+.Categories .CategoriesRow {
+    align-items: center !important;
+}
+
+.Categories .CategoriesRow>div {
+    align-items: center !important;
+}
+
+
+/* Divider between Navigation and Categories */
+.Navigation {
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+/* Alternative: Add a decorative divider line */
+.Navigation::after {
+    content: '';
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--border-primary) 20%,
+            var(--border-primary) 80%,
+            transparent 100%);
+    margin-top: 20px;
+    opacity: 0.5;
+}
+
+
+.Navigation {
+    border-bottom: none !important;
+}
+
+/* Override gradient with uniform divider line */
+.Navigation::after {
+    height: 1px !important;
+    background: var(--border-primary) !important;
+    opacity: 0.5 !important;
+}
+/* Make divider darker */
+.Navigation::after {
+    opacity: 0.8 !important;
+}
+
+
+/* Better styling for New Category Input */
+.NewCategoryInput {
+    width: 100%;
+    height: 40px;
+    max-height: 40px;
+    font-size: 0.95em;
+    padding: 8px 12px;
+    border: 2px solid var(--border-primary);
+    border-radius: 8px;
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.NewCategoryInput:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(139, 90, 60, 0.1);
+}
+
+.NewCategoryInput::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+
+/* ===================================
+   MODERN SIDEBAR IMPROVEMENTS
+   =================================== */
+
+/* Sidebar general improvements */
+.LeftSidebar {
+    background: var(--bg-secondary);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid var(--border-primary);
+}
+
+/* Section headers with better spacing */
+.LeftSidebar h3 {
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    margin-bottom: 0;
+}
+
+/* Navigation and Categories lists */
+.Navigation ul li,
+.Categories ul li {
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    margin-bottom: 4px;
+}
+
+/* Links styling - modern and clean */
+.Navigation ul li a,
+.Categories ul li a {
+    display: block;
+    padding: 10px 12px;
+    color: var(--text-primary);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.95em;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Hover effect with subtle background */
+.Navigation ul li a:hover,
+.Categories ul li a:hover {
+    background: rgba(139, 90, 60, 0.08);
+    color: var(--accent-primary);
+    transform: translateX(4px);
+}
+
+/* Active/selected category with modern look */
+.Categories ul li a[style*='background-color'] {
+    background: linear-gradient(135deg, rgba(139, 90, 60, 0.15), rgba(139, 90, 60, 0.25)) !important;
+    color: var(--accent-primary) !important;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 var(--accent-primary);
+}
+
+/* Icon buttons - more modern */
+.LeftSidebar .IconButton {
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.LeftSidebar .IconButton:hover {
+    background: rgba(139, 90, 60, 0.1);
+    color: var(--accent-primary);
+    transform: scale(1.05);
+}
+
+.LeftSidebar .IconButton.active {
+    background: rgba(139, 90, 60, 0.15);
+    color: var(--accent-primary);
+}
+
+/* View More button - cleaner design */
+.ViewMoreButton {
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px dashed var(--border-primary);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ViewMoreButton:hover {
+    background: rgba(139, 90, 60, 0.05);
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+}
+
+/* Smooth transitions for collapsible content */
+.SectionContent {
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                opacity 0.3s ease,
+                margin-top 0.3s ease;
+}
+
+.SectionContent.collapsed {
+    margin-top: -10px;
+}
+
+/* Modern scrollbar for sidebar (if needed) */
+.LeftSidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.LeftSidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.LeftSidebar::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 3px;
+}
+
+.LeftSidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-primary);
+}
+
+/* Category row improvements */
+.CategoriesRow {
+    padding: 0 4px;
+}
+
+/* NotFound message - more elegant */
+.NotFound {
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    text-align: center;
+    padding: 20px 10px;
+    opacity: 0.7;
+    font-style: italic;
+}
+
+
+/* ===================================
+   SIDEBAR REFINEMENTS - GRAY TONES
+   =================================== */
+
+/* Lighter typography */
+.LeftSidebar h3 {
+    font-weight: 500 !important;
+    font-size: 0.8em !important;
+}
+
+.Navigation ul li a,
+.Categories ul li a {
+    font-weight: 400 !important;
+    font-size: 0.9em !important;
+}
+
+/* Gray color scheme instead of brown/accent */
+.Navigation ul li a:hover,
+.Categories ul li a:hover {
+    background: rgba(128, 128, 128, 0.08) !important;
+    color: #555 !important;
+    transform: none !important; /* Remove slide effect */
+}
+
+/* Selected category - gray tones */
+.Categories ul li a[style*='background-color'] {
+    background: rgba(100, 100, 100, 0.12) !important;
+    color: #333 !important;
+    font-weight: 500 !important;
+    box-shadow: inset 3px 0 0 #666 !important;
+}
+
+/* Icon buttons - gray */
+.LeftSidebar .IconButton:hover {
+    background: rgba(128, 128, 128, 0.1) !important;
+    color: #555 !important;
+}
+
+.LeftSidebar .IconButton.active {
+    background: rgba(100, 100, 100, 0.15) !important;
+    color: #333 !important;
+}
+
+/* View More button - smaller and simpler */
+.ViewMoreButton {
+    padding: 6px 10px !important;
+    font-size: 0.8em !important;
+    border: 1px solid rgba(128, 128, 128, 0.3) !important;
+    color: #666 !important;
+}
+
+.ViewMoreButton:hover {
+    background: rgba(128, 128, 128, 0.05) !important;
+    border-color: #888 !important;
+    color: #444 !important;
+}
+
+/* Remove translateX effect from links */
+.Navigation ul li a,
+.Categories ul li a {
+    transform: none !important;
+}
+
+.Navigation ul li a:hover,
+.Categories ul li a:hover {
+    transform: none !important;
+}
+
+
+/* Fix View More button alignment */
+.ViewMoreButton {
+    margin-top: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.ViewMoreButton span {
+    display: flex;
+    align-items: center;
+}
+
+
+/* Make Navigation View More same as Categories */
+.Navigation .ViewMoreButton {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+
+/* ===================================
+   CATEGORY ACTIONS - First position in list
+   =================================== */
+
+.CategoryActions {
+    display: flex;
+    gap: 8px;
+    padding: 8px 4px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.15);
+}
+
+.CategoryActions .IconButton {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    border: 1px solid rgba(128, 128, 128, 0.2);
+    border-radius: 8px;
+    background: transparent;
+    color: #666;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.CategoryActions .IconButton:hover {
+    background: rgba(128, 128, 128, 0.08);
+    border-color: #888;
+    color: #333;
+}
+
+.CategoryActions .IconButton.active {
+    background: rgba(100, 100, 100, 0.12);
+    border-color: #666;
+    color: #333;
+}
+
+.CategoryActions .IconButton .material-icons {
+    font-size: 18px;
+}
+
+.CategoryActions .ButtonLabel {
+    font-weight: 500;
+}
+
+/* Clean up Categories header - remove button container */
+.CategoriesRow > div {
+    display: none !important;
+}
+
+
+/* Make Category Actions buttons smaller and compact */
+.CategoryActions {
+    gap: 6px !important;
+    padding: 6px 4px !important;
+    margin-bottom: 10px !important;
+}
+
+.CategoryActions .IconButton {
+    padding: 6px 8px !important;
+    font-size: 0.75em !important;
+    border-radius: 6px !important;
+}
+
+.CategoryActions .IconButton .material-icons {
+    font-size: 16px !important;
+}
+
+.CategoryActions .ButtonLabel {
+    font-weight: 400 !important;
+    font-size: 0.85em !important;
+}
+
+
+/* Remove divider after CategoryActions */
+.CategoryActions {
+    border-bottom: none !important;
+}
+
+
+/* Icon-only buttons - adjust sizing */
+.CategoryActions .IconButton {
+    flex: 0 !important;
+    min-width: 36px !important;
+    padding: 8px !important;
+}
+
+
+/* Restore flex for buttons with labels */
+.CategoryActions .IconButton {
+    flex: 1 !important;
+    min-width: auto !important;
+}
+
+
+/* Ensure category-actions are visible when edit mode is active */
+.Categories .category-actions {
+    display: none !important;
+}
+
+/* Override when edit mode is active */
+.Categories .category-actions[style*='flex'] {
+    display: flex !important;
+}
+
+
+/* Force Navigation View More to match Categories exactly */
+.Navigation .ViewMoreButton,
+.Categories .ViewMoreButton {
+    width: 100% !important;
+    padding: 6px 10px !important;
+    font-size: 0.8em !important;
+    border: 1px solid rgba(128, 128, 128, 0.3) !important;
+    color: #666 !important;
+    background: transparent !important;
+    border-radius: 8px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    margin: 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.Navigation .ViewMoreButton:hover,
+.Categories .ViewMoreButton:hover {
+    background: rgba(128, 128, 128, 0.05) !important;
+    border-color: #888 !important;
+    color: #444 !important;
+}
+
+
+/* Fix icon alignment in View More buttons */
+.Navigation .ViewMoreButton span.material-icons,
+.Categories .ViewMoreButton span.material-icons {
+    font-size: 16px !important;
+    line-height: 1 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+
+/* Force Navigation ViewMoreButton structure to match Categories */
+.Navigation .ViewMoreButton {
+    font-family: 'Inter', sans-serif !important;
+    text-align: center !important;
+}
+
+/* Ensure text nodes are inline with icon */
+.Navigation .ViewMoreButton::before,
+.Categories .ViewMoreButton::before {
+    content: none !important;
+}
+
+
+/* Force vertical alignment of material-icons in ViewMoreButton */
+.Navigation .ViewMoreButton span.material-icons,
+.Categories .ViewMoreButton span.material-icons {
+    vertical-align: middle !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 16px !important;
+    width: 16px !important;
+}
+
+/* Ensure button uses proper flexbox alignment */
+.Navigation .ViewMoreButton,
+.Categories .ViewMoreButton {
+    align-items: center !important;
+    line-height: 1 !important;
+}
+
+
+/* CRITICAL FIX for Navigation ViewMoreButton alignment */
+.Navigation .ViewMoreButton {
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    vertical-align: middle !important;
+}
+
+.Navigation .ViewMoreButton span.material-icons {
+    display: inline-block !important;
+    vertical-align: middle !important;
+    line-height: 16px !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    position: relative !important;
+    top: 0 !important;
+}
+
+/* Ensure text is also properly aligned */
+.Navigation .ViewMoreButton {
+    font-size: 0.8em !important;
+    line-height: 16px !important;
+}
+
+
+/* Reduce space between Navigation and Categories */
+.Navigation {
+    margin-bottom: 20px !important;
+    padding-bottom: 15px !important;
+}
+
+.Navigation::after {
+    margin-top: 15px !important;
+}
+
+
+/* Reduce space between Navigation and Categories even more */
+.Navigation {
+    margin-bottom: 10px !important;
+    padding-bottom: 8px !important;
+}
+
+.Navigation::after {
+    margin-top: 8px !important;
+}
+
+.Categories {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+

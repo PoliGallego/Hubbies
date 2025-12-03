@@ -101,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
 
           navEventListener();
+          initCollapsibleSections();
           if (payload && payload.id) {
             innitCategories();
           }
@@ -108,8 +109,48 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+function initCollapsibleSections() {
+  const collapseNavigationBtn = document.getElementById("CollapseNavigationBtn");
+  const collapseCategoriesBtn = document.getElementById("CollapseCategoriesBtn");
+  const navigationContent = document.getElementById("NavigationContent");
+  const categoriesContent = document.getElementById("CategoriesContent");
+
+  // Load saved states
+  const navCollapsed = localStorage.getItem("navigationCollapsed") === "true";
+  const catCollapsed = localStorage.getItem("categoriesCollapsed") === "true";
+
+  // Apply saved states
+  if (navCollapsed && navigationContent) {
+    navigationContent.classList.add("collapsed");
+    if (collapseNavigationBtn) {
+      collapseNavigationBtn.querySelector("span").textContent = "expand_more";
+    }
+  }
+
+  if (catCollapsed && categoriesContent) {
+    categoriesContent.classList.add("collapsed");
+    if (collapseCategoriesBtn) {
+      collapseCategoriesBtn.querySelector("span").textContent = "expand_more";
+    }
+  }
+
+  // Navigation collapse toggle
+  collapseNavigationBtn?.addEventListener("click", () => {
+    const isCollapsed = navigationContent.classList.toggle("collapsed");
+    collapseNavigationBtn.querySelector("span").textContent = isCollapsed ? "expand_more" : "expand_less";
+    localStorage.setItem("navigationCollapsed", isCollapsed ? "true" : "false");
+  });
+
+  // Categories collapse toggle
+  collapseCategoriesBtn?.addEventListener("click", () => {
+    const isCollapsed = categoriesContent.classList.toggle("collapsed");
+    collapseCategoriesBtn.querySelector("span").textContent = isCollapsed ? "expand_more" : "expand_less";
+    localStorage.setItem("categoriesCollapsed", isCollapsed ? "true" : "false");
+  });
+}
+
 function navEventListener() {
-  const navList = document.querySelector(".Navigation > ul");
+  const navList = document.querySelector(".Navigation .SectionContent > ul");
   if (!navList) return;
 
   navList.addEventListener("click", (e) => {
@@ -152,7 +193,7 @@ function createSectionCard(section) {
     <div class="CategoriesRow">
         <a href="/src/html/posts.html">${section.title}</a>
         <input type="hidden" value="${section._id}">
-        <div class="ActionIcons">
+        <div class="ActionIcons category-actions" style="display: none;">
             <button class="IconButton DeleteBtn"><span class="material-icons">delete_outline</span></button>
             <button class="IconButton UpdateBtn"><span class="material-icons">edit</span></button>
         </div>
@@ -242,10 +283,31 @@ function createSectionCard(section) {
 
 function innitCategories() {
   const AddSectionBtn = document.getElementById("AddCategory");
-  const categoriesList = document.querySelector(".Categories > ul");
-  const noCategoriesMsg = document.querySelector(".Categories .NotFound");
-  const viewMoreBtn = document.querySelector(".Categories .ViewMoreButton");
+  const EditCategoriesBtn = document.getElementById("EditCategoriesBtn");
+  const categoriesList = document.querySelector(".Categories .SectionContent > ul");
+  const noCategoriesMsg = document.querySelector(".Categories .SectionContent .NotFound");
+  const viewMoreBtn = document.querySelector(".Categories .SectionContent .ViewMoreButton");
   let expanded = false;
+  let editMode = false;
+
+  // Toggle edit mode for categories
+  EditCategoriesBtn?.addEventListener("click", () => {
+    console.log("Edit button clicked!");
+    editMode = !editMode;
+    const actionIcons = document.querySelectorAll(".Categories .category-actions");
+    console.log("Found action icons:", actionIcons.length);
+    actionIcons.forEach(icon => {
+      icon.style.display = editMode ? "flex" : "none";
+      console.log("Setting display to:", editMode ? "flex" : "none");
+    });
+
+    // Change button appearance
+    if (editMode) {
+      EditCategoriesBtn.classList.add("active");
+    } else {
+      EditCategoriesBtn.classList.remove("active");
+    }
+  });
 
   if (categoriesList) {
     fetch("/api/sections/" + payload.id, {
@@ -271,7 +333,7 @@ function innitCategories() {
             categoriesList.prepend(li);
           }
           const extraItems = document.querySelectorAll(
-            ".Categories .ExtraItem"
+            ".Categories .SectionContent .ExtraItem"
           );
           if (viewMoreBtn) {
             console.log("Extras", extraItems);
@@ -301,7 +363,13 @@ function innitCategories() {
   AddSectionBtn?.addEventListener("click", () => {
     if (!categoriesList) return;
 
-    if (categoriesList.querySelector(".NewCategoryInput")) return;
+    // Check if input already exists
+    const existingInput = categoriesList.querySelector(".NewCategoryInput");
+    if (existingInput) {
+      // Remove the input if it already exists (toggle behavior)
+      existingInput.parentElement.remove();
+      return;
+    }
 
     const li = document.createElement("li");
     const input = document.createElement("input");
@@ -356,9 +424,9 @@ function innitCategories() {
 }
 
 window.renderNavPosts = function (posts) {
-  const viewMoreBtn = document.querySelector(".Navigation .ViewMoreButton");
-  const postsList = document.querySelector(".Navigation > ul");
-  const noPostsMsg = document.querySelector(".Navigation .NotFound");
+  const viewMoreBtn = document.querySelector(".Navigation .SectionContent .ViewMoreButton");
+  const postsList = document.querySelector(".Navigation .SectionContent > ul");
+  const noPostsMsg = document.querySelector(".Navigation .SectionContent .NotFound");
   let expanded = false;
 
   if (postsList) {
@@ -384,12 +452,12 @@ window.renderNavPosts = function (posts) {
         postsList.appendChild(newLi);
       }
 
-      const extraItems = document.querySelectorAll(".Navigation .ExtraItem");
+      const extraItems = document.querySelectorAll(".Navigation .SectionContent .ExtraItem");
       if (viewMoreBtn) {
         if (!extraItems || extraItems.length === 0) {
           viewMoreBtn.style.display = "none";
         } else {
-          viewMoreBtn.style.display = "block";
+          viewMoreBtn.style.display = "flex";
         }
         viewMoreBtn.addEventListener("click", function () {
           expanded = !expanded;
@@ -417,7 +485,7 @@ function innitNavBar() {
       homeBtn.classList.add("disabled");
       homeBtn.onclick = null;
       homeBtn.style.cursor = "default";
-      
+
     } else {
       // Activar en otras páginas
       homeBtn.classList.remove("disabled");

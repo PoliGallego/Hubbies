@@ -1,5 +1,5 @@
 document.addEventListener("categories:ready", () => {
-  const catList = document.querySelector(".Categories > ul");
+  const catList = document.querySelector(".Categories .SectionContent > ul");
   if (catList) {
     catList.dataset.filters = JSON.stringify([]);
 
@@ -157,7 +157,7 @@ function applyCurrentViewWithFilters() {
 }
 
 function filterPostsByCat(posts) {
-  const catList = document.querySelector(".Categories > ul");
+  const catList = document.querySelector(".Categories .SectionContent > ul");
   if (catList && catList.dataset.filters) {
     const filters = JSON.parse(catList.dataset.filters || "[]");
     if (filters.length > 0) {
@@ -175,7 +175,7 @@ function filterPostsByCat(posts) {
 }
 
 function filterBoardsByCat(boards) {
-  const catList = document.querySelector(".Categories > ul");
+  const catList = document.querySelector(".Categories .SectionContent > ul");
   if (catList && catList.dataset.filters) {
     const filters = JSON.parse(catList.dataset.filters || "[]");
     if (filters.length > 0) {
@@ -260,6 +260,7 @@ async function filterAll() {
       posts = orderBy(posts, "post");
 
       window.renderPosts(posts);
+      window.renderNavPosts(posts); // Add this line to update navigation
     }
 
     else if (currentView === "boards") {
