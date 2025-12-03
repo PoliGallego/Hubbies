@@ -119,7 +119,11 @@ module.exports = {
             const boards = await Board.find({
                 idUser: String(userId),
                 active: true
-            }).sort({ updatedAt: -1 }); // Últimos editados primero
+            }).sort({
+                pinned: -1,
+                pinnedAt: -1,
+                originalCreatedAt: -1
+            }); // Últimos editados primero
 
             res.json({
                 success: true,
@@ -349,5 +353,31 @@ module.exports.getSharedBoard = async (req, res) => {
     } catch (error) {
         console.error("Error getting shared board:", error);
         res.status(500).json({ success: false, message: "Error loading shared board" });
+    }
+};
+
+module.exports.togglePinBoard = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user.id; 
+
+        const board = await Board.findOne({ _id: id, idUser: userId });
+
+        if (!board) {
+            return res.status(404).json({ success: false, message: "Board not found" });
+        }
+
+        board.pinned = !board.pinned;
+        board.pinnedAt = board.pinned ? new Date() : null;
+        await board.save();
+
+        res.json({
+            success: true,
+            pinned: board.pinned,
+            message: board.pinned ? "Board pinned" : "Board unpinned",
+        });
+    } catch (error) {
+        console.error("Error toggling pin board:", error);
+        res.status(500).json({ success: false, message: "Error updating board" });
     }
 };

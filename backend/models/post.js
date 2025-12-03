@@ -53,6 +53,10 @@ const PostSchema = new Mongoose.Schema(
       type: Date,
       default: null,
     },
+    originalCreatedAt: {
+      type: Date,
+      default: () => new Date()
+    },
   },
   {
     timestamps: true,

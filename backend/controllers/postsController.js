@@ -142,7 +142,11 @@ const getUserPosts = async (req, res) => {
     const posts = await Post.find({
       idUser: userId,
       active: true
-    }).sort({ pinned: -1, pinnedAt: -1, createdAt: -1 });
+    }).sort({
+      pinned: -1,
+      pinnedAt: -1,
+      originalCreatedAt: -1
+    });
 
     const postsWithSections = await Promise.all(
       posts.map(async (post) => {
@@ -423,16 +427,25 @@ const togglePinPost = async (req, res) => {
       return res.status(404).json({ success: false, message: "Post not found" });
     }
 
-    // Toggle pinned state
+    // Toggle
     post.pinned = !post.pinned;
-    post.pinnedAt = post.pinned ? new Date() : null;
+
+    if (post.pinned) {
+      post.pinned = true;
+      post.pinnedAt = new Date();
+    } else {
+      post.pinned = false;
+      post.pinnedAt = null;
+    }
+
     await post.save();
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       pinned: post.pinned,
       message: post.pinned ? "Post pinned successfully" : "Post unpinned successfully"
     });
+
   } catch (error) {
     console.error("Error toggling pin post:", error);
     res.status(500).json({ success: false, message: "Error updating post" });

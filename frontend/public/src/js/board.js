@@ -424,6 +424,12 @@ function createBoardHTML(board) {
               ${board.privacy === "public" ? "Public" : "Private"}
             </span>
 
+            <button class="IconButton pin-board-btn ${board.pinned ? 'pinned' : ''}" 
+                    data-board-id="${board._id}" 
+                    title="${board.pinned ? 'Unpin board' : 'Pin board'}">
+                <span class="material-icons">push_pin</span>
+            </button>
+
             <button class="IconButton fullscreen-board-btn" data-board-id="${board._id}">
               <span class="material-icons">fullscreen</span>
             </button>
@@ -435,6 +441,9 @@ function createBoardHTML(board) {
             <button class="IconButton delete-board-btn" data-board-id="${board._id}">
               <span class="material-icons">delete_outline</span>
             </button>
+
+
+
           </div>
         </header>
 
@@ -678,6 +687,13 @@ function setupBoardEventListeners() {
             openBoardEditor(boardId);
         });
     });
+
+    document.querySelectorAll(".pin-board-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            const boardId = e.target.closest(".pin-board-btn").dataset.boardId;
+            togglePinBoard(boardId, btn);
+        });
+    });
 }
 
 function confirmDeleteBoard(boardId) {
@@ -711,6 +727,7 @@ function confirmDeleteBoard(boardId) {
             document.querySelector(`[data-board-id="${boardId}"]`).remove();
 
             Swal.fire("Deleted!", "The board has been removed.", "success");
+            refreshFeedAfterUpdate();
 
         } catch (err) {
             console.error("Delete board error:", err);
@@ -1062,6 +1079,7 @@ async function loadUserFeedAll() {
         renderUnifiedFeed(unifiedItems);
         updateAllPostCommentCounts(filteredPosts);
         updateAllBoardCommentCounts(filteredBoards);
+        filterAll();
 
         console.log("Feed All filtrado cargado:", {
             posts: filteredPosts.length,
@@ -1502,6 +1520,32 @@ function copyShareLink() {
     input.select();
     document.execCommand("copy");
     Swal.fire({ icon: 'success', title: 'Copied!', toast: true, position: 'top-end', timer: 1500 });
+}
+
+async function togglePinBoard(boardId, element) {
+    try {
+        const token = localStorage.getItem("token");
+
+        const res = await fetch(`/api/boards/${boardId}/pin`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            // Cambiamos visualmente el icono
+            element.classList.toggle("pinned");
+            element.title = data.pinned ? "Unpin board" : "Pin board";
+            // Refrescar vista actual (ALL o boards/posts)
+            filterAll();
+        }
+    } catch (err) {
+        console.error("Error pineando board:", err);
+    }
 }
 
 document.getElementById("OpenBoardCreatorBtn").addEventListener("click", () => {

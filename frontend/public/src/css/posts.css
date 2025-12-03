@@ -1643,6 +1643,50 @@ body.modal-open {
     margin-left: 8px !important;
 }
 
+.pin-board-btn {
+    background-color: transparent !important;
+    border: 1px solid var(--BorderColor) !important;
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin-left: 8px !important;
+}
+
+/* HOVER por cada botón */
+.pin-board-btn:hover {
+    background-color: #ffebee !important;
+    border-color: #f0d121 !important;
+}
+
+.pin-board-btn:hover .material-icons {
+    color: #f0d121 !important;
+}
+
+.pin-board-btn:active .material-icons {
+    animation: pinBounce 0.4s ease;
+}
+
+.pin-board-btn.pinned {
+    background-color: rgba(255, 193, 7, 0.15) !important;
+    border-color: rgba(255, 193, 7, 0.4) !important;
+}
+
+.pin-board-btn.pinned .material-icons {
+    color: #ffa000 !important;
+    transform: rotate(45deg);
+    animation: pinRotate 0.4s ease;
+}
+
+.pin-board-btn.pinned:hover {
+    background-color: rgba(255, 193, 7, 0.2) !important;
+    border-color: rgba(255, 193, 7, 0.5) !important;
+}
+
 .delete-board-btn {
     background-color: transparent !important;
     border: 1px solid var(--BorderColor) !important;
@@ -3194,6 +3238,7 @@ RECENT COMMENTS STYLES
     background: var(--border-primary) !important;
     opacity: 0.5 !important;
 }
+
 /* Make divider darker */
 .Navigation::after {
     opacity: 0.8 !important;
@@ -3334,9 +3379,9 @@ RECENT COMMENTS STYLES
 
 /* Smooth transitions for collapsible content */
 .SectionContent {
-    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
-                opacity 0.3s ease,
-                margin-top 0.3s ease;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.3s ease,
+        margin-top 0.3s ease;
 }
 
 .SectionContent.collapsed {
@@ -3398,7 +3443,8 @@ RECENT COMMENTS STYLES
 .Categories ul li a:hover {
     background: rgba(128, 128, 128, 0.08) !important;
     color: #555 !important;
-    transform: none !important; /* Remove slide effect */
+    transform: none !important;
+    /* Remove slide effect */
 }
 
 /* Selected category - gray tones */
@@ -3519,7 +3565,7 @@ RECENT COMMENTS STYLES
 }
 
 /* Clean up Categories header - remove button container */
-.CategoriesRow > div {
+.CategoriesRow>div {
     display: none !important;
 }
 
@@ -3698,4 +3744,3 @@ RECENT COMMENTS STYLES
     margin-top: 0 !important;
     padding-top: 0 !important;
 }
-

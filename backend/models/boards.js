@@ -35,6 +35,18 @@ const BoardSchema = new mongoose.Schema(
                 ref: "Comment",
             },
         ],
+        pinned: {
+            type: Boolean,
+            default: false
+        },
+        pinnedAt: {
+            type: Date,
+            default: null
+        },
+        originalCreatedAt: {
+            type: Date,
+            default: Date.now
+        }
     },
     { timestamps: true }
 );

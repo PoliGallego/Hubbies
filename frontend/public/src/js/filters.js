@@ -51,19 +51,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchBtn = document.getElementById("SearchBtn");
 
   searchBtn.addEventListener("click", () => {
-    searchBar.dataset.query = searchBar.value.trim();
-    filterAll();
-  });
-  searchBar.addEventListener("keydown", function (e) {
-    if (e.key === "Enter") {
-      searchBar.dataset.query = searchBar.value.trim();
-      filterAll();
-    }
+    executeSearch();
   });
 
-  searchBar.addEventListener("focusout", () => {
-    if (searchBar.dataset.query !== searchBar.value.trim()) {
-      searchBar.value = searchBar.dataset.query || "";
+  searchBar.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      executeSearch();
     }
   });
 
@@ -99,6 +92,59 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 });
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadInitialSearchSuggestions();
+});
+
+async function loadInitialSearchSuggestions() {
+  const currentView = document.querySelector('input[name="feedView"]:checked')?.value || "all";
+
+  if (currentView === "posts") {
+    const posts = await fetchPosts();
+    fillSearchSuggestions(posts, []);
+  }
+
+  else if (currentView === "boards") {
+    const boards = await fetchBoards();
+    fillSearchSuggestions([], boards);
+  }
+
+  else { // ALL
+    const [posts, boards] = await Promise.all([
+      fetchPosts(),
+      fetchBoards()
+    ]);
+    fillSearchSuggestions(posts, boards);
+  }
+}
+
+function executeSearch() {
+  const searchBar = document.getElementById("SearchBar");
+  searchBar.dataset.query = searchBar.value.trim();
+  filterAll();
+}
+
+function fillSearchSuggestions(posts = [], boards = []) {
+  const datalist = document.getElementById("SearchList");
+  if (!datalist) return;
+
+  datalist.innerHTML = "";
+
+  // Agregar posts
+  posts.forEach(post => {
+    const option = document.createElement('option');
+    option.value = post.title;
+    datalist.appendChild(option);
+  });
+
+  // Agregar boards
+  boards.forEach(board => {
+    const option = document.createElement('option');
+    option.value = board.title;
+    datalist.appendChild(option);
+  });
+}
 
 async function fetchPosts() {
   const token = localStorage.getItem("token");
@@ -139,8 +185,6 @@ async function fetchBoards() {
   console.log("fetchBoards response:", res);
   console.log("Boards recibidos:", data);
   return data.success ? data.boards : [];
-
-
 }
 
 // ⭐ NUEVA FUNCIÓN: Aplicar la vista actual con filtros
@@ -204,6 +248,18 @@ function orderBy(items, type) {
 
   if (!items || !Array.isArray(items)) return items;
 
+  // Orden base: primero pinned, luego normales
+  items = items.sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    if (a.pinned && b.pinned) {
+      return new Date(b.pinnedAt || 0) - new Date(a.pinnedAt || 0);
+    }
+    const dateA = new Date(a.originalCreatedAt || a.createdAt);
+    const dateB = new Date(b.originalCreatedAt || b.createdAt);
+    return dateB - dateA;
+  });
+
   // Función para obtener el título de la categoría
   const getCategoryTitle = (obj) => {
     if (!obj.categories || obj.categories.length === 0) return "";
@@ -216,20 +272,25 @@ function orderBy(items, type) {
     return "";
   };
 
+  // Aplicar filtros de dropdown
   switch (filterType) {
     case "date":
       return items.sort(
         (a, b) =>
-          new Date(a.updatedAt || a.createdAt) -
-          new Date(b.updatedAt || b.createdAt)
+          new Date(a.originalCreatedAt || a.createdAt) -
+          new Date(b.originalCreatedAt || b.createdAt)
       );
+
     case "title":
       return items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+
     case "section":
       return items.sort((a, b) =>
         getCategoryTitle(a).localeCompare(getCategoryTitle(b))
       );
+
     default:
+      // Por defecto ya devolvemos orden con pinned arriba
       return items;
   }
 }
@@ -260,7 +321,9 @@ async function filterAll() {
       posts = orderBy(posts, "post");
 
       window.renderPosts(posts);
-      window.renderNavPosts(posts); // Add this line to update navigation
+      window.renderNavPosts(posts);
+
+      fillSearchSuggestions(posts, []);
     }
 
     else if (currentView === "boards") {
@@ -270,57 +333,74 @@ async function filterAll() {
       boards = orderBy(boards, "board");
 
       renderBoards(boards);
+      fillSearchSuggestions([], boards);
     }
 
     else { // VISTA "ALL"
       let [posts, boards] = await Promise.all([fetchPosts(), fetchBoards()]);
 
+      // Aplicar búsqueda y filtros (SIN ordenar todavía)
       posts = search(query, posts, "post");
       posts = filterPostsByCat(posts);
-      posts = orderBy(posts, "post");
 
       boards = search(query, boards, "board");
       boards = filterBoardsByCat(boards);
-      boards = orderBy(boards, "board");
 
+      // ⭐ Unificar SIN ordenar previamente
+      const unifiedFeed = [
+        ...posts.map(p => ({ type: "post", data: p })),
+        ...boards.map(b => ({ type: "board", data: b }))
+      ];
+
+      // ⭐ ÚNICO ordenamiento: aquí se aplica a posts y boards juntos
       const dropdown = document.getElementById("FilterDropdown");
       const checked = dropdown?.querySelector("input:checked");
       const filterType = checked?.id?.replace("filterBy", "").toLowerCase();
 
-      let unifiedFeed = [];
+      unifiedFeed.sort((a, b) => {
+        const aData = a.data;
+        const bData = b.data;
 
-      if (filterType === "date") {
-        // MÁS ANTIGUO → MÁS RECIENTE
-        unifiedFeed = [
-          ...posts.map(p => ({ type: "post", data: p, date: new Date(p.updatedAt || p.createdAt) })),
-          ...boards.map(b => ({ type: "board", data: b, date: new Date(b.updatedAt || b.createdAt) }))
-        ].sort((a, b) => a.date - b.date); // <-- Cambio aquí, ascendente
-      } else if (filterType === "title") {
-        unifiedFeed = [
-          ...posts.map(p => ({ type: "post", data: p, title: p.title })),
-          ...boards.map(b => ({ type: "board", data: b, title: b.title }))
-        ].sort((a, b) => (a.title || "").localeCompare(b.title || ""));
-      } else if (filterType === "section") {
-        const getCategoryTitle = obj =>
-          obj.type === "post"
-            ? obj.data.categories?.[0]?.title || ""
-            : window.sectionsMap?.[obj.data.categories?.[0]] || "";
+        // 1. Pineados van primero
+        if (aData.pinned && !bData.pinned) return -1;
+        if (!aData.pinned && bData.pinned) return 1;
 
-        unifiedFeed = [
-          ...posts.map(p => ({ type: "post", data: p })),
-          ...boards.map(b => ({ type: "board", data: b }))
-        ].sort((a, b) => getCategoryTitle(a).localeCompare(getCategoryTitle(b)));
-      } else {
-        // Default: posts primero, boards después
-        unifiedFeed = [
-          ...posts.map(p => ({ type: "post", data: p, date: new Date(p.updatedAt || p.createdAt) })),
-          ...boards.map(b => ({ type: "board", data: b, date: new Date(b.updatedAt || b.createdAt) }))
-        ];
-      }
+        // 2. Entre pineados, por fecha de pinned (más reciente primero)
+        if (aData.pinned && bData.pinned) {
+          return new Date(bData.pinnedAt || 0) - new Date(aData.pinnedAt || 0);
+        }
 
+        // 3. Entre NO pineados, aplicar el filtro activo
+        switch (filterType) {
+          case "date":
+            const dateA = new Date(aData.originalCreatedAt || aData.createdAt);
+            const dateB = new Date(bData.originalCreatedAt || bData.createdAt);
+            return dateA - dateB; // Ascendente
+
+          case "title":
+            return (aData.title || "").localeCompare(bData.title || "");
+
+          case "section":
+            const getCategoryTitle = (item) => {
+              if (!item.data.categories || item.data.categories.length === 0) return "";
+              if (item.type === "post") {
+                return item.data.categories[0]?.title || "";
+              }
+              return window.sectionsMap?.[item.data.categories[0]] || "";
+            };
+            return getCategoryTitle(a).localeCompare(getCategoryTitle(b));
+
+          default:
+            // Sin filtro: más recientes primero
+            const defaultDateA = new Date(aData.originalCreatedAt || aData.createdAt);
+            const defaultDateB = new Date(bData.originalCreatedAt || bData.createdAt);
+            return defaultDateB - defaultDateA; // Descendente
+        }
+      });
+
+      fillSearchSuggestions(posts, boards);
       renderUnifiedFeed(unifiedFeed);
     }
-
   } catch (err) {
     console.error("Error al filtrar:", err);
   }
