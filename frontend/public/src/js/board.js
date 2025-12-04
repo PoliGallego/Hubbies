@@ -420,9 +420,12 @@ function createBoardHTML(board) {
         <header class="BoardCardHeader">
           <h2 class="BoardCardTitle">${board.title || "Untitled Board"}</h2>
           <div class="BoardCardActions">
-            <span class="PrivacyDisplay ${board.privacy === "public" ? "PrivacyPublic" : "PrivacyPrivate"}">
+            <button class="toggle-privacy-btn PrivacyDisplay ${board.privacy === "public" ? "PrivacyPublic" : "PrivacyPrivate"}" 
+                    data-board-id="${board._id}"
+                    data-current-privacy="${board.privacy}"
+                    title="Toggle privacy">
               ${board.privacy === "public" ? "Public" : "Private"}
-            </span>
+            </button>
 
             <button class="IconButton pin-board-btn ${board.pinned ? 'pinned' : ''}" 
                     data-board-id="${board._id}" 
@@ -467,9 +470,11 @@ function createBoardHTML(board) {
             ${commentsCount}
           </span>
         </div>
+        ${board.privacy === "public" ? `
         <button class="IconButton share-board-btn" data-board-id="${board._id}">
           <span class="material-icons">share</span>
         </button>
+        ` : ''}
       </div>
       
       <!-- Comments section -->
@@ -692,6 +697,15 @@ function setupBoardEventListeners() {
         btn.addEventListener("click", (e) => {
             const boardId = e.target.closest(".pin-board-btn").dataset.boardId;
             togglePinBoard(boardId, btn);
+        });
+    });
+
+    document.querySelectorAll(".BoardPublication .toggle-privacy-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+            const button = e.target.closest(".toggle-privacy-btn");
+            const boardId = button.dataset.boardId;
+            const currentPrivacy = button.dataset.currentPrivacy;
+            toggleBoardPrivacy(boardId, currentPrivacy);
         });
     });
 }
@@ -1443,8 +1457,8 @@ feedColumn.addEventListener("click", (e) => {
 // ====== VARIABLES GLOBALES (una sola para todo) ======
 let currentShareItem = { id: null, type: null }; // 'post' o 'board'
 
-// ====== ABRIR MODAL PARA POST (tu función original, solo cambia la variable) ======
-async function openShareModal(postId) {
+// ====== ABRIR MODAL PARA POST ======
+async function openShareModalForPost(postId) {
     currentShareItem = { id: postId, type: 'post' };
     await openShareModalUniversal();
 }
@@ -1459,7 +1473,6 @@ async function openShareBoardModal(boardId) {
 async function openShareModalUniversal() {
     const modal = document.getElementById("ShareModal");
     const linkInput = document.getElementById("shareLinkInput");
-    const revokeBtn = document.getElementById("revokeLinkBtn");
     const titleEl = document.getElementById("shareModalTitle");
     const descEl = document.getElementById("shareModalDescription");
 
@@ -1491,7 +1504,6 @@ async function openShareModalUniversal() {
 
         linkInput.value = shareUrl;
         modal.style.display = "flex";
-        revokeBtn.style.display = "flex";
 
     } catch (error) {
         console.error("Error generating share link:", error);
@@ -1525,7 +1537,6 @@ async function revokeShareLink() {
 // ====== CERRAR MODAL (universal) ======
 function closeShareModal() {
     document.getElementById("ShareModal").style.display = "none";
-    document.getElementById("revokeLinkBtn").style.display = "none";
     currentShareItem = { id: null, type: null };
 }
 
@@ -1535,6 +1546,99 @@ function copyShareLink() {
     input.select();
     document.execCommand("copy");
     Swal.fire({ icon: 'success', title: 'Copied!', toast: true, position: 'top-end', timer: 1500 });
+}
+
+async function toggleBoardPrivacy(boardId, currentPrivacy) {
+    try {
+        const token = localStorage.getItem("token");
+        const newPrivacy = currentPrivacy === "public" ? "private" : "public";
+        
+        // First, get the current board data
+        const getBoardRes = await fetch(`/api/boards/${boardId}`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        
+        if (!getBoardRes.ok) {
+            throw new Error("Could not fetch board data");
+        }
+        
+        const currentBoard = await getBoardRes.json();
+        
+        // Now update with all fields plus new privacy
+        const response = await fetch(`/api/boards/${boardId}`, {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: currentBoard.board.title,
+                items: JSON.stringify(currentBoard.board.items),
+                categories: JSON.stringify(currentBoard.board.categories),
+                privacy: newPrivacy,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // If changing to private, invalidate share link
+            if (newPrivacy === "private") {
+                try {
+                    await fetch(`/api/boards/${boardId}/unshare`, {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                } catch (err) {
+                    console.warn("Could not unshare board:", err);
+                }
+            }
+            
+            // Find the share button for this board
+            const boardElement = document.querySelector(`[data-board-id="${boardId}"]`);
+            const shareBtn = boardElement.querySelector(".share-board-btn");
+            
+            if (newPrivacy === "private" && shareBtn) {
+                // Animate out
+                shareBtn.style.animation = "fadeOut 0.3s ease forwards";
+                setTimeout(() => {
+                    shareBtn.remove();
+                }, 300);
+            } else if (newPrivacy === "public" && !shareBtn) {
+                // Add share button with animation
+                const bottomBar = boardElement.querySelector(".BottomBar");
+                const newShareBtn = document.createElement("button");
+                newShareBtn.className = "IconButton share-board-btn";
+                newShareBtn.dataset.boardId = boardId;
+                newShareBtn.innerHTML = '<span class="material-icons">share</span>';
+                newShareBtn.style.animation = "fadeIn 0.3s ease forwards";
+                newShareBtn.addEventListener("click", () => openShareBoardModal(boardId));
+                bottomBar.appendChild(newShareBtn);
+            }
+            
+            // Update privacy button
+            const privacyBtn = boardElement.querySelector(".toggle-privacy-btn");
+            privacyBtn.dataset.currentPrivacy = newPrivacy;
+            privacyBtn.textContent = newPrivacy === "public" ? "Public" : "Private";
+            privacyBtn.className = `toggle-privacy-btn PrivacyDisplay ${newPrivacy === "public" ? "PrivacyPublic" : "PrivacyPrivate"}`;
+        } else {
+            throw new Error(data.message || "Error updating privacy");
+        }
+    } catch (error) {
+        console.error("Error toggling board privacy:", error);
+        if (typeof Swal !== "undefined") {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Could not update board privacy",
+            });
+        }
+    }
 }
 
 async function togglePinBoard(boardId, element) {
@@ -1567,5 +1671,11 @@ document.getElementById("OpenBoardCreatorBtn").addEventListener("click", () => {
     loadSections();
     openBoardModal();
 });
+
+// Export universal share functions for use by posts.js
+window.openShareModalForPost = openShareModalForPost;
+window.openShareBoardModal = openShareBoardModal;
+window.closeShareModal = closeShareModal;
+window.copyShareLink = copyShareLink;
 
 

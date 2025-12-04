@@ -275,7 +275,6 @@ module.exports = {
                 { new: true }
             );
 
-            console.log("Board updated successfully:", updatedBoard._id);
             return res.json({ success: true, board: updatedBoard });
 
         } catch (err) {

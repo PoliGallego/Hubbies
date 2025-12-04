@@ -322,10 +322,24 @@ body {
 @keyframes fadeIn {
     from {
         opacity: 0;
+        transform: scale(0.8);
     }
 
     to {
         opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: scale(0.8);
     }
 }
 
@@ -2825,20 +2839,32 @@ body.modal-open {
     font-weight: 600 !important;
     text-transform: uppercase !important;
     letter-spacing: 0.5px !important;
-    cursor: default !important;
+    cursor: pointer !important;
     transition: all 0.2s ease !important;
+    background: none !important;
+    border: none !important;
 }
 
-.PrivacyPublic {
+.toggle-privacy-btn.PrivacyPublic {
     background-color: #e8f5e8 !important;
     color: #2e7d2e !important;
     border: 1px solid #a8d5a8 !important;
 }
 
-.PrivacyPrivate {
+.toggle-privacy-btn.PrivacyPrivate {
     background-color: #ffeaa7 !important;
     color: #6c5500 !important;
     border: 1px solid #ddc760 !important;
+}
+
+.toggle-privacy-btn.PrivacyPublic:hover {
+    background-color: #d4edd4 !important;
+    transform: scale(1.05) !important;
+}
+
+.toggle-privacy-btn.PrivacyPrivate:hover {
+    background-color: #ffd97d !important;
+    transform: scale(1.05) !important;
 }
 
 .TagReadOnly {
@@ -2959,6 +2985,10 @@ body.modal-open {
     100% {
         transform: scale(1);
     }
+}
+
+.toggle-privacy-btn:active {
+    transform: scale(0.95) !important;
 }
 
 .CardControls .IconButton .material-icons {
@@ -3743,4 +3773,157 @@ RECENT COMMENTS STYLES
 .Categories {
     margin-top: 0 !important;
     padding-top: 0 !important;
+}
+
+/* ==================== Share Modal Redesign ==================== */
+.ShareModalContent {
+    max-width: 480px !important;
+    padding: 40px 30px !important;
+    text-align: center;
+    animation: modalSlideIn 0.3s ease;
+}
+
+.ShareModalClose {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    color: var(--TextColorSecondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ShareModalClose:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--TextColorPrimary);
+    transform: rotate(90deg);
+}
+
+.ShareModalIcon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
+}
+
+.ShareModalIcon .material-icons {
+    font-size: 32px;
+    color: white;
+}
+
+.ShareModalTitle {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--TextColorPrimary);
+    margin-bottom: 10px;
+}
+
+.ShareModalDescription {
+    font-size: 14px;
+    color: var(--TextColorSecondary);
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.ShareLinkBox {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding: 12px;
+    background: var(--bg-accent);
+    border: 2px solid var(--border-primary);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.ShareLinkBox:focus-within {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.ShareLinkInput {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    color: var(--TextColorPrimary);
+    font-size: 14px;
+    font-family: 'Courier New', monospace;
+    outline: none;
+}
+
+.ShareCopyBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.ShareCopyBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.ShareCopyBtn:active {
+    transform: translateY(0);
+}
+
+.ShareCopyBtn .material-icons {
+    font-size: 18px;
+}
+
+.ShareModalFooter {
+    padding-top: 20px;
+    border-top: 1px solid var(--border-primary);
+}
+
+.ShareModalHint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--TextColorSecondary);
+    margin: 0;
+}
+
+.ShareModalHint .material-icons {
+    font-size: 18px;
+    color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .ShareModalContent {
+        padding: 30px 20px !important;
+    }
+    
+    .ShareModalTitle {
+        font-size: 20px;
+    }
+    
+    .ShareCopyText {
+        display: none;
+    }
 }

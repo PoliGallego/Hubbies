@@ -313,7 +313,12 @@ function createPostHTML(post) {
         <div class="CardHeader">
           <h2 class="PostTitleReadOnly">"${post.title}"</h2>
           <div class="CardControls">
-            <span class="PrivacyDisplay ${privacyClass}">${privacyText}</span>
+            <button class="toggle-privacy-btn PrivacyDisplay ${privacyClass}" 
+                    data-post-id="${post._id}"
+                    data-current-privacy="${post.privacy}"
+                    title="Toggle privacy">
+              ${privacyText}
+            </button>
             <button class="IconButton pin-post-btn ${post.pinned ? 'pinned' : ''}" 
                     data-post-id="${post._id}" 
                     title="${post.pinned ? 'Unpin post' : 'Pin post'}">
@@ -343,9 +348,11 @@ function createPostHTML(post) {
             ${post.comments?.length || 0}
           </span>
         </div>
+        ${post.privacy === "public" ? `
         <button class="IconButton share-post-btn" data-post-id="${post._id}">
           <span class="material-icons">share</span>
         </button>
+        ` : ''}
       </div>     
       
       <div class="CommentsSection" id="comments-section-${post._id
@@ -395,6 +402,15 @@ function setupPostEventListeners() {
     btn.addEventListener("click", (e) => {
       const postId = e.target.closest(".pin-post-btn").dataset.postId;
       togglePinPost(postId);
+    });
+  });
+
+  document.querySelectorAll(".Publication:not(.BoardPublication) .toggle-privacy-btn").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const button = e.target.closest(".toggle-privacy-btn");
+      const postId = button.dataset.postId;
+      const currentPrivacy = button.dataset.currentPrivacy;
+      togglePrivacy(postId, currentPrivacy);
     });
   });
 }
@@ -881,169 +897,94 @@ function setupModalCloseListeners() {
 }
 
 // ============ SHARE POST FUNCTIONS ============
-let currentSharingPostId = null;
+// Note: These functions are now handled by board.js universal sharing system
+// We just create aliases that call the universal functions
 
-async function openShareModal(postId) {
-  currentSharingPostId = postId;
-  const modal = document.getElementById("ShareModal");
-  const shareLinkInput = document.getElementById("shareLinkInput");
-
-  if (!modal || !shareLinkInput) {
-    console.error("Share modal elements not found");
-    return;
-  }
-
-  try {
-    const token = localStorage.getItem("token");
-    const response = await fetch(`/api/posts/${postId}/share`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const data = await response.json();
-
-    if (data.success && data.shareToken) {
-      const shareUrl = `${window.location.origin}/frontend/public/src/html/post-shared.html?token=${data.shareToken}`;
-      shareLinkInput.value = shareUrl;
-      modal.style.display = "flex";
-    } else {
-      throw new Error(data.message || "Error generating share link");
-    }
-  } catch (error) {
-    console.error("Error sharing post:", error);
-    if (typeof Swal !== "undefined") {
-      Swal.fire("Error", "Could not generate share link", "error");
-    } else {
-      alert("Could not generate share link");
-    }
+function openShareModal(postId) {
+  // board.js will handle this with openShareModalForPost
+  if (window.openShareModalForPost) {
+    window.openShareModalForPost(postId);
   }
 }
-
-function closeShareModal() {
-  const modal = document.getElementById("ShareModal");
-  if (modal) {
-    modal.style.display = "none";
-  }
-  currentSharingPostId = null;
-}
-
-async function copyShareLink() {
-  const shareLinkInput = document.getElementById("shareLinkInput");
-
-  if (!shareLinkInput) return;
-
-  try {
-    await navigator.clipboard.writeText(shareLinkInput.value);
-
-    if (typeof Swal !== "undefined") {
-      Swal.fire({
-        icon: "success",
-        title: "Link Copied!",
-        text: "Share link copied to clipboard",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } else {
-      alert("Link copied to clipboard!");
-    }
-  } catch (error) {
-    console.error("Error copying to clipboard:", error);
-
-    // Fallback method
-    shareLinkInput.select();
-    document.execCommand("copy");
-
-    if (typeof Swal !== "undefined") {
-      Swal.fire({
-        icon: "success",
-        title: "Link Copied!",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } else {
-      alert("Link copied!");
-    }
-  }
-}
-
-async function revokeShareLink() {
-  if (!currentSharingPostId) return;
-
-  try {
-    if (typeof Swal !== "undefined") {
-      const result = await Swal.fire({
-        title: "Disable Share Link?",
-        text: "The current link will stop working immediately",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, disable it",
-        cancelButtonText: "Cancel",
-      });
-
-      if (!result.isConfirmed) return;
-    } else {
-      if (!confirm("Are you sure you want to disable the share link?")) {
-        return;
-      }
-    }
-
-    const token = localStorage.getItem("token");
-    const response = await fetch(`/api/posts/${currentSharingPostId}/unshare`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      closeShareModal();
-
-      if (typeof Swal !== "undefined") {
-        Swal.fire("Disabled!", "Share link has been disabled", "success");
-      } else {
-        alert("Share link disabled successfully");
-      }
-    } else {
-      throw new Error(data.message || "Error disabling share link");
-    }
-  } catch (error) {
-    console.error("Error revoking share link:", error);
-    if (typeof Swal !== "undefined") {
-      Swal.fire("Error", "Could not disable share link", "error");
-    } else {
-      alert("Could not disable share link");
-    }
-  }
-}
-
-// Close modal when clicking outside
-document.addEventListener("click", function (e) {
-  const modal = document.getElementById("ShareModal");
-  if (modal && e.target === modal) {
-    closeShareModal();
-  }
-});
-
-// Close modal with Escape key
-document.addEventListener("keydown", function (e) {
-  if (e.key === "Escape") {
-    closeShareModal();
-  }
-});
 
 window.addSectionToPost = addSectionToPost;
 window.removeSelectedSection = removeSelectedSection;
 window.handleImageUpload = handleImageUpload;
 window.removeImage = removeImage;
 window.triggerImageUpload = triggerImageUpload;
+
+async function togglePrivacy(postId, currentPrivacy) {
+  try {
+    const token = localStorage.getItem("token");
+    const newPrivacy = currentPrivacy === "public" ? "private" : "public";
+    
+    const response = await fetch(`/api/posts/${postId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ privacy: newPrivacy }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // If changing to private, invalidate share link
+      if (newPrivacy === "private") {
+        try {
+          await fetch(`/api/posts/${postId}/unshare`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (err) {
+          console.warn("Could not unshare post:", err);
+        }
+      }
+
+      // Find the share button for this post
+      const postElement = document.querySelector(`[data-post-id="${postId}"]`);
+      const shareBtn = postElement.querySelector(".share-post-btn");
+      
+      if (newPrivacy === "private" && shareBtn) {
+        // Animate out
+        shareBtn.style.animation = "fadeOut 0.3s ease forwards";
+        setTimeout(() => {
+          shareBtn.remove();
+        }, 300);
+      } else if (newPrivacy === "public" && !shareBtn) {
+        // Add share button with animation
+        const bottomBar = postElement.querySelector(".BottomBar");
+        const newShareBtn = document.createElement("button");
+        newShareBtn.className = "IconButton share-post-btn";
+        newShareBtn.dataset.postId = postId;
+        newShareBtn.innerHTML = '<span class="material-icons">share</span>';
+        newShareBtn.style.animation = "fadeIn 0.3s ease forwards";
+        newShareBtn.addEventListener("click", () => openShareModal(postId));
+        bottomBar.appendChild(newShareBtn);
+      }
+      
+      // Update privacy button
+      const privacyBtn = postElement.querySelector(".toggle-privacy-btn");
+      privacyBtn.dataset.currentPrivacy = newPrivacy;
+      privacyBtn.textContent = newPrivacy === "public" ? "Public" : "Private";
+      privacyBtn.className = `toggle-privacy-btn PrivacyDisplay ${newPrivacy === "public" ? "PrivacyPublic" : "PrivacyPrivate"}`;
+    } else {
+      throw new Error(data.message || "Error updating privacy");
+    }
+  } catch (error) {
+    console.error("Error toggling privacy:", error);
+    if (typeof Swal !== "undefined") {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Could not update post privacy",
+      });
+    }
+  }
+}
 
 async function togglePinPost(postId) {
   try {
@@ -1084,9 +1025,6 @@ window.closeCreatePostModal = closeCreatePostModal;
 window.createPost = createPost;
 window.renderPosts = renderPosts;
 window.openShareModal = openShareModal;
-window.closeShareModal = closeShareModal;
-window.copyShareLink = copyShareLink;
-window.revokeShareLink = revokeShareLink;
 window.togglePinPost = togglePinPost;
 
 window.addEventListener("scroll", function () {

@@ -351,6 +351,14 @@ const sharePost = async (req, res) => {
       return res.status(404).json({ success: false, message: "Post not found" });
     }
 
+    // Verificar si el post es privado
+    if (post.privacy === "private") {
+      return res.status(403).json({ 
+        success: false, 
+        message: "Private posts cannot be shared. Please change the post to public first." 
+      });
+    }
+
     if (!post.shareToken) {
       post.shareToken = crypto.randomBytes(16).toString('hex');
     }
@@ -393,6 +401,14 @@ const getSharedPost = async (req, res) => {
 
     if (!post) {
       return res.status(404).json({ success: false, message: "Post not found or link disabled" });
+    }
+
+    // Verificar si el post es privado
+    if (post.privacy === "private") {
+      return res.status(403).json({ 
+        success: false, 
+        message: "This post is private and cannot be shared" 
+      });
     }
 
     const sectionsInfo = await Section.find({
