@@ -271,32 +271,31 @@
     </button>
 
     <div id="ShareModal" class="ModalOverlay" style="display: none;">
-        <div class="ModalContent" style="max-width: 500px;">
-            <div class="ModalHeader">
-                <h2 class="ModalTitle" id="shareModalTitle">Share Post</h2>
-                <button class="CloseButton" onclick="closeShareModal()">×</button> <!-- ← Universal -->
+        <div class="ModalContent ShareModalContent">
+            <button class="CloseButton ShareModalClose" onclick="closeShareModal()">×</button>
+            
+            <div class="ShareModalIcon">
+                <span class="material-icons">share</span>
             </div>
-            <div class="ModalBody">
-                <p id="shareModalDescription" style="margin-bottom: 15px; color: #666;">
-                    Anyone with this link can view this post.
+            
+            <h2 class="ShareModalTitle" id="shareModalTitle">Share Post</h2>
+            <p class="ShareModalDescription" id="shareModalDescription">
+                Anyone with this link can view this post.
+            </p>
+
+            <div class="ShareLinkBox">
+                <input type="text" id="shareLinkInput" readonly class="ShareLinkInput">
+                <button class="ShareCopyBtn" onclick="copyShareLink()" title="Copy Link">
+                    <span class="material-icons">content_copy</span>
+                    <span class="ShareCopyText">Copy</span>
+                </button>
+            </div>
+
+            <div class="ShareModalFooter">
+                <p class="ShareModalHint">
+                    <span class="material-icons">info</span>
+                    Put your post in private mode to disable sharing.
                 </p>
-
-                <div class="ShareLinkContainer" style="display: flex; gap: 10px; margin-bottom: 20px;">
-                    <input type="text" id="shareLinkInput" readonly
-                        style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f5f5f5;">
-                    <button class="PrimaryBtn" onclick="copyShareLink()" title="Copy Link">
-                        <span class="material-icons">content_copy</span>
-                    </button>
-                </div>
-
-                <div style="display: flex; justify-content: flex-end;">
-                    <button id="revokeLinkBtn" class="EditableActionButton"
-                        style="background-color: #ffebee; color: #d32f2f; border: none; display: none;"
-                        onclick="revokeShareLink()">
-                        <span class="material-icons">link_off</span>
-                        Disable Link
-                    </button>
-                </div>
             </div>
         </div>
     </div>
