@@ -232,3 +232,144 @@ document.addEventListener("click", async (e) => {
     }
   });
 });
+
+// ============ LLENAR NAVIGATION CON POSTS Y BOARDS ============
+async function loadNavigationItems() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    // Cargar posts
+    const postsRes = await fetch("/api/posts/my-posts", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const posts = postsRes.ok ? await postsRes.json() : [];
+
+    // Cargar boards
+    const boardsRes = await fetch("/api/boards/my", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const boardsData = boardsRes.ok ? await boardsRes.json() : {};
+    const boards = boardsData.boards || [];
+
+    // Combinar y ordenar por fecha
+    const allItems = [
+      ...posts.map((p) => ({ ...p, type: "post" })),
+      ...boards.map((b) => ({ ...b, type: "board" })),
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Tomar solo los 7 más recientes para Navigation
+    const navItems = allItems.slice(0, 7);
+
+    // Renderizar en Navigation
+    const navList = document.querySelector(".Navigation .SectionContent > ul");
+    if (navList) {
+      navList.innerHTML = "";
+
+      // Ocultar el mensaje "No posts"
+      const notFoundMsg = document.querySelector(".Navigation .SectionContent .NotFound");
+      if (notFoundMsg) {
+        notFoundMsg.style.display = "none";
+      }
+
+      navItems.forEach((item) => {
+        const li = document.createElement("li");
+        const icon = item.type === "post" ? "article" : "dashboard";
+
+        li.innerHTML = `
+          <div class="NavigationRow">
+            <a href="#" data-type="${item.type}" data-id="${item._id}">
+              <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">${icon}</span>
+              ${item.title}
+            </a>
+          </div>
+        `;
+        navList.appendChild(li);
+      });
+
+      // Event listeners para navegación
+      navList.querySelectorAll("a").forEach((link) => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const type = e.currentTarget.dataset.type;
+          const id = e.currentTarget.dataset.id;
+
+          const navigationData = {
+            type: type,
+            id: id,
+            scrollTo: true,
+            openComments: false,
+          };
+          localStorage.setItem("pendingNavigation", JSON.stringify(navigationData));
+          window.location.href = "/src/html/posts.html";
+        });
+      });
+
+      // Si hay más de 7, mostrar el botón "Ver más"
+      if (allItems.length > 7) {
+        const viewMoreBtn = document.querySelector(
+          ".Navigation .SectionContent .ViewMoreButton"
+        );
+        if (viewMoreBtn) {
+          viewMoreBtn.style.display = "flex";
+
+          let expanded = false;
+          viewMoreBtn.addEventListener("click", () => {
+            expanded = !expanded;
+            navList.innerHTML = "";
+
+            const itemsToShow = expanded ? allItems : allItems.slice(0, 7);
+            itemsToShow.forEach((item) => {
+              const li = document.createElement("li");
+              const icon = item.type === "post" ? "article" : "dashboard";
+
+              li.innerHTML = `
+                <div class="NavigationRow">
+                  <a href="#" data-type="${item.type}" data-id="${item._id}">
+                    <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">${icon}</span>
+                    ${item.title}
+                  </a>
+                </div>
+              `;
+              navList.appendChild(li);
+            });
+
+            navList.querySelectorAll("a").forEach((link) => {
+              link.addEventListener("click", (e) => {
+                e.preventDefault();
+                const type = e.currentTarget.dataset.type;
+                const id = e.currentTarget.dataset.id;
+
+                const navigationData = {
+                  type: type,
+                  id: id,
+                  scrollTo: true,
+                  openComments: true,
+                };
+                localStorage.setItem("pendingNavigation", JSON.stringify(navigationData));
+                window.location.href = "/src/html/posts.html";
+              });
+            });
+
+            viewMoreBtn.querySelector("span").textContent = expanded
+              ? "expand_less"
+              : "expand_more";
+            viewMoreBtn.childNodes[0].textContent = expanded
+              ? "View less"
+              : "View more";
+          });
+        }
+      }
+
+      // Re-inicializar el event listener de navigation
+      navEventListener();
+    }
+  } catch (error) {
+    console.error("Error loading navigation items:", error);
+  }
+}
+
+// Llamar después de que el DOM esté listo
+document.addEventListener("DOMContentLoaded", () => {
+  loadNavigationItems();
+});

@@ -85,86 +85,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     localStorage.removeItem("token");
     window.location.href = "/src/html/index.html";
   }
-
-  const box = document.querySelector(".recent-posts-box");
-  const listContainer = document.querySelector(".recent-posts-list");
-  if (!box || !listContainer) return;
-
-  let postsLoaded = false;
-
-  box.addEventListener("click", async () => {
-    const isOpen = box.classList.toggle("open");
-    box.classList.toggle("closed", !isOpen);
-
-    if (isOpen) {
-      listContainer.classList.remove("hidden");
-      listContainer.style.opacity = "0";
-      setTimeout(() => {
-        listContainer.style.opacity = "1";
-        listContainer.style.transform = "translateY(0)";
-      }, 200);
-
-      if (postsLoaded) return;
-
-      try {
-        const response = await fetch("/api/posts/my-posts", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Error fetching posts");
-
-        const posts = await response.json();
-        const lastFive = posts.slice(1, 6); // ← excluimos el más reciente
-
-        listContainer.innerHTML =
-          lastFive.length === 0
-            ? `<p class="loading-text">No more posts.</p>`
-            : lastFive
-              .map((post) => {
-                const categories =
-                  post.categories && post.categories.length > 0
-                    ? post.categories
-                      .map((cat) =>
-                        typeof cat === "string"
-                          ? cat
-                          : cat.title || cat.name || "Unknown"
-                      )
-                      .join(", ")
-                    : "Uncategorized";
-
-                return `
-              <div class="recent-post-item" data-id="${post._id}">
-                <strong>${post.title}</strong>
-                <small>
-                  🏷️ ${categories} • 📅 ${new Date(
-                  post.createdAt
-                ).toLocaleDateString()}
-                </small>
-              </div>
-            `;
-              })
-              .join("");
-
-        listContainer.querySelectorAll(".recent-post-item").forEach((item) => {
-          item.addEventListener("click", (e) => {
-            e.stopPropagation();
-            const id = item.dataset.id;
-            window.location.href = `/src/html/posts.html?id=${id}`;
-          });
-        });
-
-        postsLoaded = true;
-      } catch (error) {
-        console.error("Error loading posts:", error);
-        listContainer.innerHTML = `<p class="loading-text" style="color:#f55;">Error loading posts</p>`;
-      }
-    } else {
-      listContainer.style.opacity = "0";
-      listContainer.style.transform = "translateY(-10px)";
-      setTimeout(() => {
-        listContainer.classList.add("hidden");
-      }, 400);
-    }
-  });
 });
 
 async function loadSections() {
@@ -220,11 +140,15 @@ async function loadMostRecentBoard() {
 
     // Mostrar el más reciente
     const mostRecent = sortedByDate[0];
+    const categoryText = (mostRecent.categories || [])
+      .map(getCategoryTitleFromIdOrObj)
+      .filter(Boolean)
+      .join(", ") || "Uncategorized";
+
     latestBoardCard.innerHTML = `
       <div class="most-recent-board-card" data-id="${mostRecent._id}">
         <h3>${mostRecent.title}</h3>
-        <p class="recent-category">🏷️ ${mostRecent.categories?.map(catId => window.sectionsMap[catId] || "Unknown").join(", ") || "Uncategorized"
-      }</p>
+        <p class="recent-category">🏷️ ${categoryText}</p>
         <p class="recent-date">📅 ${new Date(mostRecent.createdAt).toLocaleDateString()}</p>
         <button class="go-to-post-btn">View Board</button>
       </div>
@@ -308,8 +232,10 @@ function navigateToBoard(boardId, openComments = false) {
 async function loadMostRecentPost() {
   const token = localStorage.getItem("token");
   const latestCard = document.querySelector(".latest-post-card");
+  const recentPostsBox = document.querySelector(".recent-posts-box");
+  const recentPostsList = document.querySelector(".recent-posts-list");
 
-  if (!latestCard) return;
+  if (!token || !latestCard || !recentPostsBox || !recentPostsList) return;
 
   try {
     const response = await fetch("/api/posts/my-posts", {
@@ -344,18 +270,77 @@ async function loadMostRecentPost() {
       <div class="most-recent-card" data-id="${mostRecent._id}">
         <h3>${mostRecent.title}</h3>
         <p class="recent-category">🏷️ ${categories}</p>
-        <p class="recent-date">📅 ${new Date(
-      mostRecent.createdAt
-    ).toLocaleDateString()}</p>
+        <p class="recent-date">📅 ${new Date(mostRecent.createdAt).toLocaleDateString()}</p>
         <button class="go-to-post-btn">View Post</button>
       </div>
     `;
 
-    latestCard
-      .querySelector(".go-to-post-btn")
-      .addEventListener("click", () => {
-        window.location.href = `/src/html/posts.html?id=${mostRecent._id}`;
-      });
+    latestCard.querySelector(".go-to-post-btn").addEventListener("click", () => {
+      window.location.href = `/src/html/posts.html?id=${mostRecent._id}`;
+    });
+
+    // Funcionalidad de More Posts
+    let postsLoaded = false;
+    recentPostsBox.addEventListener("click", async () => {
+      const isOpen = recentPostsBox.classList.toggle("open");
+      recentPostsBox.classList.toggle("closed", !isOpen);
+
+      if (isOpen) {
+        recentPostsList.classList.remove("hidden");
+        recentPostsList.style.opacity = "0";
+        setTimeout(() => {
+          recentPostsList.style.opacity = "1";
+          recentPostsList.style.transform = "translateY(0)";
+        }, 200);
+
+        if (postsLoaded) return;
+
+        // Tomar los siguientes 5 posts (excluyendo el más reciente)
+        const lastFive = sortedByDate.slice(1, 6);
+        recentPostsList.innerHTML =
+          lastFive.length === 0
+            ? `<p class="loading-text">No more posts.</p>`
+            : lastFive
+              .map((post) => {
+                const categories =
+                  post.categories && post.categories.length > 0
+                    ? post.categories
+                      .map((cat) =>
+                        typeof cat === "string"
+                          ? cat
+                          : cat.title || cat.name || "Unknown"
+                      )
+                      .join(", ")
+                    : "Uncategorized";
+
+                return `
+              <div class="recent-post-item" data-id="${post._id}">
+                <strong>${post.title}</strong>
+                <small>
+                  🏷️ ${categories} • 📅 ${new Date(post.createdAt).toLocaleDateString()}
+                </small>
+              </div>
+            `;
+              })
+              .join("");
+
+        recentPostsList.querySelectorAll(".recent-post-item").forEach((item) => {
+          item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = item.dataset.id;
+            window.location.href = `/src/html/posts.html?id=${id}`;
+          });
+        });
+
+        postsLoaded = true;
+      } else {
+        recentPostsList.style.opacity = "0";
+        recentPostsList.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          recentPostsList.classList.add("hidden");
+        }, 400);
+      }
+    });
 
   } catch (error) {
     console.error("Error loading most recent post:", error);
@@ -568,6 +553,159 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
-loadMostRecentBoard();
-loadMostRecentPost();
-loadSections();
+function getCategoryTitleFromIdOrObj(cat) {
+  // cat puede ser: "id", {_id: "...", title: "X"}, o {_id: "...", name: "X"}
+  if (!cat) return "Unknown";
+  if (typeof cat === "string") {
+    return window.sectionsMap?.[cat] || "Unknown";
+  }
+  // objeto
+  if (typeof cat === "object") {
+    return cat.title || cat.name || window.sectionsMap?.[cat._id] || "Unknown";
+  }
+  return "Unknown";
+}
+
+// ============ LLENAR NAVIGATION CON POSTS Y BOARDS ============
+async function loadNavigationItems() {
+  const token = localStorage.getItem("token");
+  if (!token) return;
+
+  try {
+    // Cargar posts
+    const postsRes = await fetch("/api/posts/my-posts", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const posts = postsRes.ok ? await postsRes.json() : [];
+
+    // Cargar boards
+    const boardsRes = await fetch("/api/boards/my", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const boardsData = boardsRes.ok ? await boardsRes.json() : {};
+    const boards = boardsData.boards || [];
+
+    // Combinar y ordenar por fecha
+    const allItems = [
+      ...posts.map(p => ({ ...p, type: 'post' })),
+      ...boards.map(b => ({ ...b, type: 'board' }))
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Tomar solo los 7 más recientes para Navigation
+    const navItems = allItems.slice(0, 7);
+
+    // Renderizar en Navigation
+    const navList = document.querySelector(".Navigation .SectionContent > ul");
+    if (navList) {
+      navList.innerHTML = '';
+
+      // Ocultar el mensaje "No posts"
+      const notFoundMsg = document.querySelector(".Navigation .SectionContent .NotFound");
+      if (notFoundMsg) {
+        notFoundMsg.style.display = "none";
+      }
+
+      navItems.forEach((item) => {
+        const li = document.createElement("li");
+        const icon = item.type === 'post' ? 'article' : 'dashboard';
+
+        li.innerHTML = `
+          <div class="NavigationRow">
+            <a href="#" data-type="${item.type}" data-id="${item._id}">
+              <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">${icon}</span>
+              ${item.title}
+            </a>
+          </div>
+        `;
+        navList.appendChild(li);
+      });
+
+      // Event listeners para navegación
+      navList.querySelectorAll("a").forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+          const type = e.currentTarget.dataset.type;
+          const id = e.currentTarget.dataset.id;
+
+          const navigationData = {
+            type: type,
+            id: id,
+            scrollTo: true,
+            openComments: false
+          };
+          localStorage.setItem("pendingNavigation", JSON.stringify(navigationData));
+          window.location.href = "/src/html/posts.html";
+        });
+      });
+
+      // Si hay más de 7, mostrar el botón "Ver más"
+      if (allItems.length > 7) {
+        const viewMoreBtn = document.querySelector(".Navigation .SectionContent .ViewMoreButton");
+        if (viewMoreBtn) {
+          viewMoreBtn.style.display = "flex";
+
+          let expanded = false;
+          viewMoreBtn.addEventListener("click", () => {
+            expanded = !expanded;
+            navList.innerHTML = '';
+
+            const itemsToShow = expanded ? allItems : allItems.slice(0, 7);
+            itemsToShow.forEach((item) => {
+              const li = document.createElement("li");
+              const icon = item.type === 'post' ? 'article' : 'dashboard';
+
+              li.innerHTML = `
+                <div class="NavigationRow">
+                  <a href="#" data-type="${item.type}" data-id="${item._id}">
+                    <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">${icon}</span>
+                    ${item.title}
+                  </a>
+                </div>
+              `;
+              navList.appendChild(li);
+            });
+
+            navList.querySelectorAll("a").forEach(link => {
+              link.addEventListener("click", (e) => {
+                e.preventDefault();
+                const type = e.currentTarget.dataset.type;
+                const id = e.currentTarget.dataset.id;
+
+                const navigationData = {
+                  type: type,
+                  id: id,
+                  scrollTo: true,
+                  openComments: true
+                };
+                localStorage.setItem("pendingNavigation", JSON.stringify(navigationData));
+                window.location.href = "/src/html/posts.html";
+              });
+            });
+
+
+            viewMoreBtn.querySelector("span").textContent = expanded ? "expand_less" : "expand_more";
+            viewMoreBtn.childNodes[0].textContent = expanded ? "View less" : "View more";
+          });
+        }
+      }
+
+      // Re-inicializar el event listener de navigation
+      navEventListener();
+    }
+  } catch (error) {
+    console.error("Error loading navigation items:", error);
+  }
+}
+
+(async () => {
+  try {
+    await loadSections();
+  } catch (err) {
+    console.warn("loadSections falló:", err);
+  }
+  await Promise.all([
+    loadMostRecentBoard().catch(e => console.error("loadMostRecentBoard error:", e)),
+    loadMostRecentPost().catch(e => console.error("loadMostRecentPost error:", e)),
+    loadNavigationItems().catch(e => console.error("loadNavigationItems error:", e))
+  ]);
+})();

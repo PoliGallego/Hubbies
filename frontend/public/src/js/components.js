@@ -316,7 +316,7 @@ function createSectionCard(section) {
               timer: 2000,
               showConfirmButton: false
             });
-          } 
+          }
           return;
         }
 
@@ -330,7 +330,7 @@ function createSectionCard(section) {
               timer: 2000,
               showConfirmButton: false
             });
-          } 
+          }
           return;
         }
 
@@ -474,10 +474,10 @@ function innitCategories() {
           }
         } else {
           noCategoriesMsg.style.display = "none";
-          
+
           // Invertir el array para mostrar los más recientes primero
           data.reverse();
-          
+
           // Crear los elementos con appendChild
           for (let index = 0; index < data.length; index++) {
             const li = createSectionCard(data[index]);
@@ -496,12 +496,12 @@ function innitCategories() {
               viewMoreBtn.style.display = "none";
             } else {
               viewMoreBtn.style.display = "flex";
-              
+
               // Remover listener anterior si existe
               if (viewMoreListener) {
                 viewMoreBtn.removeEventListener("click", viewMoreListener);
               }
-              
+
               // Crear nuevo listener
               viewMoreListener = function () {
                 expanded = !expanded;
@@ -515,7 +515,7 @@ function innitCategories() {
                   ? "View less"
                   : "View more";
               };
-              
+
               // Agregar nuevo listener
               viewMoreBtn.addEventListener("click", viewMoreListener);
             }
@@ -561,7 +561,7 @@ function innitCategories() {
               timer: 2000,
               showConfirmButton: false
             });
-          } 
+          }
           return;
         }
 
@@ -575,7 +575,7 @@ function innitCategories() {
               timer: 2000,
               showConfirmButton: false
             });
-          } 
+          }
           return;
         }
 
@@ -655,10 +655,13 @@ window.renderNavPosts = function (posts) {
       noPostsMsg.style.display = "none";
       for (let i = 0; i < posts.length; i++) {
         const newLi = document.createElement("li");
+        const icon = "article";
 
         newLi.innerHTML = `
             <div class="NavigationRow">
-            <a href="/src/html/posts.html" post-id="${posts[i]._id}">${posts[i].title}</a>
+            <a href="/src/html/posts.html" post-id="${posts[i]._id}">
+            <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">${icon}</span>
+            ${posts[i].title}</a>
             </div>`;
         if (i > 7) {
           newLi.setAttribute("class", "ExtraItem");

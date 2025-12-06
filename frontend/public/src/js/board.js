@@ -1144,6 +1144,75 @@ function clearFeed() {
     feedColumn.querySelectorAll(".Publication").forEach(el => el.remove());
 }
 
+// Inicializa el contenido del Sidebar (sections + user posts/boards)
+// sin provocar renders parciales para evitar flicker.
+async function initSidebarNavigation() {
+  try {
+    // Asegurarnos de tener las secciones (si existe la función)
+    if (typeof loadSections === "function") {
+      await loadSections();
+    }
+  } catch (err) {
+    console.warn("initSidebarNavigation: loadSections falló:", err);
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // No logged user -> nothing to load
+      window.userPosts = [];
+      window.userBoards = [];
+      // Forzar render vacío
+      if (typeof renderNavFeedAll === "function") renderNavFeedAll([], []);
+      return;
+    }
+
+    // Pedir posts y boards en paralelo desde la API (no usar loadUserPosts/loadUserBoards
+    // porque esas funciones realizan render por separado).
+    const [postsRes, boardsRes] = await Promise.allSettled([
+      fetch("/api/posts/my-posts", { headers: { Authorization: `Bearer ${token}` } }),
+      fetch("/api/boards/my", { headers: { Authorization: `Bearer ${token}` } })
+    ]);
+
+    let posts = [];
+    if (postsRes.status === "fulfilled" && postsRes.value.ok) {
+      posts = await postsRes.value.json();
+    } else {
+      console.warn("initSidebarNavigation: posts fetch failed", postsRes.reason || postsRes.value);
+    }
+
+    let boards = [];
+    if (boardsRes.status === "fulfilled" && boardsRes.value.ok) {
+      const boardsData = await boardsRes.value.json();
+      boards = Array.isArray(boardsData) ? boardsData : (boardsData.boards || []);
+    } else {
+      console.warn("initSidebarNavigation: boards fetch failed", boardsRes.reason || boardsRes.value);
+    }
+
+    // Aplicar filtros si existen las funciones de filtro
+    const filteredPosts = (typeof filterPostsByCat === "function") ? filterPostsByCat(posts) : posts;
+    const filteredBoards = (typeof filterBoardsByCat === "function") ? filterBoardsByCat(boards) : boards;
+
+    // Guardar en memoria para el resto de la app
+    window.userPosts = filteredPosts;
+    window.userBoards = filteredBoards;
+
+    // Hacer un único render final del sidebar (evita renders intermedios)
+    if (typeof renderNavFeedAll === "function") {
+      renderNavFeedAll(filteredPosts, filteredBoards);
+    } else {
+      if (typeof renderNavPosts === "function") renderNavPosts(filteredPosts);
+      if (typeof renderNavBoards === "function") renderNavBoards(filteredBoards);
+    }
+  } catch (err) {
+    console.warn("initSidebarNavigation: error:", err);
+    // Caída segura: dejar arrays vacíos y renderizar
+    window.userPosts = window.userPosts || [];
+    window.userBoards = window.userBoards || [];
+    if (typeof renderNavFeedAll === "function") renderNavFeedAll(window.userPosts, window.userBoards);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     console.log("DOMContentLoaded disparado");
 
@@ -1164,9 +1233,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     const postId = params.get("id");
     const boardId = params.get("board");
 
-    // ================================================
-    // FUNCIÓN QUE RENDERIZA EL SIDEBAR SEGÚN EL TOGGLE
-    // ================================================
+    await initSidebarNavigation();
+    
     const renderSidebarNow = () => {
         console.log("renderSidebarNow() ejecutado");
         console.log("  → window.userPosts:", window.userPosts);
@@ -1188,12 +1256,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     };
 
-    // Primera ejecución
     renderSidebarNow();
 
-    // ================================================
-    // SOBREESCRIBIMOS loadUserFeedAll PARA QUE RENDERICE AL FINAL
-    // ================================================
     const originalLoadUserFeedAll = window.loadUserFeedAll;
     window.loadUserFeedAll = async function (...args) {
         console.log("loadUserFeedAll() iniciada");
@@ -1202,20 +1266,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         renderSidebarNow();
     };
 
-    // ================================================
-    // ⭐ PRIMERO: Verificar si hay navegación pendiente
-    // ================================================
     const pendingNav = localStorage.getItem("pendingNavigation");
 
     if (pendingNav) {
         console.log("📍 Hay navegación pendiente, manejándola primero");
         await handlePendingNavigation();
-        return; // ⭐ Salir aquí para no cargar la vista por defecto
+        return;
     }
 
-    // ================================================
-    // ⭐ SEGUNDO: Si NO hay navegación pendiente, proceder normalmente
-    // ================================================
     if (boardId) {
         console.log("Entrando por ?board=", boardId);
         const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
@@ -1327,6 +1385,7 @@ window.renderNavBoards = function (boards) {
     const list = document.querySelector(".Navigation .SectionContent > ul");
     const noMsg = document.querySelector(".Navigation .NotFound");
     let expanded = false;
+    const icon = "dashboard";
 
     if (!list) return;
 
@@ -1342,12 +1401,13 @@ window.renderNavBoards = function (boards) {
     boards.forEach((board, i) => {
         const li = document.createElement("li");
         li.innerHTML = `
-      <div class="NavigationRow">
-        <a href="/src/html/boards.html" board-id="${board._id}">
-          ${board.title || "Untitled Board"}
-        </a>
-      </div>
-    `;
+        <div class="NavigationRow">
+            <a href="/src/html/boards.html" board-id="${board._id}">
+            <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">dashboard</span>
+            ${board.title || "Untitled Board"}
+            </a>
+        </div>
+        `;
 
         if (i > 7) li.classList.add("ExtraItem");
 
@@ -1398,10 +1458,13 @@ window.renderNavFeedAll = function (posts, boards) {
         combined.forEach((item, i) => {
             const li = document.createElement("li");
             const typeAttr = item.type === "post" ? "post-id" : "board-id";
+            const icon = item.type === "post" ? "article" : "dashboard";
+
 
             li.innerHTML = `
                 <div class="NavigationRow">
                     <a href="#" ${typeAttr}="${item._id}">
+                        <span class="material-icons" style="font-size: 18px; margin-right: 8px; vertical-align: middle;">${icon}</span>
                         ${item.title || (item.type === "board" ? "Untitled Board" : "Untitled Post")}
                     </a>
                 </div>
@@ -1552,7 +1615,7 @@ async function toggleBoardPrivacy(boardId, currentPrivacy) {
     try {
         const token = localStorage.getItem("token");
         const newPrivacy = currentPrivacy === "public" ? "private" : "public";
-        
+
         // First, get the current board data
         const getBoardRes = await fetch(`/api/boards/${boardId}`, {
             method: "GET",
@@ -1560,13 +1623,13 @@ async function toggleBoardPrivacy(boardId, currentPrivacy) {
                 Authorization: `Bearer ${token}`,
             },
         });
-        
+
         if (!getBoardRes.ok) {
             throw new Error("Could not fetch board data");
         }
-        
+
         const currentBoard = await getBoardRes.json();
-        
+
         // Now update with all fields plus new privacy
         const response = await fetch(`/api/boards/${boardId}`, {
             method: "PUT",
@@ -1598,11 +1661,11 @@ async function toggleBoardPrivacy(boardId, currentPrivacy) {
                     console.warn("Could not unshare board:", err);
                 }
             }
-            
+
             // Find the share button for this board
             const boardElement = document.querySelector(`[data-board-id="${boardId}"]`);
             const shareBtn = boardElement.querySelector(".share-board-btn");
-            
+
             if (newPrivacy === "private" && shareBtn) {
                 // Animate out
                 shareBtn.style.animation = "fadeOut 0.3s ease forwards";
@@ -1620,7 +1683,7 @@ async function toggleBoardPrivacy(boardId, currentPrivacy) {
                 newShareBtn.addEventListener("click", () => openShareBoardModal(boardId));
                 bottomBar.appendChild(newShareBtn);
             }
-            
+
             // Update privacy button
             const privacyBtn = boardElement.querySelector(".toggle-privacy-btn");
             privacyBtn.dataset.currentPrivacy = newPrivacy;
