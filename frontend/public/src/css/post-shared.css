@@ -350,8 +350,8 @@
     border: 1px solid var(--border-primary);
     width: 100%;
     min-height: 620px;
-    max-height: 85vh;
-    /* No sobrepase mucho la pantalla */
+    max-height: none;
+    /* Cambio clave: remover max-height para que no se corte */
     margin: 24px 0;
     overflow: hidden;
     box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -374,11 +374,13 @@
 /* El contenedor que envuelve al inner y hace el zoom */
 .SharedBoardPublication .BoardPreviewWrapper {
     width: 100%;
-    height: 100%;
+    height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
+    overflow: auto;
+    /* Permite scroll si el contenido es muy grande */
+    padding: 20px;
 }
 
 /* Escala perfecta tipo imagen */

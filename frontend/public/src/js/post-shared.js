@@ -1,6 +1,31 @@
 let currentPost = null;
 let currentUserId = null;
 
+// ============ NAVBAR MANAGEMENT FOR SHARED VIEW ============
+function setupNavbarForSharedView() {
+  const userToken = localStorage.getItem("token");
+  const isLoggedIn = !!userToken;
+
+  const homeBtn = document.getElementById("HomeBtn");
+  const notifBtn = document.getElementById("NotifBtn");
+  const optionsBtn = document.getElementById("OptionsBtn");
+  const startHereBtn = document.getElementById("StartHereBtn");
+
+  if (!isLoggedIn) {
+    // Usuario NO logeado: ocultar Home, Notif, Options - mostrar Start Here
+    if (homeBtn) homeBtn.style.display = "none";
+    if (notifBtn) notifBtn.style.display = "none";
+    if (optionsBtn) optionsBtn.style.display = "none";
+    if (startHereBtn) startHereBtn.style.display = "block";
+  } else {
+    // Usuario logeado: mostrar Home, Notif, Options - ocultar Start Here
+    if (homeBtn) homeBtn.style.display = "block";
+    if (notifBtn) notifBtn.style.display = "block";
+    if (optionsBtn) optionsBtn.style.display = "block";
+    if (startHereBtn) startHereBtn.style.display = "none";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("SharedPostContainer");
 
@@ -26,6 +51,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Error parsing token:", e);
     }
   }
+
+  // === CONFIGURAR NAVBAR PARA VISTA COMPARTIDA ===
+  setTimeout(() => {
+    setupNavbarForSharedView();
+  }, 100);
 
   let data;
 
