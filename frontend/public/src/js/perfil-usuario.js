@@ -12,29 +12,46 @@ navItems.forEach((item) => {
   });
 });
 
-// --- 🔗 Botón de conectar (copiar link del perfil) ---
-const connectBtn = document.querySelector(".connect-btn");
-if (connectBtn) {
-  connectBtn.addEventListener("click", function () {
-    const url = window.location.href;
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        const originalText = this.textContent;
-        const originalBg = this.style.background;
-        this.textContent = "Link copied!";
-        this.style.background = "#28a745";
-        this.style.color = "white";
-        setTimeout(() => {
-          this.textContent = originalText;
-          this.style.background = originalBg;
-          this.style.color = "#495057";
-        }, 2000);
-      })
-      .catch(() => {
-        alert("Link: " + url);
-      });
-  });
+// --- 🔗 Botón de conectar (compartir link del perfil) ---
+let connectBtn = document.querySelector(".connect-btn");
+
+function setConnectButtonState(isShared) {
+  if (!connectBtn) connectBtn = document.querySelector(".connect-btn");
+  if (!connectBtn) return;
+  if (isShared) {
+    connectBtn.textContent = "Profile link shared (click to disable)";
+    connectBtn.classList.add("shared");
+  } else {
+    connectBtn.textContent = "Share profile link";
+    connectBtn.classList.remove("shared");
+  }
+}
+
+async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
+// Cargar secciones para un userId dado (no requiere token)
+async function loadSectionsForUser(userId) {
+  window.sectionsMap = {};
+  try {
+    if (!userId) throw new Error("userId requerido");
+    const res = await fetch(`/api/sections/${userId}`);
+    if (!res.ok) throw new Error(`Error HTTP: ${res.status}`);
+    const sections = await res.json();
+    sections.forEach(sec => {
+      window.sectionsMap[sec._id] = sec.title;
+    });
+    console.log("Sections loaded for user:", userId, window.sectionsMap);
+  } catch (err) {
+    console.error("Error loading sections for user:", err);
+    throw err;
+  }
 }
 
 const firstNavItem = document.querySelector(".nav-item");
@@ -43,6 +60,53 @@ if (firstNavItem) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+
+  // Detectar token de perfil en la URL (vista pública)
+  const urlParams = new URLSearchParams(window.location.search);
+  const profileToken = urlParams.get("token");
+
+  // Si hay token de perfil: decidir si es el owner (está logueado y coincide) o público
+  if (profileToken) {
+    const userToken = localStorage.getItem("token");
+    if (userToken) {
+      // Intentar identificar si el usuario logueado es el dueño del perfil compartido
+      try {
+        const payload = JSON.parse(atob(userToken.split(".")[1]));
+        const myId = payload.id;
+
+        // Obtener el usuario público asociado al profileToken
+        const sharedRes = await fetch(`/api/users/shared/${profileToken}`);
+        if (sharedRes.ok) {
+          const sharedJson = await sharedRes.json();
+          const sharedUser = sharedJson.user;
+          // Si el sharedUser es el mismo que el usuario logueado → mostrar vista privada (owner)
+          if (sharedUser && String(sharedUser._id) === String(myId)) {
+            // quitar token de la URL para evitar confusión de flujos
+            history.replaceState(null, "", window.location.pathname);
+            // Continuar con el flujo privado (no return)
+          } else {
+            // No es el owner → mostrar perfil público y terminar el flujo privado
+            await renderPublicProfile(profileToken);
+            return;
+          }
+        } else {
+          // Token inválido → mostrar vista pública (fallback) o mensaje
+          await renderPublicProfile(profileToken);
+          return;
+        }
+      } catch (e) {
+        console.error("Error determining owner for profile token:", e);
+        await renderPublicProfile(profileToken);
+        return;
+      }
+    } else {
+      // No logueado → vista pública
+      await renderPublicProfile(profileToken);
+      return;
+    }
+  }
+
+  // --- Fluir normal privado (owner) a partir de aquí ---
   const token = localStorage.getItem("token");
   if (!token) window.location.href = "/src/html/index.html";
 
@@ -80,12 +144,249 @@ document.addEventListener("DOMContentLoaded", async () => {
     const data = await res.json();
     const emailEl = document.querySelector(".profile-info p");
     if (emailEl) emailEl.textContent = `Email: ${data.user.email}`;
+
+    // Estado de compartir
+    let isShared = !!data.user.isShared;
+    let shareToken = data.user.shareToken || null;
+
+    // Nuevo listener: manejar share/unshare con confirmaciones y renderizado de botones
+    if (connectBtn) {
+      // Reemplazamos por un clon para eliminar listeners anteriores y actualizamos la referencia
+      const cloned = connectBtn.cloneNode(true);
+      connectBtn.replaceWith(cloned);
+      connectBtn = document.querySelector(".connect-btn");
+      if (!connectBtn) return;
+
+      // Si ya está compartido, renderizar los dos botones directamente
+      if (isShared && shareToken) {
+        renderSharedButtons(shareToken, userId, token);
+      } else {
+        // Si no está compartido, mostrar el botón simple de "Share profile link"
+        setConnectButtonState(false);
+
+        connectBtn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          // obtener token y userId desde localStorage (owner flow)
+          const token = localStorage.getItem("token");
+          let userId = null;
+          try {
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            userId = payload.id;
+          } catch (err) {
+            console.error("No token or invalid token for share operation", err);
+            Swal.fire("Error", "You must be logged in to share.", "error");
+            return;
+          }
+
+          // pedir confirmación para generar link
+          const confirm = await Swal.fire({
+            title: "Share profile",
+            text: "Generate a public link for your profile? Anyone with the link will see your public posts and boards.",
+            icon: "question",
+            showCancelButton: true,
+            confirmButtonText: "Generate",
+            cancelButtonText: "Cancel"
+          });
+          if (!confirm.isConfirmed) return;
+
+          // llamar al backend para generar token
+          connectBtn.disabled = true;
+          try {
+            const resp = await fetch(`/api/users/${userId}/share`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+            });
+            const json = await resp.json();
+            if (resp.ok && json.shareToken) {
+              // mostrar success y renderizar botones Copy + Deactivate
+              Swal.fire("Shared", "Public profile link created and copied to clipboard (if allowed).", "success");
+              isShared = true;
+              shareToken = json.shareToken;
+              renderSharedButtons(json.shareToken, userId, token);
+              // intentar copiar automáticamente
+              try { await navigator.clipboard.writeText(`${window.location.origin}/src/html/perfil-usuario.html?token=${json.shareToken}`); } catch (_) { }
+            } else {
+              console.error("Error sharing profile", json);
+              Swal.fire("Error", json.message || "Could not generate link.", "error");
+            }
+          } catch (err) {
+            console.error("Error toggling share:", err);
+            Swal.fire("Error", "Network error.", "error");
+          } finally {
+            connectBtn.disabled = false;
+          }
+        });
+      }
+    }
+
+    // --- Inicialización que antes estaba en la IIFE: cargar secciones y contenido privado ---
+    try {
+      await loadSections(); // carga las secciones del owner (usa token desde localStorage)
+    } catch (e) {
+      console.warn("loadSections falló en init:", e);
+    }
+    await Promise.all([
+      loadMostRecentBoard().catch(e => console.error("loadMostRecentBoard error:", e)),
+      loadMostRecentPost().catch(e => console.error("loadMostRecentPost error:", e)),
+      loadNavigationItems().catch(e => console.error("loadNavigationItems error:", e))
+    ]);
   } catch (err) {
     console.error("Error fetching user email:", err);
     localStorage.removeItem("token");
     window.location.href = "/src/html/index.html";
   }
 });
+
+// Helper: crea el contenedor con los 2 botones (Copy + Deactivate) y lo retorna
+function createSharedButtonsContainer(shareUrl, userId, token, onDeactivateCb) {
+  const btnContainer = document.createElement("div");
+  btnContainer.style.display = "flex";
+  btnContainer.style.gap = "8px";
+  btnContainer.style.alignItems = "center";
+
+  const copyBtn = document.createElement("button");
+  copyBtn.className = "connect-btn shared";
+  copyBtn.textContent = "Copy link";
+  copyBtn.style.flex = "1";
+
+  const deactivateBtn = document.createElement("button");
+  deactivateBtn.className = "connect-btn shared";
+  deactivateBtn.textContent = "Deactivate link";
+  deactivateBtn.style.flex = "1";
+
+  // copiar
+  copyBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const copied = await copyToClipboard(shareUrl);
+    if (copied) {
+      const originalText = copyBtn.textContent;
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
+    } else {
+      alert("Enlace:\n" + shareUrl);
+    }
+  });
+
+  // desactivar con confirmación
+  deactivateBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+    const result = await Swal.fire({
+      title: "Confirm",
+      text: "Do you want to disable the public profile link?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, disable",
+      cancelButtonText: "Cancel"
+    });
+    if (!result.isConfirmed) return;
+
+    deactivateBtn.disabled = true;
+    try {
+      const resp = await fetch(`/api/users/${userId}/unshare`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      const json = await (resp.ok ? resp.json() : resp.text().then(t => ({ error: t })));
+      if (resp.ok) {
+        Swal.fire("Disabled", "Profile link has been disabled.", "success");
+        // restaurar el botón original (si se pasó una cb, que la ejecute)
+        if (typeof onDeactivateCb === "function") onDeactivateCb();
+      } else {
+        console.error("Error unsharing profile", json);
+        Swal.fire("Error", "Could not disable link. Try again.", "error");
+      }
+    } catch (err) {
+      console.error("Error al desactivar enlace:", err);
+      Swal.fire("Error", "Network error.", "error");
+    } finally {
+      deactivateBtn.disabled = false;
+    }
+  });
+
+  btnContainer.appendChild(copyBtn);
+  btnContainer.appendChild(deactivateBtn);
+  return btnContainer;
+}
+
+// Renderiza los botones compartidos en el DOM (reemplaza el botón original)
+function renderSharedButtons(shareToken, userId, token) {
+  const shareUrl = `${window.location.origin}/src/html/perfil-usuario.html?token=${shareToken}`;
+  const originalBtn = document.querySelector(".connect-btn");
+  const btnContainer = createSharedButtonsContainer(shareUrl, userId, token, () => {
+    // callback al desactivar: restaurar el botón original simple
+    const currentContainer = document.querySelector(".connect-btn")?.parentElement ||
+      document.querySelector(".connect-btn");
+
+    // Crear nuevo botón simple
+    const newBtn = document.createElement("button");
+    newBtn.className = "connect-btn";
+    newBtn.textContent = "Share profile link";
+
+    // Si el contenedor actual es un div (los dos botones), reemplazarlo
+    if (currentContainer && currentContainer.style.display === "flex") {
+      currentContainer.replaceWith(newBtn);
+    } else if (currentContainer) {
+      currentContainer.replaceWith(newBtn);
+    } else if (originalBtn) {
+      originalBtn.replaceWith(newBtn);
+    }
+
+    connectBtn = newBtn;
+    setConnectButtonState(false);
+
+    // Reattach listener para volver a compartir
+    newBtn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem("token");
+      let userId = null;
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        userId = payload.id;
+      } catch (err) {
+        console.error("No token or invalid token for share operation", err);
+        Swal.fire("Error", "You must be logged in to share.", "error");
+        return;
+      }
+
+      const confirm = await Swal.fire({
+        title: "Share profile",
+        text: "Generate a public link for your profile? Anyone with the link will see your public posts and boards.",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Generate",
+        cancelButtonText: "Cancel"
+      });
+      if (!confirm.isConfirmed) return;
+
+      newBtn.disabled = true;
+      try {
+        const resp = await fetch(`/api/users/${userId}/share`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        });
+        const json = await resp.json();
+        if (resp.ok && json.shareToken) {
+          Swal.fire("Shared", "Public profile link created and copied to clipboard (if allowed).", "success");
+          renderSharedButtons(json.shareToken, userId, token);
+          try { await navigator.clipboard.writeText(`${window.location.origin}/src/html/perfil-usuario.html?token=${json.shareToken}`); } catch (_) { }
+        } else {
+          console.error("Error sharing profile", json);
+          Swal.fire("Error", json.message || "Could not generate link.", "error");
+        }
+      } catch (err) {
+        console.error("Error toggling share:", err);
+        Swal.fire("Error", "Network error.", "error");
+      } finally {
+        newBtn.disabled = false;
+      }
+    });
+  });
+
+  if (originalBtn && originalBtn.parentElement) {
+    originalBtn.parentElement.replaceChild(btnContainer, originalBtn);
+    connectBtn = btnContainer.querySelector(".connect-btn");
+  }
+}
 
 async function loadSections() {
   window.sectionsMap = {};
@@ -697,15 +998,331 @@ async function loadNavigationItems() {
   }
 }
 
-(async () => {
+//VISTA PUBLICA DE PERFIL 
+
+async function renderPublicProfile(profileToken) {
   try {
-    await loadSections();
+    // Obtener info del usuario compartido
+    const res = await fetch(`/api/users/shared/${profileToken}`);
+    if (!res.ok) {
+      showUnavailableProfileMessage();
+      return;
+    }
+    const { user } = await res.json();
+
+    if (!user) {
+      showUnavailableProfileMessage();
+      return;
+    }
+
+    // Mostrar nombre y avatar (no requiere autenticación)
+    const usernameEl = document.querySelector(".profile-info h1");
+    if (usernameEl) usernameEl.textContent = user.username || user.fullName || "User";
+    const avatarEl = document.querySelector(".avatar-large");
+    if (avatarEl && user.avatar) {
+      avatarEl.style.backgroundImage = `url(/assets/uploads/${user.avatar})`;
+      avatarEl.style.backgroundSize = "cover";
+      avatarEl.style.backgroundPosition = "center";
+      avatarEl.textContent = "";
+    }
+    const emailEl = document.querySelector(".profile-info p");
+    if (emailEl) emailEl.textContent = `Email: ${user.email || "Not available"}`;
+
+    // Ocultar sidebar si el visitante no está logueado
+    const sidebarEl = document.getElementById("sidebar");
+    if (sidebarEl) sidebarEl.style.display = "none";
+
+    const togglesidebarEl = document.getElementById("SidebarToggleBtn");
+    if (togglesidebarEl) togglesidebarEl.style.display = "none";
+
+    // Ajustar navbar para visitante no logueado: mostrar StartHere, ocultar Home/Notif/Options
+    const homeBtn = document.getElementById("HomeBtn");
+    const notifBtn = document.getElementById("NotifBtn");
+    const optionsBtn = document.getElementById("OptionsBtn");
+    const startHereBtn = document.getElementById("StartHereBtn");
+    if (!localStorage.getItem("token")) {
+      if (homeBtn) homeBtn.style.display = "none";
+      if (notifBtn) notifBtn.style.display = "none";
+      if (optionsBtn) optionsBtn.style.display = "none";
+      if (startHereBtn) startHereBtn.style.display = "block";
+    } else {
+      if (homeBtn) homeBtn.style.display = "block";
+      if (notifBtn) notifBtn.style.display = "block";
+      if (optionsBtn) optionsBtn.style.display = "block";
+      if (startHereBtn) startHereBtn.style.display = "none";
+    }
+
+    // Ocultar secciones del owner que no correspondan a la vista pública
+    const commentsSection = document.querySelector(".comments-section");
+    if (commentsSection) commentsSection.style.display = "none";
+
+    // Opcional: ocultar botón de compartir (porque no es el owner)
+    const btn = document.querySelector(".connect-btn");
+    if (btn) btn.style.display = "none";
+
+    // Asegurarnos de cargar secciones para resolver nombres
+    try { await loadSectionsForUser(user._id); } catch (e) { console.warn("No se pudo cargar sections para el perfil público:", e); }
+
+    // Cargar posts y boards públicos del usuario
+    await Promise.all([
+      loadPublicMostRecentPost(user._id, profileToken),
+      loadPublicMostRecentBoard(user._id, profileToken)
+    ]);
   } catch (err) {
-    console.warn("loadSections falló:", err);
+    console.error("Error rendering public profile:", err);
   }
-  await Promise.all([
-    loadMostRecentBoard().catch(e => console.error("loadMostRecentBoard error:", e)),
-    loadMostRecentPost().catch(e => console.error("loadMostRecentPost error:", e)),
-    loadNavigationItems().catch(e => console.error("loadNavigationItems error:", e))
-  ]);
-})();
+}
+
+// --- Helpers para vista pública (perfil compartido) ---
+function isSameObjectId(a, b) {
+  return String(a) === String(b);
+}
+
+
+async function loadPublicMostRecentPost(userId, profileToken = null) {
+  const latestCard = document.querySelector(".latest-post-card");
+  const recentPostsBox = document.querySelector(".recent-posts-box");
+  const recentPostsList = document.querySelector(".recent-posts-list");
+  if (!latestCard || !recentPostsBox || !recentPostsList) return;
+
+  try {
+    const res = await fetch(`/api/posts/public`);
+    if (!res.ok) throw new Error("Error fetching public posts");
+    const posts = await res.json();
+
+    // posts vienen ya con categories transformadas por backend
+    const userPosts = (Array.isArray(posts) ? posts : []).filter(p => isSameObjectId(p.idUser, userId));
+    if (userPosts.length === 0) {
+      latestCard.innerHTML = `<p class="loading-text">No public posts.</p>`;
+      return;
+    }
+
+    const sortedByDate = userPosts.sort((a, b) => new Date(b.originalCreatedAt || b.createdAt) - new Date(a.originalCreatedAt || a.createdAt));
+    const mostRecent = sortedByDate[0];
+
+    const categories =
+      mostRecent.categories && mostRecent.categories.length > 0
+        ? mostRecent.categories
+          .map((cat) => typeof cat === "string" ? (window.sectionsMap?.[cat] || cat) : (cat.title || cat.name || "Uncategorized"))
+          .join(", ")
+        : "Uncategorized";
+
+    latestCard.innerHTML = `
+      <div class="most-recent-card" data-id="${mostRecent._id}">
+        <h3>${mostRecent.title}</h3>
+        <p class="recent-category">🏷️ ${categories}</p>
+        <p class="recent-date">📅 ${new Date(mostRecent.createdAt).toLocaleDateString()}</p>
+        <button class="go-to-post-btn">View Post</button>
+      </div>
+    `;
+
+    latestCard.querySelector(".go-to-post-btn").addEventListener("click", () => {
+      // Si existe shareToken usarlo, si no usar id param
+      if (mostRecent.shareToken) {
+        window.location.href = `/src/html/post-shared.html?token=${mostRecent.shareToken}`;
+      } else {
+        window.location.href = `/src/html/post-shared.html?id=${mostRecent._id}&type=post`;
+      }
+    });
+
+    // More posts
+    let postsLoaded = false;
+    recentPostsBox.addEventListener("click", () => {
+      const isOpen = recentPostsBox.classList.toggle("open");
+      recentPostsBox.classList.toggle("closed", !isOpen);
+
+      if (isOpen) {
+        recentPostsList.classList.remove("hidden");
+        recentPostsList.style.opacity = "0";
+        setTimeout(() => {
+          recentPostsList.style.opacity = "1";
+          recentPostsList.style.transform = "translateY(0)";
+        }, 200);
+        if (postsLoaded) return;
+
+        const allPosts = sortedByDate.slice(1);
+        recentPostsList.innerHTML = allPosts.length === 0
+          ? `<p class="loading-text">No more posts.</p>`
+          : allPosts.map(post => {
+            const categories = post.categories && post.categories.length > 0
+              ? post.categories.map(cat => typeof cat === "string" ? (window.sectionsMap?.[cat] || cat) : (cat.title || cat.name || "Unknown")).join(", ")
+              : "Uncategorized";
+            return `
+                <div class="recent-post-item" data-id="${post._id}" data-token="${post.shareToken || ""}">
+                  <strong>${post.title}</strong>
+                  <small>🏷️ ${categories} • 📅 ${new Date(post.createdAt).toLocaleDateString()}</small>
+                </div>
+              `;
+          }).join("");
+
+        recentPostsList.querySelectorAll(".recent-post-item").forEach(item => {
+          item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = item.dataset.id;
+            const tkn = item.dataset.token;
+            if (tkn) window.location.href = `/src/html/post-shared.html?token=${tkn}`;
+            else window.location.href = `/src/html/post-shared.html?id=${id}&type=post`;
+          });
+        });
+
+        postsLoaded = true;
+      } else {
+        recentPostsList.style.opacity = "0";
+        recentPostsList.style.transform = "translateY(-10px)";
+        setTimeout(() => recentPostsList.classList.add("hidden"), 400);
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading public most recent post:", err);
+    latestCard.innerHTML = `<p class="loading-text" style="color:#f55;">Error loading posts</p>`;
+  }
+}
+
+// Reemplaza la función showUnavailableProfileMessage (línea ~1192)
+function showUnavailableProfileMessage() {
+  // Ocultar sidebar y navbar innecesarios
+  const sidebarEl = document.getElementById("sidebar");
+  if (sidebarEl) sidebarEl.style.display = "none";
+
+  const togglesidebarEl = document.getElementById("SidebarToggleBtn");
+  if (togglesidebarEl) togglesidebarEl.style.display = "none";
+
+  const homeBtn = document.getElementById("HomeBtn");
+  const notifBtn = document.getElementById("NotifBtn");
+  const optionsBtn = document.getElementById("OptionsBtn");
+  const startHereBtn = document.getElementById("StartHereBtn");
+
+  // Verificar si el usuario está logueado
+  const isLoggedIn = !!localStorage.getItem("token");
+
+  if (isLoggedIn) {
+    // Si está logueado: mostrar Home/Notif/Options, ocultar StartHere
+    if (homeBtn) homeBtn.style.display = "block";
+    if (notifBtn) notifBtn.style.display = "block";
+    if (optionsBtn) optionsBtn.style.display = "block";
+    if (startHereBtn) startHereBtn.style.display = "none";
+  } else {
+    // Si NO está logueado: ocultar Home/Notif/Options, mostrar StartHere
+    if (homeBtn) homeBtn.style.display = "none";
+    if (notifBtn) notifBtn.style.display = "none";
+    if (optionsBtn) optionsBtn.style.display = "none";
+    if (startHereBtn) startHereBtn.style.display = "block";
+  }
+
+  // Crear HTML usando clases CSS
+  const unavailableHTML = `
+    <div class="unavailable-profile-container">
+      <span class="material-icons unavailable-profile-icon">lock</span>
+      <h1 class="unavailable-profile-title">Profile Not Available</h1>
+      <p class="unavailable-profile-text">
+        The profile link has been deactivated or is no longer available.
+      </p>
+      <a href="/src/html/index.html" class="unavailable-profile-link">
+        Back to Home
+      </a>
+    </div>
+  `;
+
+  // Limpiar y mostrar el mensaje
+  const profileSection = document.querySelector(".profile-container") ||
+    document.querySelector(".ProfileContainer") ||
+    document.querySelector("main");
+  if (profileSection) {
+    profileSection.innerHTML = unavailableHTML;
+  } else {
+    const mainContent = document.querySelector(".main-container") || document.body;
+    mainContent.innerHTML = unavailableHTML;
+  }
+}
+
+async function loadPublicMostRecentBoard(userId, profileToken = null) {
+  const latestBoardCard = document.querySelector(".latest-board-card");
+  const recentBoardsBox = document.querySelector(".recent-boards-box");
+  const recentBoardsList = document.querySelector(".recent-boards-list");
+  if (!latestBoardCard || !recentBoardsBox || !recentBoardsList) return;
+
+  try {
+    const res = await fetch(`/api/boards/public`);
+    if (!res.ok) throw new Error("Error fetching public boards");
+    const json = await res.json();
+    const boards = Array.isArray(json) ? json : (json.boards || []);
+
+    const userBoards = boards.filter(b => isSameObjectId(b.idUser, userId));
+    if (userBoards.length === 0) {
+      latestBoardCard.innerHTML = `<p class="loading-text">No public boards.</p>`;
+      return;
+    }
+
+    const sortedByDate = userBoards.sort((a, b) => new Date(b.originalCreatedAt || b.createdAt) - new Date(a.originalCreatedAt || a.createdAt));
+    const mostRecent = sortedByDate[0];
+
+    const categoryText = (mostRecent.categories || []).map(cat => typeof cat === "string" ? (window.sectionsMap?.[cat] || cat) : (cat.title || cat.name || "Uncategorized")).join(", ") || "Uncategorized";
+
+    latestBoardCard.innerHTML = `
+      <div class="most-recent-board-card" data-id="${mostRecent._id}">
+        <h3>${mostRecent.title}</h3>
+        <p class="recent-category">🏷️ ${categoryText}</p>
+        <p class="recent-date">📅 ${new Date(mostRecent.createdAt).toLocaleDateString()}</p>
+        <button class="go-to-post-btn">View Board</button>
+      </div>
+    `;
+    latestBoardCard.querySelector(".go-to-post-btn").addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (mostRecent.shareToken) {
+        window.location.href = `/src/html/post-shared.html?token=${mostRecent.shareToken}&type=board`;
+      } else {
+        window.location.href = `/src/html/post-shared.html?id=${mostRecent._id}&type=board`;
+      }
+    });
+
+    let boardsLoaded = false;
+    recentBoardsBox.addEventListener("click", () => {
+      const isOpen = recentBoardsBox.classList.toggle("open");
+      recentBoardsBox.classList.toggle("closed", !isOpen);
+
+      if (isOpen) {
+        recentBoardsList.classList.remove("hidden");
+        recentBoardsList.style.opacity = "0";
+        setTimeout(() => {
+          recentBoardsList.style.opacity = "1";
+          recentBoardsList.style.transform = "translateY(0)";
+        }, 200);
+        if (boardsLoaded) return;
+
+        const allBoards = sortedByDate.slice(1);
+        recentBoardsList.innerHTML = allBoards.length === 0
+          ? `<p class="loading-text">No more boards.</p>`
+          : allBoards.map(board => {
+            const cats = board.categories?.map(cat => typeof cat === "string" ? (window.sectionsMap?.[cat] || cat) : (cat.title || cat.name || "Unknown")).join(", ") || "Uncategorized";
+            return `
+                <div class="recent-board-item" data-id="${board._id}" data-token="${board.shareToken || ""}">
+                  <strong>${board.title}</strong>
+                    <small>🏷️ ${cats} • 📅 ${new Date(board.createdAt).toLocaleDateString()}</small>
+                </div>
+              `;
+          }).join("");
+
+        recentBoardsList.querySelectorAll(".recent-board-item").forEach(item => {
+          item.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const id = item.dataset.id;
+            const tkn = item.dataset.token;
+            if (tkn) window.location.href = `/src/html/post-shared.html?token=${tkn}&type=board`;
+            else window.location.href = `/src/html/post-shared.html?id=${id}&type=board`;
+          });
+        });
+
+        boardsLoaded = true;
+      } else {
+        recentBoardsList.style.opacity = "0";
+        recentBoardsList.style.transform = "translateY(-10px)";
+        setTimeout(() => recentBoardsList.classList.add("hidden"), 400);
+      }
+    });
+
+  } catch (err) {
+    console.error("Error loading public boards:", err);
+    latestBoardCard.innerHTML = `<p class="loading-text" style="color:#f55;">Error loading boards</p>`;
+  }
+}

@@ -776,9 +776,15 @@ async function openBoardEditor(boardId) {
         // Título del board
         document.getElementById("BoardTitleInput").value = board.title;
 
-        // Secciones
-        preselectSections(board.categories || []);
+        // Privacidad del board
+        const privacyRadio = document.querySelector(`input[name='boardPrivacy'][value='${board.privacy}']`);
+        if (privacyRadio) {
+            privacyRadio.checked = true;
+        }
 
+        // Secciones
+        await loadSections();
+        preselectSections(board.categories || []);
 
         // Canvas limpio
         const canvas = document.getElementById("BoardCanvas");
@@ -1147,70 +1153,70 @@ function clearFeed() {
 // Inicializa el contenido del Sidebar (sections + user posts/boards)
 // sin provocar renders parciales para evitar flicker.
 async function initSidebarNavigation() {
-  try {
-    // Asegurarnos de tener las secciones (si existe la función)
-    if (typeof loadSections === "function") {
-      await loadSections();
-    }
-  } catch (err) {
-    console.warn("initSidebarNavigation: loadSections falló:", err);
-  }
-
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      // No logged user -> nothing to load
-      window.userPosts = [];
-      window.userBoards = [];
-      // Forzar render vacío
-      if (typeof renderNavFeedAll === "function") renderNavFeedAll([], []);
-      return;
+    try {
+        // Asegurarnos de tener las secciones (si existe la función)
+        if (typeof loadSections === "function") {
+            await loadSections();
+        }
+    } catch (err) {
+        console.warn("initSidebarNavigation: loadSections falló:", err);
     }
 
-    // Pedir posts y boards en paralelo desde la API (no usar loadUserPosts/loadUserBoards
-    // porque esas funciones realizan render por separado).
-    const [postsRes, boardsRes] = await Promise.allSettled([
-      fetch("/api/posts/my-posts", { headers: { Authorization: `Bearer ${token}` } }),
-      fetch("/api/boards/my", { headers: { Authorization: `Bearer ${token}` } })
-    ]);
+    try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+            // No logged user -> nothing to load
+            window.userPosts = [];
+            window.userBoards = [];
+            // Forzar render vacío
+            if (typeof renderNavFeedAll === "function") renderNavFeedAll([], []);
+            return;
+        }
 
-    let posts = [];
-    if (postsRes.status === "fulfilled" && postsRes.value.ok) {
-      posts = await postsRes.value.json();
-    } else {
-      console.warn("initSidebarNavigation: posts fetch failed", postsRes.reason || postsRes.value);
+        // Pedir posts y boards en paralelo desde la API (no usar loadUserPosts/loadUserBoards
+        // porque esas funciones realizan render por separado).
+        const [postsRes, boardsRes] = await Promise.allSettled([
+            fetch("/api/posts/my-posts", { headers: { Authorization: `Bearer ${token}` } }),
+            fetch("/api/boards/my", { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+
+        let posts = [];
+        if (postsRes.status === "fulfilled" && postsRes.value.ok) {
+            posts = await postsRes.value.json();
+        } else {
+            console.warn("initSidebarNavigation: posts fetch failed", postsRes.reason || postsRes.value);
+        }
+
+        let boards = [];
+        if (boardsRes.status === "fulfilled" && boardsRes.value.ok) {
+            const boardsData = await boardsRes.value.json();
+            boards = Array.isArray(boardsData) ? boardsData : (boardsData.boards || []);
+        } else {
+            console.warn("initSidebarNavigation: boards fetch failed", boardsRes.reason || boardsRes.value);
+        }
+
+        // Aplicar filtros si existen las funciones de filtro
+        const filteredPosts = (typeof filterPostsByCat === "function") ? filterPostsByCat(posts) : posts;
+        const filteredBoards = (typeof filterBoardsByCat === "function") ? filterBoardsByCat(boards) : boards;
+
+        // Guardar en memoria para el resto de la app
+        window.userPosts = filteredPosts;
+        window.userBoards = filteredBoards;
+
+        // Hacer un único render final del sidebar (evita renders intermedios)
+        if (typeof renderNavFeedAll === "function") {
+            renderNavFeedAll(filteredPosts, filteredBoards);
+        } else {
+            if (typeof renderNavPosts === "function") renderNavPosts(filteredPosts);
+            if (typeof renderNavBoards === "function") renderNavBoards(filteredBoards);
+        }
+    } catch (err) {
+        console.warn("initSidebarNavigation: error:", err);
+        // Caída segura: dejar arrays vacíos y renderizar
+        window.userPosts = window.userPosts || [];
+        window.userBoards = window.userBoards || [];
+        if (typeof renderNavFeedAll === "function") renderNavFeedAll(window.userPosts, window.userBoards);
     }
-
-    let boards = [];
-    if (boardsRes.status === "fulfilled" && boardsRes.value.ok) {
-      const boardsData = await boardsRes.value.json();
-      boards = Array.isArray(boardsData) ? boardsData : (boardsData.boards || []);
-    } else {
-      console.warn("initSidebarNavigation: boards fetch failed", boardsRes.reason || boardsRes.value);
-    }
-
-    // Aplicar filtros si existen las funciones de filtro
-    const filteredPosts = (typeof filterPostsByCat === "function") ? filterPostsByCat(posts) : posts;
-    const filteredBoards = (typeof filterBoardsByCat === "function") ? filterBoardsByCat(boards) : boards;
-
-    // Guardar en memoria para el resto de la app
-    window.userPosts = filteredPosts;
-    window.userBoards = filteredBoards;
-
-    // Hacer un único render final del sidebar (evita renders intermedios)
-    if (typeof renderNavFeedAll === "function") {
-      renderNavFeedAll(filteredPosts, filteredBoards);
-    } else {
-      if (typeof renderNavPosts === "function") renderNavPosts(filteredPosts);
-      if (typeof renderNavBoards === "function") renderNavBoards(filteredBoards);
-    }
-  } catch (err) {
-    console.warn("initSidebarNavigation: error:", err);
-    // Caída segura: dejar arrays vacíos y renderizar
-    window.userPosts = window.userPosts || [];
-    window.userBoards = window.userBoards || [];
-    if (typeof renderNavFeedAll === "function") renderNavFeedAll(window.userPosts, window.userBoards);
-  }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -1234,7 +1240,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const boardId = params.get("board");
 
     await initSidebarNavigation();
-    
+
     const renderSidebarNow = () => {
         console.log("renderSidebarNow() ejecutado");
         console.log("  → window.userPosts:", window.userPosts);

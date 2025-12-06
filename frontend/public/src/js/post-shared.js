@@ -32,9 +32,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Get token from URL
   const urlParams = new URLSearchParams(window.location.search);
   const shareToken = urlParams.get("token");
+  const itemId = urlParams.get("id");
   const type = urlParams.get("type") || "post"; // por default post
 
-  if (!shareToken) {
+  if (!shareToken && !itemId) {
     showError("Invalid link");
     return;
   }

@@ -1,11 +1,12 @@
 const User = require("../models/user");
 const { generateToken, saveUserToken } = require("../lib/utils/generateToken");
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const getUserById = async (req, res) => {
     try {
         const user = await User.findById(req.params.id).select(
-            "fullName username email avatar birthDate"
+            "fullName username email avatar birthDate shareToken isShared"
         );
         if (!user) {
             return res.status(404).json({ error: "Usuario no encontrado" });
@@ -144,9 +145,78 @@ const deleteUser = async (req, res) => {
     }
 };
 
+const shareUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Solo el propietario puede compartir su perfil
+        if (req.user._id.toString() !== id) {
+            return res.status(403).json({ success: false, message: "No autorizado" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+
+        if (!user.shareToken) {
+            user.shareToken = crypto.randomBytes(16).toString("hex");
+        }
+        user.isShared = true;
+        await user.save();
+
+        res.json({ success: true, shareToken: user.shareToken });
+    } catch (err) {
+        console.error("Error sharing user:", err);
+        res.status(500).json({ success: false, message: "Error compartiendo perfil" });
+    }
+};
+
+const unshareUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (req.user._id.toString() !== id) {
+            return res.status(403).json({ success: false, message: "No autorizado" });
+        }
+
+        const user = await User.findById(id);
+        if (!user) return res.status(404).json({ success: false, message: "Usuario no encontrado" });
+
+        user.isShared = false;
+        // opcional: borrar token o mantener token (yo mantengo token, pero lo puedes nullear)
+        // user.shareToken = null;
+        await user.save();
+
+        res.json({ success: true, message: "Enlace desactivado" });
+    } catch (err) {
+        console.error("Error unsharing user:", err);
+        res.status(500).json({ success: false, message: "Error desactivando enlace" });
+    }
+};
+
+const getSharedUser = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const user = await User.findOne({ shareToken: token, isShared: true, active: true }).select(
+            "fullName username email avatar"
+        );
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Perfil no encontrado o enlace desactivado" });
+        }
+
+        res.json({ success: true, user });
+    } catch (err) {
+        console.error("Error getting shared user:", err);
+        res.status(500).json({ success: false, message: "Error cargando perfil compartido" });
+    }
+};
+
 module.exports = {
     getUserById,
     updateUser,
     deactivateUser,
     deleteUser,
+    shareUser,
+    unshareUser,
+    getSharedUser
 };

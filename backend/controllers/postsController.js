@@ -100,6 +100,15 @@ const createPost = async (req, res) => {
       images: images
     });
 
+    if (privacy === "public") {
+      newPost.isShared = true;
+      newPost.shareToken = crypto.randomBytes(16).toString("hex");
+    } else {
+      newPost.isShared = false;
+      newPost.shareToken = null;
+    }
+    // ---------------------------------
+
     const savedPost = await newPost.save();
 
     res.status(201).json({
@@ -244,6 +253,18 @@ const updatePost = async (req, res) => {
     if (privacy) updateData.privacy = privacy;
     if (categories) updateData.categories = Array.isArray(categories) ? categories : [categories];
 
+    // ---- AUTO SHARE POR CAMBIO DE PRIVACY ----
+    if (privacy) {
+      if (privacy === "public") {
+        updateData.isShared = true;
+        updateData.shareToken = post.shareToken || crypto.randomBytes(16).toString("hex");
+      } else {
+        updateData.isShared = false;
+        updateData.shareToken = null;
+      }
+    }
+    // ------------------------------------------
+
     let currentImages = post.images || [];
     let imagesToDelete = [];
 
@@ -353,9 +374,9 @@ const sharePost = async (req, res) => {
 
     // Verificar si el post es privado
     if (post.privacy === "private") {
-      return res.status(403).json({ 
-        success: false, 
-        message: "Private posts cannot be shared. Please change the post to public first." 
+      return res.status(403).json({
+        success: false,
+        message: "Private posts cannot be shared. Please change the post to public first."
       });
     }
 
@@ -405,9 +426,9 @@ const getSharedPost = async (req, res) => {
 
     // Verificar si el post es privado
     if (post.privacy === "private") {
-      return res.status(403).json({ 
-        success: false, 
-        message: "This post is private and cannot be shared" 
+      return res.status(403).json({
+        success: false,
+        message: "This post is private and cannot be shared"
       });
     }
 
@@ -429,6 +450,32 @@ const getSharedPost = async (req, res) => {
   } catch (error) {
     console.error("Error getting shared post:", error);
     res.status(500).json({ success: false, message: "Error loading shared post" });
+  }
+};
+
+const getPublicPostById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const post = await Post.findOne({ _id: id, privacy: 'public', active: true });
+    if (!post) return res.status(404).json({ success: false, message: "Post not found or not public" });
+
+    const sectionsInfo = await Section.find({
+      _id: { $in: post.categories },
+      active: true
+    }).select('title');
+
+    const commentCount = await Comment.countDocuments({ postId: post._id });
+
+    const postData = {
+      ...post.toObject(),
+      categories: sectionsInfo,
+      commentCount
+    };
+
+    res.json({ success: true, post: postData });
+  } catch (err) {
+    console.error("Error getting public post by id:", err);
+    res.status(500).json({ success: false, message: "Error loading public post" });
   }
 };
 
@@ -478,5 +525,6 @@ module.exports = {
   sharePost,
   unsharePost,
   getSharedPost,
-  togglePinPost
+  togglePinPost,
+  getPublicPostById
 };

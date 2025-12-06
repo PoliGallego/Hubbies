@@ -43,10 +43,20 @@ module.exports = {
                 items = "[]",
                 categories = "[]",
                 privacy = "private",
-                shareToken = null,
                 isShared = false,
                 comments = []
             } = req.body;
+
+            // FORZAR reglas como en posts
+            let finalIsShared = isShared;
+            let shareToken = null;
+
+            if (privacy === "private") {
+                finalIsShared = false;
+            } else if (privacy === "public") {
+                finalIsShared = true;
+                shareToken = crypto.randomBytes(16).toString('hex');
+            }
 
             // Parse items
             let parsedItems;
@@ -61,9 +71,9 @@ module.exports = {
                     ? categories.split(",")
                     : [];
             }
-
             parsedCategories = parsedCategories.filter(c => c && c.length);
 
+            // Procesar imágenes
             const files = req.files || [];
             const imagePaths = files.map(f => `/assets/uploads/${f.filename}`);
 
@@ -89,7 +99,7 @@ module.exports = {
                 images: imagePaths,
                 categories: parsedCategories,
                 privacy,
-                isShared,
+                isShared: finalIsShared,
                 comments
             };
 
@@ -194,7 +204,7 @@ module.exports = {
         try {
             const boardId = req.params.id;
             const userId = req.user?.id;
-            const { title, description, items = "[]", categories = "[]", privacy = "private" } = req.body;
+            const { title, description, items = "[]", categories = "[]", privacy } = req.body;
 
             // Parse items y categories
             let parsedItems;
@@ -217,6 +227,23 @@ module.exports = {
                 });
             }
 
+            // ------------------------------
+            // 🔥 MISMA LÓGICA QUE POSTS
+            // ------------------------------
+            let finalIsShared = currentBoard.isShared;
+            let finalShareToken = currentBoard.shareToken;
+
+            if (privacy) {
+                if (privacy === "private") {
+                    finalIsShared = false;
+                } else if (privacy === "public") {
+                    finalIsShared = true;
+                    if (!finalShareToken)
+                        finalShareToken = crypto.randomBytes(16).toString("hex");
+                }
+            }
+            // ------------------------------
+
             // Procesar nuevas imágenes
             const newImages = [];
             if (req.files && req.files.length > 0) {
@@ -225,11 +252,12 @@ module.exports = {
                 });
             }
 
-            // Reemplazar placeholders en items y normalizar rutas
+            // Reemplazar placeholders en items
             let fileCounter = 0;
             parsedItems = parsedItems.map(item => {
                 if (item.type === "image" && typeof item.content === "string") {
-                    // Reemplazar placeholders de nuevas imágenes
+
+                    // Placeholder
                     if (item.content.startsWith("__FILE_")) {
                         const m = item.content.match(/__FILE_(\d+)__/);
                         if (m) {
@@ -241,12 +269,11 @@ module.exports = {
                         }
                     }
 
-                    // ⚡ Normalizar URL con host completo
+                    // Normalizar
                     if (item.content.startsWith("http://localhost:5000")) {
                         item.content = item.content.replace("http://localhost:5000", "");
                     }
 
-                    // ⚡ Normalizar filenames puros
                     if (!item.content.startsWith("/")) {
                         item.content = `/assets/uploads/${item.content}`;
                     }
@@ -254,7 +281,7 @@ module.exports = {
                 return item;
             });
 
-            // Normalizar imágenes existentes en board.images y combinar con nuevas
+            // Normalizar imágenes existentes
             const existingImages = (currentBoard.images || []).map(img =>
                 img.startsWith("/assets/") || img.startsWith("http") ? img : `/assets/uploads/${img}`
             );
@@ -269,7 +296,9 @@ module.exports = {
                     items: parsedItems,
                     images: allImages,
                     categories: parsedCategories,
-                    privacy,
+                    privacy: privacy || currentBoard.privacy,
+                    isShared: finalIsShared,
+                    shareToken: finalShareToken,
                     updatedAt: Date.now()
                 },
                 { new: true }
@@ -279,15 +308,13 @@ module.exports = {
 
         } catch (err) {
             console.error("updateBoard error:", err);
-            console.error("Stack:", err.stack);
             res.status(500).json({
                 success: false,
                 message: "Error updating board",
                 error: err.message
             });
         }
-    },
-
+    }
 };
 
 module.exports.shareBoard = async (req, res) => {
@@ -358,7 +385,7 @@ module.exports.getSharedBoard = async (req, res) => {
 module.exports.togglePinBoard = async (req, res) => {
     try {
         const { id } = req.params;
-        const userId = req.user.id; 
+        const userId = req.user.id;
 
         const board = await Board.findOne({ _id: id, idUser: userId });
 
@@ -378,5 +405,31 @@ module.exports.togglePinBoard = async (req, res) => {
     } catch (error) {
         console.error("Error toggling pin board:", error);
         res.status(500).json({ success: false, message: "Error updating board" });
+    }
+};
+
+module.exports.getPublicBoards = async (req, res) => {
+    try {
+        const boards = await Board.find({ privacy: 'public', active: true }).sort({ createdAt: -1 });
+        // opcional: mapear commentCount, sections etc.
+        // para simplicidad devolverlos tal cual; frontend filtrará por idUser
+        res.json(boards);
+    } catch (err) {
+        console.error("getPublicBoards error:", err);
+        res.status(500).json({ success: false, message: "Error loading public boards" });
+    }
+};
+
+module.exports.getPublicBoardById = async (req, res) => {
+    try {
+        const boardId = req.params.id;
+        const board = await Board.findOne({ _id: boardId, privacy: 'public', active: true });
+        if (!board) return res.status(404).json({ success: false, message: "Board not found or not public" });
+
+        // puedes agregar commentCount, section titles, etc. si lo deseas
+        res.json({ success: true, board });
+    } catch (err) {
+        console.error("getPublicBoardById error:", err);
+        res.status(500).json({ success: false, message: "Error loading board" });
     }
 };

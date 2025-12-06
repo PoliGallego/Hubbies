@@ -737,8 +737,14 @@ function innitNavBar() {
       "li a[href*='configuracion.html']"
     );
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const profileToken = urlParams.get("token");
+    const isViewingSharedProfile = profileToken && !window.location.pathname.includes("configuracion.html");
+
+    // Solo ocultar "Profile" si estamos EN nuestro perfil privado (no compartido)
     if (
       window.location.pathname.includes("perfil-usuario.html") &&
+      !isViewingSharedProfile &&
       profileOption
     ) {
       profileOption.parentElement.style.display = "none";

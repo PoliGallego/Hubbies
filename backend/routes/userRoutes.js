@@ -5,6 +5,9 @@ const {
     updateUser,
     deactivateUser,
     deleteUser,
+    shareUser,       
+    unshareUser,     
+    getSharedUser
 } = require("../controllers/userController");
 const upload = require("../config/multer");
 
@@ -17,5 +20,11 @@ router.put("/:id/update", authMiddleware, upload.single("avatar"), updateUser);
 router.put("/:id/deactivate", authMiddleware, deactivateUser);
 
 router.delete("/:id", authMiddleware, deleteUser);
+
+router.post("/:id/share", authMiddleware, shareUser);
+
+router.post("/:id/unshare", authMiddleware, unshareUser);
+
+router.get("/shared/:token", getSharedUser);
 
 module.exports = router;

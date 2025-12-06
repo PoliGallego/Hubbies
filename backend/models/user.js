@@ -7,7 +7,9 @@ const UserSchema = new Mongoose.Schema({
   password: String,
   avatar: String,
   birthDate: Date,
-  active: { type: Boolean, default: true }   
+  active: { type: Boolean, default: true },
+  shareToken: { type: String, default: null },
+  isShared: { type: Boolean, default: false }
 },
   { timestamps: true }
 );
