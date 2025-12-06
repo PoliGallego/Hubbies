@@ -228,7 +228,6 @@ function filterBoardsByCat(boards) {
           board.categories &&
           board.categories.length > 0 &&
           filters.every((catTitle) => {
-            // Convertir IDs de categorías del board a títulos usando sectionsMap
             const boardCategoryTitles = board.categories.map(
               (catId) => window.sectionsMap?.[catId] || ""
             );

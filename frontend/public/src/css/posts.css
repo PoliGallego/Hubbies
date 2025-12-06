@@ -168,6 +168,7 @@ body {
     position: absolute;
     right: 0;
     top: 0;
+    border-bottom: 1px solid var(--border-primary);
 }
 
 .RightSidebar h3 {
@@ -313,7 +314,7 @@ body {
     top: -8px;
 }
 
-.NewCategoryInput {
+.NewCategoryInput, .newSectionInput {
     height: 40px;
     max-height: 40px;
     font-size: 0.95em;
@@ -3276,7 +3277,7 @@ RECENT COMMENTS STYLES
 
 
 /* Better styling for New Category Input */
-.NewCategoryInput {
+.NewCategoryInput, .newSectionInput {
     width: 100%;
     height: 40px;
     max-height: 40px;
@@ -3291,12 +3292,12 @@ RECENT COMMENTS STYLES
     outline: none;
 }
 
-.NewCategoryInput:focus {
+.NewCategoryInput:focus, .newSectionInput:focus {
     border-color: var(--accent-primary);
     box-shadow: 0 0 0 3px rgba(139, 90, 60, 0.1);
 }
 
-.NewCategoryInput::placeholder {
+.NewCategoryInput::placeholder, .newSectionInput::placeholder {
     color: var(--text-secondary);
     opacity: 0.6;
 }
@@ -3918,11 +3919,11 @@ RECENT COMMENTS STYLES
     .ShareModalContent {
         padding: 30px 20px !important;
     }
-    
+
     .ShareModalTitle {
         font-size: 20px;
     }
-    
+
     .ShareCopyText {
         display: none;
     }

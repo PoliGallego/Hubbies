@@ -204,32 +204,91 @@ function createSectionCard(section) {
 
   deleteBtn.addEventListener("click", function (e) {
     e.preventDefault();
+
+    // CORRECCIÓN 3: Verificar si la categoría está en los filtros activos
+    const catList = document.querySelector(".Categories .SectionContent > ul");
+    const currentFilters = catList ? JSON.parse(catList.dataset.filters || "[]") : [];
+
+    if (currentFilters.includes(section.title)) {
+      if (typeof Swal !== "undefined") {
+        Swal.fire({
+          icon: "warning",
+          title: "Cannot Delete",
+          text: "This category is currently selected in the filters. Remove it from filters first."
+        });
+      } else {
+        alert("This category is currently selected in the filters. Remove it from filters first.");
+      }
+      return;
+    }
+
+    // Proceder con la eliminación
     fetch("/api/sections/" + section._id, {
       method: "DELETE",
       headers: { "Content-Type": "application/json" },
     })
       .then((res) => {
-        if (!res.ok) throw new Error("Error deleting section");
+        if (!res.ok) return res.json().then(err => Promise.reject(err));
         return res.json();
       })
       .then((data) => {
         console.log("Section deleted:", data);
         newLi.remove();
+        if (typeof Swal !== "undefined") {
+          Swal.fire({
+            icon: "success",
+            title: "Deleted!",
+            text: "Category deleted successfully",
+            timer: 1500,
+            showConfirmButton: false
+          });
+        }
       })
       .catch((err) => {
         console.error("Error deleting section:", err);
+        if (typeof Swal !== "undefined") {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: err.error || "Error deleting category"
+          });
+        } else {
+          alert("Error: " + (err.error || "Error deleting category"));
+        }
       });
-    console.log("Delete section:", section.title);
   });
 
   editBtn.addEventListener("click", function (e) {
     e.preventDefault();
+
+    // Verificar si ya hay un input de edición activo en esta categoría
+    const existingInput = newLi.querySelector(".NewCategoryInput");
+    if (existingInput) {
+      // Si existe input, cancelar la edición
+      const categoryName = section.title;
+      const newA = document.createElement("a");
+      newA.href = "/src/html/posts.html";
+      newA.textContent = categoryName;
+
+      newLi.querySelector(".CategoriesRow").replaceChild(newA, existingInput);
+      newLi.dataset.editingInput = "false";
+      delete newLi.dataset.originalName;
+      console.log("Edición cancelada para:", categoryName);
+      return;
+    }
+
+    // Si no hay input activo, crear uno nuevo
     const input = document.createElement("input");
     input.type = "text";
     input.placeholder = "Update category title";
     input.value = section.title;
-    input.className = "NewSectionInput";
+    input.className = "NewCategoryInput"; // Mismo estilo que crear
     input.autofocus = true;
+
+    // Guardar referencia del input en la tarjeta para poder cancelarlo luego
+    newLi.dataset.editingInput = "true";
+    newLi.dataset.originalName = section.title;
+
     newLi
       .querySelector(".CategoriesRow")
       .replaceChild(input, newLi.querySelector("a"));
@@ -238,13 +297,43 @@ function createSectionCard(section) {
     input.addEventListener("keydown", function (e) {
       const categoryName = input.value.trim();
       const newA = document.createElement("a");
-      newA.href = "#";
+      newA.href = "/src/html/posts.html";
+      newA.textContent = section.title;
 
       if (
         e.key === "Enter" &&
         categoryName !== "" &&
         categoryName !== section.title
       ) {
+
+        // Validar longitud
+        if (categoryName.length > 20) {
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "warning",
+              title: "Name too long",
+              text: "Section name must not exceed 20 characters",
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } 
+          return;
+        }
+
+        // Validar que no sea muy corto
+        if (categoryName.length < 3) {
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "warning",
+              title: "Name too short",
+              text: "Section name must be at least 3 characters",
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } 
+          return;
+        }
+
         fetch("/api/sections/update", {
           method: "PUT",
           body: JSON.stringify({
@@ -259,21 +348,55 @@ function createSectionCard(section) {
           },
         })
           .then((res) => {
-            if (!res.ok) throw new Error("Error creating category");
+            if (!res.ok) return res.json().then(err => Promise.reject(err));
             return res.json();
           })
           .then((data) => {
             console.log("Section updated:", data);
             newA.textContent = data.section.title;
             newLi.querySelector(".CategoriesRow").replaceChild(newA, input);
+            newLi.dataset.editingInput = "false";
             section.title = data.section.title;
+            filterAll();
+
+            // Éxito con SweetAlert
+            if (typeof Swal !== "undefined") {
+              Swal.fire({
+                icon: "success",
+                title: "Updated!",
+                text: "Category updated successfully",
+                timer: 1500,
+                showConfirmButton: false
+              });
+            }
           })
           .catch((err) => {
             console.error("Error updating category:", err);
+
+            // Mostrar error con SweetAlert
+            if (typeof Swal !== "undefined") {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: err.error || "Error updating category"
+              });
+            } else {
+              alert("Error: " + (err.error || "Error updating category"));
+            }
+
+            // Volver a mostrar el input para reintentar
+            newLi.querySelector(".CategoriesRow").replaceChild(input, newA);
+            input.focus();
           });
-      } else if (e.key === "Escape" || e.key === "Enter") {
+      } else if (e.key === "Escape") {
         newA.textContent = section.title;
         newLi.querySelector(".CategoriesRow").replaceChild(newA, input);
+        newLi.dataset.editingInput = "false";
+      } else if (e.key === "Enter" && categoryName === "") {
+        // Si presiona Enter sin contenido, cancelar
+        newA.textContent = section.title;
+        newLi.querySelector(".CategoriesRow").replaceChild(newA, input);
+        newLi.dataset.editingInput = "false";
       }
     });
   });
@@ -289,6 +412,7 @@ function innitCategories() {
   const viewMoreBtn = document.querySelector(".Categories .SectionContent .ViewMoreButton");
   let expanded = false;
   let editMode = false;
+  let viewMoreListener = null; // Guardar referencia del listener
 
   // Toggle edit mode for categories
   EditCategoriesBtn?.addEventListener("click", () => {
@@ -300,6 +424,31 @@ function innitCategories() {
       icon.style.display = editMode ? "flex" : "none";
       console.log("Setting display to:", editMode ? "flex" : "none");
     });
+
+    // Si se desactiva el modo edición, cancelar cualquier edición en curso
+    if (!editMode) {
+      const categoryList = document.querySelector(".Categories .SectionContent > ul");
+      if (categoryList) {
+        const editingItems = categoryList.querySelectorAll("[data-editing-input='true']");
+        editingItems.forEach(item => {
+          const input = item.querySelector(".NewCategoryInput");
+          if (input) {
+            // Obtener el nombre original del atributo data que guardamos
+            const originalName = item.dataset.originalName || input.value;
+            const newA = document.createElement("a");
+            newA.href = "/src/html/posts.html";
+            newA.textContent = originalName;
+
+            const categoriesRow = item.querySelector(".CategoriesRow");
+            categoriesRow.replaceChild(newA, input);
+            item.dataset.editingInput = "false";
+            delete item.dataset.originalName; // Limpiar el atributo
+
+            console.log("Cancelada edición en curso para:", originalName);
+          }
+        });
+      }
+    }
 
     // Change button appearance
     if (editMode) {
@@ -325,12 +474,18 @@ function innitCategories() {
           }
         } else {
           noCategoriesMsg.style.display = "none";
+          
+          // Invertir el array para mostrar los más recientes primero
+          data.reverse();
+          
+          // Crear los elementos con appendChild
           for (let index = 0; index < data.length; index++) {
             const li = createSectionCard(data[index]);
-            if (data.length - index >= 7) {
+            // Los primeros 6 items (índices 0-5) se muestran, a partir del 6 se ocultan
+            if (index >= 4) {
               li.classList.add("ExtraItem");
             }
-            categoriesList.prepend(li);
+            categoriesList.appendChild(li);
           }
           const extraItems = document.querySelectorAll(
             ".Categories .SectionContent .ExtraItem"
@@ -341,19 +496,29 @@ function innitCategories() {
               viewMoreBtn.style.display = "none";
             } else {
               viewMoreBtn.style.display = "flex";
+              
+              // Remover listener anterior si existe
+              if (viewMoreListener) {
+                viewMoreBtn.removeEventListener("click", viewMoreListener);
+              }
+              
+              // Crear nuevo listener
+              viewMoreListener = function () {
+                expanded = !expanded;
+                extraItems.forEach(function (item) {
+                  item.setAttribute("class", expanded ? "" : "ExtraItem");
+                });
+                viewMoreBtn.querySelector("span").textContent = expanded
+                  ? "expand_less"
+                  : "expand_more";
+                viewMoreBtn.childNodes[0].textContent = expanded
+                  ? "View less"
+                  : "View more";
+              };
+              
+              // Agregar nuevo listener
+              viewMoreBtn.addEventListener("click", viewMoreListener);
             }
-            viewMoreBtn.addEventListener("click", function () {
-              expanded = !expanded;
-              extraItems.forEach(function (item) {
-                item.setAttribute("class", expanded ? "" : "ExtraItem");
-              });
-              viewMoreBtn.querySelector("span").textContent = expanded
-                ? "expand_less"
-                : "expand_more";
-              viewMoreBtn.childNodes[0].textContent = expanded
-                ? "View less"
-                : "View more";
-            });
           }
         }
         document.dispatchEvent(new CustomEvent("categories:ready"));
@@ -384,38 +549,89 @@ function innitCategories() {
 
     input.addEventListener("keydown", function (e) {
       if (e.key === "Enter" && input.value.trim() !== "") {
-        if (input.value.trim().length > 2) {
-          const categoryName = input.value.trim();
+        const trimmedValue = input.value.trim();
 
-          fetch("/api/sections/create", {
-            method: "POST",
-            body: JSON.stringify({
-              title: categoryName,
-              idUser: payload?.id,
-              type: "category",
-              privacy: "private",
-            }),
-            headers: {
-              "Content-Type": "application/json",
-            },
-          })
-            .then((res) => {
-              if (!res.ok) throw new Error("Error creating category");
-              return res.json();
-            })
-            .then((data) => {
-              console.log("Section created:", data);
-              const newLi = createSectionCard(data.section);
-              categoriesList.replaceChild(newLi, li);
-              noCategoriesMsg.style.display = "none";
-            })
-            .catch((err) => {
-              console.error("Error creating category:", err);
-              categoriesList.removeChild(li);
+        // CORRECCIÓN 1: Validar longitud máxima PRIMERO
+        if (trimmedValue.length > 20) {
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "warning",
+              title: "Name too long",
+              text: "Section name must not exceed 20 characters",
+              timer: 2000,
+              showConfirmButton: false
             });
-        } else {
-          alert("Section name too short");
+          } 
+          return;
         }
+
+        // CORRECCIÓN 1: Validar longitud MÍNIMA ANTES de enviar
+        if (trimmedValue.length < 3) {
+          if (typeof Swal !== "undefined") {
+            Swal.fire({
+              icon: "warning",
+              title: "Name too short",
+              text: "Section name must be at least 3 characters",
+              timer: 2000,
+              showConfirmButton: false
+            });
+          } 
+          return;
+        }
+
+        const categoryName = trimmedValue;
+
+        fetch("/api/sections/create", {
+          method: "POST",
+          body: JSON.stringify({
+            title: categoryName,
+            idUser: payload?.id,
+            type: "category",
+            privacy: "private",
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            if (!res.ok) return res.json().then(err => Promise.reject(err));
+            return res.json();
+          })
+          .then((data) => {
+            console.log("Section created:", data);
+            const newLi = createSectionCard(data.section);
+
+            // CORRECCIÓN: Mostrar botones de edición si estamos en modo edición
+            const actionIcons = newLi.querySelector(".category-actions");
+            if (actionIcons && editMode) {
+              actionIcons.style.display = "flex";
+            }
+
+            categoriesList.replaceChild(newLi, li);
+            noCategoriesMsg.style.display = "none";
+            if (typeof Swal !== "undefined") {
+              Swal.fire({
+                icon: "success",
+                title: "Created!",
+                text: "Category created successfully",
+                timer: 1500,
+                showConfirmButton: false
+              });
+            }
+          })
+          .catch((err) => {
+            console.error("Error creating category:", err);
+            categoriesList.removeChild(li);
+            if (typeof Swal !== "undefined") {
+              Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: err.error || "Error creating category"
+              });
+            } else {
+              alert("Error: " + (err.error || "Error creating category"));
+            }
+          });
       } else if (e.key === "Escape") {
         categoriesList.removeChild(li);
       }

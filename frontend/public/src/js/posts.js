@@ -311,7 +311,7 @@ function createPostHTML(post) {
     <div class="Publication" data-post-id="${post._id}" id="${post._id}">
       <article class="ContentCard">
         <div class="CardHeader">
-          <h2 class="PostTitleReadOnly">"${post.title}"</h2>
+          <h2 class="PostTitleReadOnly">${post.title}</h2>
           <div class="CardControls">
             <button class="toggle-privacy-btn PrivacyDisplay ${privacyClass}" 
                     data-post-id="${post._id}"
