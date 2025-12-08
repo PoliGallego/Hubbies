@@ -110,16 +110,23 @@ const loginUser = async (req, res) => {
 
 const requestPasswordReset = async (req, res) => {
     try {
-        const { email } = req.body;
+        const { data } = req.body;
 
-        if (!email) {
+        if (!data) {
             return res.status(400).json({
                 success: false,
-                message: "Email is required"
+                message: "Information is required"
             });
         }
-
-        const user = await User.findOne({ email: email.toLowerCase() });
+        
+        let user;
+        console.log(data);
+        if (!data.includes("@") ) {
+          user = await User.findOne({ username: data });
+          console.log(user);
+        } else {
+          user = await User.findOne({ email: data.toLowerCase() });
+        }
 
         if (!user) {
             // Por seguridad, siempre responder éxito
