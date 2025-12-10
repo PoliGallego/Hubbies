@@ -84,7 +84,24 @@ document.addEventListener("DOMContentLoaded", () => {
     Modal.style.display = "none";
   };
 
-  const showAlert = (result) => {
+  const showAlert = (result, isRegistration = false) => {
+    // Caso especial: registro exitoso que requiere verificación
+    if (isRegistration && result.requiresVerification) {
+      Swal.fire({
+        icon: "success",
+        title: "Account Created!",
+        html: `
+          <p>Please check your email <strong>${result.email}</strong></p>
+          <p>Click the verification link to activate your account.</p>
+        `,
+        confirmButtonText: "OK",
+        allowOutsideClick: false
+      }).then(() => {
+        CloseModal();
+      });
+      return;
+    }
+
     if (result.message) {
       Swal.fire({
         icon: "success",
@@ -98,7 +115,8 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/src/html/posts.html";
       });
     } else {
-      Swal.fire({
+      // Error general
+      const errorConfig = {
         icon: "error",
         title: "Error",
         text: result.error,
@@ -106,7 +124,70 @@ document.addEventListener("DOMContentLoaded", () => {
         position: "top-end",
         timer: 3000,
         showConfirmButton: false,
+      };
+
+      // Si el error es de verificación, mostrar opción de reenviar
+      if (result.requiresVerification) {
+        errorConfig.toast = false;
+        errorConfig.position = "center";
+        errorConfig.timer = null;
+        errorConfig.showConfirmButton = true;
+        errorConfig.showCancelButton = true;
+        errorConfig.confirmButtonText = "Resend Email";
+        errorConfig.cancelButtonText = "OK";
+        errorConfig.html = `
+          <p>${result.error}</p>
+          <p style="margin-top: 10px; font-size: 14px; color: #666;">
+            Check your email: <strong>${result.email}</strong>
+          </p>
+        `;
+
+        Swal.fire(errorConfig).then((res) => {
+          if (res.isConfirmed && result.email) {
+            resendVerificationEmail(result.email);
+          }
+        });
+        return;
+      }
+
+      Swal.fire(errorConfig);
+    }
+  };
+
+  const resendVerificationEmail = async (email) => {
+    Swal.fire({
+      title: 'Sending...',
+      text: 'Please wait',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      }
+    });
+
+    try {
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email: email })
       });
+
+      const data = await response.json();
+
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Email Sent!',
+          text: 'Please check your email for the verification link',
+          confirmButtonText: 'OK'
+        });
+      } else {
+        Swal.fire('Error', data.message || 'Could not send email', 'error');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      Swal.fire('Error', 'Could not send verification email', 'error');
     }
   };
 
@@ -178,8 +259,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const result = await res.json();
         console.log("✅ Registro:", result);
-        showAlert(result);
-        CloseModal();
+        showAlert(result, true); // Indicar que es registro
+        if (!result.requiresVerification) {
+          CloseModal();
+        }
       } else {
         const data = {
           username: document.getElementById("LoginUser").value,

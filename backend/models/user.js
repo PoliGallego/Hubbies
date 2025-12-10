@@ -9,7 +9,8 @@ const UserSchema = new Mongoose.Schema({
   birthDate: Date,
   active: { type: Boolean, default: true },
   shareToken: { type: String, default: null },
-  isShared: { type: Boolean, default: false }
+  isShared: { type: Boolean, default: false },
+  isVerified: { type: Boolean, default: false }
 },
   { timestamps: true }
 );
