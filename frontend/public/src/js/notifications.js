@@ -51,9 +51,16 @@ function renderNotifications(notifications) {
             'Someone';
         const postTitle = notification.postId?.title || notification.boardId?.title || 'your content';
         const timeAgo = getTimeAgo(notification.createdAt);
+        const postId = notification.postId?._id || '';
+        const boardId = notification.boardId?._id || '';
 
         return `
-            <div class="Notification ${isRead ? 'read' : 'unread'}" data-notification-id="${notification._id}">
+            <div class="Notification ${isRead ? 'read' : 'unread'}" 
+                 data-notification-id="${notification._id}"
+                 data-post-id="${postId}"
+                 data-board-id="${boardId}"
+                 onclick="handleNotificationClick('${notification._id}', '${postId}', '${boardId}')"
+                 style="cursor: pointer;">
                 <div class="NotificationContent">
                     <div class="NotificationHeader">
                         <span class="NotificationAuthor">${escapeHtml(authorName)}</span>
@@ -62,7 +69,7 @@ function renderNotifications(notifications) {
                     <p class="NotificationMessage">${escapeHtml(notification.message)}</p>
                     <p class="NotificationPost">on "${escapeHtml(truncateText(postTitle, 40))}"</p>
                 </div>
-                <button class="NotificationClose" onclick="markNotificationAsRead('${notification._id}')" title="Mark as read">
+                <button class="NotificationClose" onclick="event.stopPropagation(); markNotificationAsRead('${notification._id}')" title="Mark as read">
                     <span class="material-icons">close</span>
                 </button>
             </div>
@@ -70,6 +77,57 @@ function renderNotifications(notifications) {
     }).join('');
 
     notificationsContainer.innerHTML = notificationsHTML;
+}
+
+// Manejar click en notificación para ir al post
+async function handleNotificationClick(notificationId, postId, boardId) {
+    // Marcar como leída
+    await markNotificationAsRead(notificationId);
+
+    // Cerrar modal
+    const modal = document.getElementById('NotifModal');
+    if (modal) modal.style.display = 'none';
+
+    // Navegar al post/board
+    if (postId) {
+        const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
+        if (postsToggle) postsToggle.checked = true;
+
+        if (typeof loadUserPosts === 'function') {
+            await loadUserPosts();
+        }
+
+        setTimeout(() => {
+            const postElement = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+            if (postElement) {
+                postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    if (typeof toggleCommentBox === 'function') {
+                        toggleCommentBox(postId);
+                    }
+                }, 500);
+            }
+        }, 300);
+    } else if (boardId) {
+        const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
+        if (boardsToggle) boardsToggle.checked = true;
+
+        if (typeof loadUserBoards === 'function') {
+            await loadUserBoards();
+        }
+
+        setTimeout(() => {
+            const boardElement = document.querySelector(`.Publication[data-board-id="${boardId}"]`);
+            if (boardElement) {
+                boardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    if (typeof toggleBoardCommentBox === 'function') {
+                        toggleBoardCommentBox(boardId);
+                    }
+                }, 500);
+            }
+        }, 300);
+    }
 }
 
 // Marcar notificación como leída

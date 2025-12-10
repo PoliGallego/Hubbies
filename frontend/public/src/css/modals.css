@@ -269,7 +269,7 @@ li .Mode span {
 .NotifModal {
   background-color: rgba(0, 0, 0, 0);
   justify-content: right;
-  align-items: center;
+  align-items: flex-start;
   display: none;
 }
 
@@ -278,24 +278,74 @@ li .Mode span {
   flex-direction: column;
   position: absolute;
   background-color: var(--bg-secondary);
-  padding: 15px;
+  padding: 16px;
   gap: 8px;
   width: 350px;
-  max-height: 400px;
+  max-height: 500px;
   overflow-y: auto;
-  border-radius: 12px;
-  box-shadow: var(--shadow-lg);
+  overflow-x: hidden;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-primary);
   transition: background-color 0.3s ease;
+}
+
+/* Scrollbar styling - Overlay style */
+.Notifications::-webkit-scrollbar {
+  width: 8px;
+}
+
+.Notifications::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.Notifications::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.Notifications::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] .Notifications::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+[data-theme="dark"] .Notifications::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 .Notification {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
   background-color: var(--bg-accent);
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid var(--border-primary);
-  transition: all 0.3s ease;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  position: relative;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.Notification:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  background-color: var(--bg-soft);
+  border-color: var(--border-primary);
 }
 
 .Notification p,

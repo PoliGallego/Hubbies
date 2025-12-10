@@ -39,10 +39,53 @@ function showToast(notification) {
         </button>
     `;
 
-    // Click en el toast para abrir notificaciones
-    toast.addEventListener('click', (e) => {
+    // Click en el toast para ir al post y abrir comentarios
+    toast.addEventListener('click', async (e) => {
         if (!e.target.closest('.ToastClose')) {
-            OpenModal('Notif');
+            const postId = notification.postId?._id;
+            const boardId = notification.boardId?._id;
+
+            if (postId) {
+                // Ir a vista de posts
+                const postsToggle = document.querySelector('input[name="feedView"][value="posts"]');
+                if (postsToggle) postsToggle.checked = true;
+
+                if (typeof loadUserPosts === 'function') {
+                    await loadUserPosts();
+                }
+
+                setTimeout(() => {
+                    const postElement = document.querySelector(`.Publication[data-post-id="${postId}"]`);
+                    if (postElement) {
+                        postElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            if (typeof toggleCommentBox === 'function') {
+                                toggleCommentBox(postId);
+                            }
+                        }, 500);
+                    }
+                }, 300);
+            } else if (boardId) {
+                const boardsToggle = document.querySelector('input[name="feedView"][value="boards"]');
+                if (boardsToggle) boardsToggle.checked = true;
+
+                if (typeof loadUserBoards === 'function') {
+                    await loadUserBoards();
+                }
+
+                setTimeout(() => {
+                    const boardElement = document.querySelector(`.Publication[data-board-id="${boardId}"]`);
+                    if (boardElement) {
+                        boardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => {
+                            if (typeof toggleBoardCommentBox === 'function') {
+                                toggleBoardCommentBox(boardId);
+                            }
+                        }, 500);
+                    }
+                }, 300);
+            }
+
             closeToast(toast.querySelector('.ToastClose'));
         }
     });
