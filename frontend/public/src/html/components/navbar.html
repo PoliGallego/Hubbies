@@ -9,12 +9,15 @@
         </div>
     </div>
     <div class="HeaderRight">
-        <button class="IconButton" id="NotifBtn" onclick="OpenModal('Notif')"><span
-                class="material-icons">notifications</span></button>
+        <button class="IconButton" id="NotifBtn" onclick="OpenModal('Notif')" style="position: relative;">
+            <span class="material-icons">notifications</span>
+            <span id="NotificationBadge" class="NotificationBadge"></span>
+        </button>
         <button class="IconButton" id="OptionsBtn" onclick="OpenModal('Options')">
             <img class="UserAvatar" alt="Avatar de usuario">
         </button>
-        <a href="/src/html/index.html" class="PrimaryBtn" id="StartHereBtn" style="display: none; text-decoration: none; padding: 8px 16px; border-radius: 5px;">
+        <a href="/src/html/index.html" class="PrimaryBtn" id="StartHereBtn"
+            style="display: none; text-decoration: none; padding: 8px 16px; border-radius: 5px;">
             Start Here
         </a>
     </div>
@@ -44,20 +47,6 @@
 
 <div id="NotifModal" class="ModalOverlay NotifModal">
     <div class="Notifications">
-
-        <div class="Notification">
-            <div>
-                <h4>Notification</h4><span class="material-icons">close</span>
-            </div>
-            <p>Description</p>
-        </div>
-
-        <div class="Notification">
-            <div>
-                <h4>Notification</h4><span class="material-icons">close</span>
-            </div>
-            <p>Description</p>
-        </div>
-
+        <!-- Notifications will be loaded dynamically by notifications.js -->
     </div>
 </div>

@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/src/css/posts.css">
     <link rel="stylesheet" href="/src/css/modals.css">
+    <link rel="stylesheet" href="/src/css/toast.css">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 
@@ -273,11 +274,11 @@
     <div id="ShareModal" class="ModalOverlay" style="display: none;">
         <div class="ModalContent ShareModalContent">
             <button class="CloseButton ShareModalClose" onclick="closeShareModal()">×</button>
-            
+
             <div class="ShareModalIcon">
                 <span class="material-icons">share</span>
             </div>
-            
+
             <h2 class="ShareModalTitle" id="shareModalTitle">Share Post</h2>
             <p class="ShareModalDescription" id="shareModalDescription">
                 Anyone with this link can view this post.
@@ -301,6 +302,8 @@
     </div>
 
     <script src="/src/js/modals.js"></script>
+    <script src="/src/js/notifications.js"></script>
+    <script src="/src/js/toast.js"></script>
     <script src="/src/js/script.js"></script>
     <script src="/src/js/comments.js"></script>
     <script src="/src/js/posts.js" defer></script>

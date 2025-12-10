@@ -278,11 +278,12 @@ li .Mode span {
   flex-direction: column;
   position: absolute;
   background-color: var(--bg-secondary);
-  padding: 20px;
-  gap: 10px;
-  min-width: 400px;
-  min-height: 600px;
-  border-radius: 15px;
+  padding: 15px;
+  gap: 8px;
+  width: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 12px;
   box-shadow: var(--shadow-lg);
   transition: background-color 0.3s ease;
 }
@@ -319,26 +320,24 @@ h4 {
 }
 
 .OptionsModal {
-  background-color: rgba(
-    0,
-    0,
-    0,
-    0.4
-  ); 
-  justify-content: flex-end; 
-  align-items: flex-start; 
+  background-color: rgba(0,
+      0,
+      0,
+      0.4);
+  justify-content: flex-end;
+  align-items: flex-start;
   display: none;
   z-index: 9000;
 }
 
 .Options {
-  position: absolute; 
-  top: 60px;                 
-  right: 20px;  
+  position: absolute;
+  top: 60px;
+  right: 20px;
   width: 350px;
   max-width: 90%;
   background-color: var(--bg-secondary);
-  border-radius: 12px; 
+  border-radius: 12px;
   padding: 20px;
   box-shadow: var(--shadow-lg);
   display: flex;
@@ -382,6 +381,7 @@ h4 {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -441,4 +441,123 @@ h4 {
   font-weight: bold;
   color: var(--text-primary);
   transition: color 0.3s ease;
+}
+
+/* Notification Badge - Blue Dot */
+.NotificationBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #2196F3;
+  color: transparent;
+  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  display: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  border: 2px solid var(--bg-secondary);
+  z-index: 10;
+}
+
+/* Enhanced Notification Styles */
+.NoNotifications {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.Notification {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background-color: var(--bg-accent);
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
+  position: relative;
+  gap: 8px;
+}
+
+.Notification.unread {
+  background-color: #fff3e0;
+  border-left: 4px solid var(--accent-primary);
+}
+
+[data-theme="dark"] .Notification.unread {
+  background-color: #2d2416;
+  border-left: 4px solid var(--accent-primary);
+}
+
+.Notification.read {
+  opacity: 0.7;
+}
+
+.Notification:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-md);
+}
+
+.NotificationContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.NotificationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.NotificationAuthor {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+.NotificationTime {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.NotificationMessage {
+  font-size: 13px;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.NotificationPost {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin: 0;
+  font-style: italic;
+}
+
+.NotificationClose {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+}
+
+.NotificationClose:hover {
+  background-color: var(--bg-soft);
+  color: var(--text-primary);
+}
+
+.NotificationClose .material-icons {
+  font-size: 18px;
 }

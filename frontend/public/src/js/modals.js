@@ -7,6 +7,11 @@ function OpenModal(Type) {
     Modal = document.getElementById("NotifModal");
     NotifDiv.style.top = NotifBtn.bottom + "px";
     NotifDiv.style.right = "120px";
+
+    // Cargar notificaciones al abrir el modal
+    if (typeof loadNotifications === 'function') {
+      loadNotifications();
+    }
   } else if (Type === "Options") {
     Modal = document.getElementById("OptionsModal");
   }

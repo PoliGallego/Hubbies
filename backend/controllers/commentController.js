@@ -1,4 +1,7 @@
 const Comment = require('../models/comment');
+const Notification = require('../models/notification');
+const Post = require('../models/post');
+const Board = require('../models/boards');
 
 exports.createComment = async (req, res) => {
     try {
@@ -14,6 +17,20 @@ exports.createComment = async (req, res) => {
         await newComment.save();
 
         await newComment.populate('userId', 'username fullName email avatar');
+
+        // Crear notificación para el dueño del post (si no es el mismo usuario)
+        const post = await Post.findById(postId);
+        if (post && post.idUser !== userId) {
+            const notification = new Notification({
+                userId: post.idUser,
+                type: 'comment_on_post',
+                message: `${req.user.fullName || req.user.username} commented on your post`,
+                postId: postId,
+                commentId: newComment._id,
+                commentAuthorId: userId
+            });
+            await notification.save();
+        }
 
         res.status(201).json({
             success: true,
@@ -121,6 +138,20 @@ exports.createCommentForBoard = async (req, res) => {
 
         await newComment.save();
         await newComment.populate('userId', 'username fullName email avatar');
+
+        // Crear notificación para el dueño del board (si no es el mismo usuario)
+        const board = await Board.findById(boardId);
+        if (board && board.idUser !== userId) {
+            const notification = new Notification({
+                userId: board.idUser,
+                type: 'comment_on_board',
+                message: `${req.user.fullName || req.user.username} commented on your board`,
+                boardId: boardId,
+                commentId: newComment._id,
+                commentAuthorId: userId
+            });
+            await notification.save();
+        }
 
         res.status(201).json({
             success: true,

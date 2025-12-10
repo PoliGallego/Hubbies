@@ -9,6 +9,7 @@ const userRoutes = require("./routes/userRoutes");
 const sectionRoutes = require("./routes/sectionRoutes");
 const commentRoutes = require('./routes/commentRoutes');
 const boardRoutes = require('./routes/boardsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use("/api/users", userRoutes);
 app.use('/api', commentRoutes);
 app.use("/api/sections", sectionRoutes);
 app.use("/api/boards", boardRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 const PORT = 5000;
 app.listen(PORT, () =>
